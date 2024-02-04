@@ -1,0 +1,111 @@
+LOADIMPORT "script/std.sae"
+
+~  __  __  ___  ___ ___ ___ ___  _  _
+~ |  \/  |/ _ \| _ | _ |_ _/ _ \| \| |
+~ | |\/| | (_) |   |  _/| | (_) | .` |
+~ |_|  |_|\___/|_|_|_| |___\___/|_|\_|
+~ With SOARE
+
+FUNCTION main() {
+
+	$SQUARE ALLOC(9);
+	$GAME 0
+
+	FUNCTION init() {
+		$player1;
+		$player2;
+		
+		PUTS ""
+		PUTS "  __  __  ___  ___ ___ ___ ___  _  _ "
+		PUTS " |  \/  |/ _ \| _ | _ |_ _/ _ \| \| |"
+		PUTS " | |\/| | (_) |   |  _/| | (_) | .` |"
+		PUTS " |_|  |_|\___/|_|_|_| |___\___/|_|\_|"
+		PUTS ""
+		
+		PUTS "Player (1) :";
+		PROMPT player1;
+		PUTS "Player (2) :";
+		PROMPT player2;
+		PUTS "Hello " + player1 + " & " + player2;
+		GLOBAL player1 player2;
+		
+		$GAME 1;
+	}
+	
+	FUNCTION update(_Case _Player) {
+	
+		FUNCTION PLAYER_BY_LETTER(_Letter) {
+			IF _Letter = 'o' {
+				RETURN player1;
+			} RETURN player2;
+		}
+		
+		FUNCTION VICTORY() {
+			IF 0 {
+			ELSE SQUARE[0] ! "" & SQUARE[0] = SQUARE[1] & SQUARE[0] = SQUARE[2] RETURN 1;
+			ELSE SQUARE[3] ! "" & SQUARE[3] = SQUARE[4] & SQUARE[3] = SQUARE[5] RETURN 1;
+			ELSE SQUARE[6] ! "" & SQUARE[6] = SQUARE[7] & SQUARE[6] = SQUARE[8] RETURN 1;
+			
+			ELSE SQUARE[0] ! "" & SQUARE[0] = SQUARE[3] & SQUARE[0] = SQUARE[6] RETURN 1;
+			ELSE SQUARE[1] ! "" & SQUARE[1] = SQUARE[4] & SQUARE[1] = SQUARE[7] RETURN 1;
+			ELSE SQUARE[2] ! "" & SQUARE[2] = SQUARE[5] & SQUARE[2] = SQUARE[8] RETURN 1;
+						
+			ELSE SQUARE[2] ! "" & SQUARE[2] = SQUARE[4] & SQUARE[2] = SQUARE[6] RETURN 1;
+			ELSE SQUARE[0] ! "" & SQUARE[0] = SQUARE[4] & SQUARE[0] = SQUARE[8] RETURN 1;
+			
+			ELSE RETURN 0;
+			}
+		}
+		
+		if NaN(_Case) | Math(_Case < 1 | _Case > 9) {
+			PUTS "Err: Number >0 and <10 is required";
+			RETURN 0;
+		ELSE SQUARE[_Case - 1] ! "";
+			PUTS "Err: You can't place this here";
+			RETURN 0;
+		}
+		
+		$SQUARE[_Case - 1] _Player;
+		
+		IF VICTORY() {
+			PUTS "=========================";
+			PUTS PLAYER_BY_LETTER(_Player) + " win!";
+			
+			$GAME 0;
+		} RETURN 1;
+	}
+	
+	FUNCTION loop() {
+		$p "x";
+		
+		FUNCTION square_puts() {
+			PUTS "" + SQUARE[0] + " | "  + SQUARE[1] + " | " + SQUARE[2];
+			PUTS "---+---+---";
+			PUTS "" + SQUARE[3] + " | " + SQUARE[4] +  " | " + SQUARE[5];
+			PUTS "---+---+---";
+			PUTS "" + SQUARE[6] + " | " + SQUARE[7] +  " | " + SQUARE[8];			
+		}
+		
+		WHILE GAME {
+			$user;
+			
+			PUTS "=========================";
+			IF p = 'o' { PUTS player2 + ": "; $p 'x'; ELSE PUTS player1 + ": "; $p 'o'; }
+			
+			square_puts();
+			PROMPT user;
+			
+			WHILE 0 = update(user p) {
+				PUTS "Retry: ";
+				PROMPT user;
+			}
+		}
+		
+		square_puts();
+	}
+	
+	init();
+	loop();
+}
+
+IF SOARE {main();}

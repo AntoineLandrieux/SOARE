@@ -1,0 +1,41 @@
+~  _____  _____  ___  ______ _____
+~ /  ___||  _  |/ _ \ | ___ \  ___|
+~ \ `--. | | | / /_\ \| |_/ / |__
+~  `--. \| | | |  _  ||    /|  __|
+~ /\__/ /\ \_/ / | | || |\ \| |___
+~ \____/  \___/\_| |_/\_| \_\____/
+~ SOARE STD.SAE
+
+~ @param {string} _Expr
+~ @return {number}
+FUNCTION Math(_Expr) {
+	RETURN _Expr*1;
+}
+
+~ @param {string} _Number
+~ @return {number}
+FUNCTION NaN(_Number) {
+	RETURN Math(_Number)="NaN";
+}
+
+~ @param {number} _Size
+~ @return {number}
+FUNCTION ALLOC(_Size) {
+	IF NaN(_Size) | Math(_Size < 1) {
+		RETURN 0;
+	} $_Index; $_String"";
+	WHILE _Index < _Size {
+		$_Index _Index + 1;
+		$_String _String + "";
+	} RETURN _String;
+}
+
+~ @param {string} _String
+~ @return {number}
+FUNCTION SIZE(_String) {
+	$posx 0; $posy"";
+	WHILE posy < _String {
+		$posx posx + 1
+		$posy posy + ""
+	} RETURN posx;
+}

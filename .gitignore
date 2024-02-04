@@ -1,0 +1,17 @@
+### DOSSIERS
+
+# IDE
+
+.vscode/
+.idea/
+
+# TMP
+
+tmp/
+bin/
+lib/
+
+### FICHIERS
+
+*.txt
+test.*

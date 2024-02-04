@@ -1,0 +1,19 @@
+LOADIMPORT "script/std.sae"
+
+FUNCTION GET() {
+    RETURN "Hello World!";
+}
+
+FUNCTION main() {
+    $X; $Y;
+
+    WHILE X < SIZE(GET()) {
+        IF GET()[X] = 'l' {
+            $Y Y + 1;
+        } $X X+1;
+    }
+
+    PUTS "'l' in '" + GET() + "' : " + Y;
+}
+
+IF SOARE {main();}

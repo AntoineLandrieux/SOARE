@@ -1,0 +1,13 @@
+
+FUNCTION main(arg) {
+    FUNCTION exc(value) {
+        RETURN value + "!";
+    }
+    $msg exc(arg);
+    GLOBAL msg;
+}
+
+IF SOARE { 
+    main("Hello"); ~ hello
+    PUTS msg;
+}
