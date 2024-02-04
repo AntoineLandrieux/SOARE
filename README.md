@@ -5,4 +5,4 @@
 
 ---
 
-![SOARE](./resources/web/logo-bg.svg)
+![SOARE](./resource/web/logo-bg.svg)
