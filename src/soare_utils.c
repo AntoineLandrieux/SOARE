@@ -36,6 +36,8 @@ unsigned char char_mathPriority(const char _Op)
 
 unsigned char string_isNaN(const char *_String)
 {
+    if (_String == NULL)
+        return 1;
     if (*_String == '-')
         (volatile char *)_String++;
     unsigned char dot = 0;
@@ -77,13 +79,14 @@ char *string_slice(const char *_String, const unsigned long long _To)
 
 char *string_eval(char *x, char operator, char * y)
 {
-    char *res = (char *)malloc(sizeof(SOARE_NaN));
+    size_t size = sizeof(SOARE_NaN);
+    char *res = (char *)malloc(size);
 
     if (res == NULL || x == NULL || y == NULL)
     {
-        free(res);
         free(x);
         free(y);
+        free(res);
         return strdup(SOARE_NULL);
     }
 
@@ -94,7 +97,6 @@ char *string_eval(char *x, char operator, char * y)
     switch (operator)
     {
     case '+':
-        free(res);
         if (str)
         {
             res = (char *)malloc(strlen(x) + strlen(y) + 1);
@@ -103,8 +105,9 @@ char *string_eval(char *x, char operator, char * y)
             break;
         }
         calc = atof(x) + atof(y);
-        res = (char *)malloc((size_t)(calc / 10 + 1) + float_count(calc) + 1);
-        snprintf(res, sizeof(res), "%.*f", float_count(calc), calc);
+        size = int_Size(calc);
+        res = (char *)malloc(size);
+        snprintf(res, size, "%.*f", float_count(calc), calc);
         break;
 
     case '-':
@@ -112,8 +115,9 @@ char *string_eval(char *x, char operator, char * y)
             break;
         free(res);
         calc = atof(x) - atof(y);
-        res = malloc((size_t)(calc / 10 + 1) + float_count(calc) + 1);
-        snprintf(res, sizeof(res), "%.*f", float_count(calc), calc);
+        size = int_Size(calc);
+        res = malloc(size);
+        snprintf(res, size, "%.*f", float_count(calc), calc);
         break;
 
     case '*':
@@ -121,8 +125,9 @@ char *string_eval(char *x, char operator, char * y)
             break;
         free(res);
         calc = atof(x) * atof(y);
-        res = malloc((size_t)(calc / 10 + 1) + float_count(calc) + 1);
-        snprintf(res, sizeof(res), "%.*f", float_count(calc), calc);
+        size = int_Size(calc);
+        res = malloc(size);
+        snprintf(res, size, "%.*f", float_count(calc), calc);
         break;
 
     case '/':
@@ -130,8 +135,9 @@ char *string_eval(char *x, char operator, char * y)
             break;
         free(res);
         calc = atof(x) / atof(y);
-        res = malloc((size_t)(calc / 10 + 1) + float_count(calc) + 1);
-        snprintf(res, sizeof(res), "%.*f", float_count(calc), calc);
+        size = int_Size(calc);
+        res = malloc(size);
+        snprintf(res, size, "%.*f", float_count(calc), calc);
         break;
 
     case '%':
@@ -139,56 +145,54 @@ char *string_eval(char *x, char operator, char * y)
             break;
         free(res);
         calc = atoi(x) % atoi(y);
-        res = (char *)malloc((size_t)((int)calc % 10 + 1));
-        snprintf(res, sizeof(res), "%d", (int)calc);
+        size = int_Size(calc);
+        res = (char *)malloc(size);
+        snprintf(res, size, "%d", (int)calc);
         break;
 
     case '&':
-        !str ? snprintf(res, sizeof(res), "%d", atof(x) && atof(y)) : 0;
+        !str ? snprintf(res, size, "%d", atof(x) && atof(y)) : 0;
         break;
 
     case '|':
-        !str ? snprintf(res, sizeof(res), "%d", atof(x) || atof(y)) : 0;
+        !str ? snprintf(res, size, "%d", atof(x) || atof(y)) : 0;
         break;
 
     case '!':
         if (!str)
-            snprintf(res, sizeof(res), "%d", atof(x) != atof(y));
+            snprintf(res, size, "%d", atof(x) != atof(y));
         else
-            snprintf(res, sizeof(res), "%d", strcmp(x, y));
+            snprintf(res, size, "%d", strcmp(x, y));
         break;
 
     case '=':
         if (!str)
-            snprintf(res, sizeof(res), "%d", atof(x) == atof(y));
+            snprintf(res, size, "%d", atof(x) == atof(y));
         else
-            snprintf(res, sizeof(res), "%d", !strcmp(x, y));
+            snprintf(res, size, "%d", !strcmp(x, y));
         break;
 
     case '^':
-        !str ? snprintf(res, sizeof(res), "%d", atoi(x) ^ atoi(y)) : 0;
+        !str ? snprintf(res, size, "%d", atoi(x) ^ atoi(y)) : 0;
         break;
 
     case '<':
         if (!str)
-            snprintf(res, sizeof(res), "%d", atof(x) < atof(y));
+            snprintf(res, size, "%d", atof(x) < atof(y));
         else
-            snprintf(res, sizeof(res), "%d", strlen(x) < strlen(y));
+            snprintf(res, size, "%d", strlen(x) < strlen(y));
         break;
 
     case '>':
         if (!str)
-            snprintf(res, sizeof(res), "%d", atof(x) > atof(y));
+            snprintf(res, size, "%d", atof(x) > atof(y));
         else
-            snprintf(res, sizeof(res), "%d", strlen(x) > strlen(y));
+            snprintf(res, size, "%d", strlen(x) > strlen(y));
         break;
 
     default:
-        free(x);
-        free(y);
-        free(res);
-        return strdup(SOARE_NULL);
-    }
+        break;
+    };
 
     free(x);
     free(y);

@@ -35,6 +35,7 @@ TOKENS token_join(TOKENS _Dest, TOKENS _Source)
         return _Source;
     while (tmp->_Next->_Next != NULL)
         tmp = tmp->_Next;
+    token_free(tmp->_Next);
     tmp->_Next = _Source;
     return _Dest;
 }
@@ -44,7 +45,7 @@ void token_puts(TOKENS _Token)
     if (_Token == NULL)
         return;
     fprintf(stdout,
-            "[\033[0;36mTOKEN\033[0;0m] 0x%x, file:%lld:%lld,\t\"%s\"\n",
+            "[TOKEN] 0x%x, file:%lld:%lld,\t\"%s\"\n",
             _Token->_Type,
             _Token->_Ln,
             _Token->_Col,

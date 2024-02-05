@@ -75,12 +75,12 @@ void branch_puts(AST _Ast)
     branch_puts(_Ast->_SiblingR);
     if (_Ast->_Parent == NULL)
         fprintf(stdout,
-                "[\033[0;32mAST\033[0;0m] {0x%x, '%s'}\n",
+                "[AST] {0x%x, '%s'}\n",
                 _Ast->_Type,
                 _Ast->_Value);
     else
         fprintf(stdout,
-                "[\033[0;32mAST\033[0;0m] {0x%x, '%s'}\t{0x%x, '%s'}\n",
+                "[AST] {0x%x, '%s'}\t{0x%x, '%s'}\n",
                 _Ast->_Parent->_Type,
                 _Ast->_Parent->_Value,
                 _Ast->_Type,
@@ -220,7 +220,7 @@ static AST ParseExpr(TOKENS *_Tokens, unsigned char _MathPriority)
 
 AST Parser(TOKENS _Tokens)
 {
-    AST root = branch(NULL, NODE_ROOT);
+    AST root = branch("ROOT", NODE_ROOT);
     AST CurrentAst = root;
     TOKENS CurrentTokens = _Tokens;
 

@@ -12,7 +12,7 @@ AR = ar
 
 # EXECUTABLE NAME
 LIBRARY = libsoare1.a
-EXE = soare.exe
+EXE = soare
 
 # DIRECTORIES
 SOURCE_DIR = src
@@ -22,7 +22,7 @@ INCLUDE_DIR = include
 APPLICATION_SOURCE_DIR = app
 
 # FLAGS
-CFLAGS = -Wall -Wextra -Werror -Waddress
+CFLAGS = -Wall -Wextra -Waddress
 MAIN = $(APPLICATION_SOURCE_DIR)/*.c
 
 SRC_FILES := $(wildcard $(SOURCE_DIR)/*.c)

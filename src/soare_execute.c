@@ -69,7 +69,7 @@ void memory_puts(MEMORY _Memory)
         return;
     memory_puts(_Memory->_Next);
     fprintf(stdout,
-            "[\033[0;35mMEMORY\033[0;0m] {'%s', '%s'}\n",
+            "[MEMORY] {'%s', '%s'}\n",
             _Memory->_Name,
             _Memory->_Value);
 }
@@ -301,10 +301,8 @@ static char *RunInstructions(AST _Root, AST _Current)
 RESULTLANG ExecuteTokens(TOKENS _Tokens)
 {
     AST ast = Parser(_Tokens);
-
     if (_Tokens == NULL || ast == NULL)
         return NULL;
-
     variable = memory("SOARE", strdup("1"), NULL);
     free(RunInstructions(ast, ast->_Child));
     token_free(_Tokens);
