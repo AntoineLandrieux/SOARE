@@ -146,11 +146,8 @@ TOKENS Tokenizer(const char *_RawCode)
 
         else
         {
-            char *At = string_slice(&*_RawCode, 1);
-            ThrowsLang(ERROR_CHARACTER, At, ln, col);
-            free(At);
             token_free(tokens);
-            return NULL;
+            return ThrowsLang(ERROR_CHARACTER, &*_RawCode, ln, col);
         }
 
         tok->_Value = string_slice(&*_RawCode, _Adder);
@@ -176,22 +173,17 @@ TOKENS Tokenizer(const char *_RawCode)
 
 TOKENS file_read(const char *_File)
 {
-    TOKENS tokens = NULL;
-    FILE *file = NULL;
-
-    file = fopen(_File, "r+");
+    FILE *file = fopen(_File, "r+");
 
     if (file == NULL)
-    {
-        ThrowsLang(ERROR_FILE, _File, 0x0, 0x0);
-        return NULL;
-    }
+        return ThrowsLang(ERROR_FILE, _File, 0x0, 0x0);
 
     char user[SOARE_MAX_INPUT];
+    TOKENS tokens = NULL;
 
     while (fgets(user, SOARE_MAX_INPUT, file))
         tokens = token_join(tokens, Tokenizer(user));
-    
+
     fclose(file);
     return tokens;
 }

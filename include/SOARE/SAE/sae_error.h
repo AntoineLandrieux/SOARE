@@ -21,7 +21,8 @@ typedef enum errorlang
  * @param _Extra
  * @param _Ln
  * @param _Col
+ * @return void*
  */
-void ThrowsLang(ErrorLang _Err, const char *_Extra, unsigned long long _Ln, unsigned long long _Col);
+void *ThrowsLang(ErrorLang _Err, const char *_Extra, unsigned long long _Ln, unsigned long long _Col);
 
 #endif /* __SAE_ERROR_H__ */

@@ -114,7 +114,7 @@ static AST ParseArray(AST _Item, TOKENS *_Tokens, unsigned char _UpdateToken)
         return _Item;
 
     Next(_Tokens);
-    AST expr = ParseExpr(_Tokens, 0x0);
+    AST expr = ParseExpr(_Tokens, 0xF);
 
     if (expr == NULL || (*_Tokens)->_Type != TOKEN_RARRAY)
         return NULL;
@@ -155,14 +155,13 @@ static AST ParseFunction(TOKENS *_Tokens, unsigned char _Call)
             continue;
         }
 
-        AST expr = ParseExpr(_Tokens, 0x0);
+        AST expr = ParseExpr(_Tokens, 0xF);
         if (expr == NULL)
             break;
         branch_push(function, expr);
     }
 
     Next(_Tokens);
-
     return function;
 }
 
@@ -171,11 +170,8 @@ static AST ParseValue(TOKENS *_Tokens)
     if ((*_Tokens) == NULL)
         return NULL;
 
-    if ((*_Tokens)->_Type == TOKEN_STRING)
-        return ParseArray(branch((*_Tokens)->_Value, NODE_STRING), _Tokens, 0x1);
-
-    else if ((*_Tokens)->_Type == TOKEN_NUMBER)
-        return ParseArray(branch((*_Tokens)->_Value, NODE_NUMBER), _Tokens, 0x1);
+    else if ((*_Tokens)->_Type == TOKEN_STRING || (*_Tokens)->_Type == TOKEN_NUMBER)
+        return ParseArray(branch((*_Tokens)->_Value, (*_Tokens)->_Type == TOKEN_STRING ? NODE_STRING : NODE_NUMBER), _Tokens, 0x1);
 
     else if ((*_Tokens)->_Type == TOKEN_NAME)
         return ParseArray(ParseFunction(_Tokens, 0x1), _Tokens, 0x0);
@@ -186,19 +182,18 @@ static AST ParseValue(TOKENS *_Tokens)
 static AST ParseExpr(TOKENS *_Tokens, unsigned char _MathPriority)
 {
     AST left = ParseValue(_Tokens);
-    _MathPriority = !_MathPriority ? 5 : _MathPriority;
 
     if (left == NULL)
         return NULL;
 
     while ((*_Tokens)->_Type == TOKEN_OPERATOR)
     {
-        AST op = branch((*_Tokens)->_Value, NODE_OPERATOR);
         unsigned char priority = char_mathPriority(*(*_Tokens)->_Value);
 
-        if (priority > _MathPriority)
+        if (priority >= _MathPriority)
             break;
 
+        AST op = branch((*_Tokens)->_Value, NODE_OPERATOR);
         Next(_Tokens);
         AST right = ParseExpr(_Tokens, priority);
 
@@ -241,7 +236,7 @@ AST Parser(TOKENS _Tokens)
 
             if (!strcasecmp(keyword, "PUTS") || !strcasecmp(keyword, "RETURN") || !strcasecmp(keyword, "LOADIMPORT"))
             {
-                AST expr = ParseExpr(&CurrentTokens, 0x0);
+                AST expr = ParseExpr(&CurrentTokens, 0xF);
 
                 if (expr == NULL)
                     CurrentTokens = prev->_Next;
@@ -266,7 +261,6 @@ AST Parser(TOKENS _Tokens)
 
                 if (function == NULL)
                     return ThrowsParser(ERROR_SYNTAX, keyword, prev->_Ln, prev->_Col, root, NULL);
-                ;
 
                 AST BODY = branch("BODY", NODE_BODY);
                 branch_push(function, BODY);
@@ -300,7 +294,7 @@ AST Parser(TOKENS _Tokens)
 
             else if (!strcasecmp(keyword, "IF") || !strcasecmp(keyword, "WHILE"))
             {
-                AST expr = ParseExpr(&CurrentTokens, 0x0);
+                AST expr = ParseExpr(&CurrentTokens, 0xF);
 
                 if (expr == NULL)
                     return ThrowsParser(ERROR_SYNTAX, keyword, prev->_Ln, prev->_Col, root, NULL);
@@ -324,7 +318,7 @@ AST Parser(TOKENS _Tokens)
                 if (CurrentAst->_Parent->_Type != NODE_IF)
                     return ThrowsParser(ERROR_TOKEN, keyword, prev->_Ln, prev->_Col, root, NULL);
 
-                AST expr = ParseExpr(&CurrentTokens, 0x0);
+                AST expr = ParseExpr(&CurrentTokens, 0xF);
 
                 if (expr == NULL)
                 {
@@ -345,7 +339,7 @@ AST Parser(TOKENS _Tokens)
                 return ThrowsParser(ERROR_SYNTAX, prev->_Value, prev->_Ln, prev->_Col, root, NULL);
 
             AST var = ParseArray(branch(CurrentTokens->_Value, NODE_SET), &CurrentTokens, 0x1);
-            AST expr = ParseExpr(&CurrentTokens, 0x0);
+            AST expr = ParseExpr(&CurrentTokens, 0xF);
 
             if (expr == NULL)
                 expr = branch(SOARE_NULL, NODE_NUMBER);
@@ -372,9 +366,12 @@ AST Parser(TOKENS _Tokens)
 
         else if (prev->_Type == TOKEN_NAME)
         {
+            TOKENS old = prev;
             AST extra = ParseFunction(&prev, 0x1);
+
             if (extra == NULL || extra->_Type == NODE_GET)
-                return ThrowsParser(ERROR_TOKEN, prev->_Value, prev->_Ln, prev->_Col, root, extra);
+                return ThrowsParser(ERROR_TOKEN, old->_Value, old->_Ln, old->_Col, root, extra);
+
             branch_push(CurrentAst, extra);
             CurrentTokens = prev;
             Next(&CurrentTokens);

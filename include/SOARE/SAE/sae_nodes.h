@@ -25,7 +25,8 @@ typedef enum nodetype
     NODE_IF,
     NODE_WHILE,
     NODE_GLOBAL,
-    NODE_ARRAY
+    NODE_ARRAY,
+    NODE_CUSTOM
 } NodeType;
 
 /**

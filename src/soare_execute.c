@@ -90,6 +90,7 @@ void resultlang_free(RESULTLANG _Resultlang)
         return;
     branch_free(_Resultlang->_Ast);
     memory_free(_Resultlang->_Memory);
+    free(_Resultlang);
 }
 
 RESULTLANG resultlang_puts(RESULTLANG _Resultlang)
@@ -106,19 +107,13 @@ static char *ExecuteFunction(AST _Root, AST _At, char *_Name, AST _Arg);
 static char *Array(AST _Root, char *_String, AST _Index)
 {
     if (_Index == NULL || _String == NULL)
-        return _String;
+        return NEQ(_String, NULL, strdup(_String));
 
     char *expr = EvalAst(_Root, _Index);
-    if (string_isNaN(expr))
-        return _String;
+    size_t pos = MIN((size_t)strtol(expr, NULL, 10), strlen(_String) - 1);
 
-    size_t pos = atoi(expr);
-    if (pos >= strlen(_String))
-        pos = strlen(_String) - 1;
-
-    char *res = string_slice(&_String[pos], 1);
-    free(_String);
-    return res;
+    free(expr);
+    return string_slice(&_String[pos], 1);
 }
 
 char *EvalAst(AST _Root, AST _Ast)
@@ -129,20 +124,23 @@ char *EvalAst(AST _Root, AST _Ast)
     switch (_Ast->_Type)
     {
     case NODE_CALL:
-        return Array(_Root, ExecuteFunction(_Root, _Ast->_Parent, _Ast->_Value, _Ast->_Child), _Ast->_Array);
+        char *function = ExecuteFunction(_Root, _Ast->_Parent, _Ast->_Value, _Ast->_Child);
+        char *array = Array(_Root, function, _Ast->_Array);
+        free(function);
+        return array;
 
     case NODE_STRING:
-        return Array(_Root, strdup(_Ast->_Value), _Ast->_Array);
+        return Array(_Root, _Ast->_Value, _Ast->_Array);
 
     case NODE_NUMBER:
-        return Array(_Root, strdup(_Ast->_Value), _Ast->_Array);
+        return Array(_Root, _Ast->_Value, _Ast->_Array);
 
     case NODE_GET:
         MEMORY tmp = memory_get(variable, _Ast->_Value, _Ast->_Parent);
-        return Array(_Root, strdup(tmp == NULL ? SOARE_UNDEFINED : tmp->_Value), _Ast->_Array);
+        return Array(_Root, tmp == NULL ? SOARE_UNDEFINED : tmp->_Value, _Ast->_Array);
 
     case NODE_OPERATOR:
-        return string_eval(EvalAst(_Root, _Ast->_Child), _Ast->_Value[0], EvalAst(_Root, _Ast->_Child->_SiblingR));
+        return string_eval(EvalAst(_Root, _Ast->_Child), *_Ast->_Value, EvalAst(_Root, _Ast->_Child->_SiblingR));
 
     default:
         break;
@@ -161,7 +159,7 @@ static char *ExecuteFunction(AST _Root, AST _At, char *_Name, AST _Arg)
 
     while (1)
         if (tmp == NULL)
-            return ExecuteFunction(_Root, _At->_Parent, _Name, _Arg);
+            return ExecuteFunction(_Root, _At->_Parent->_Parent == NULL ? SoareDefineFunction(NULL)->_Child : _At->_Parent, _Name, _Arg);
         else if (!strcmp(tmp->_Value, _Name) && tmp->_Type == NODE_FUNCTION)
             break;
         else
@@ -273,6 +271,7 @@ static char *RunInstructions(AST _Root, AST _Current)
                         return expr;
                     break;
                 }
+                free(expr);
                 tmp = tmp->_SiblingR->_SiblingR;
                 expr = EvalAst(_Root, tmp);
             }
@@ -285,8 +284,14 @@ static char *RunInstructions(AST _Root, AST _Current)
                 expr = RunInstructions(_Root, _Current->_Child->_SiblingR->_Child);
                 if (expr != NULL)
                     return expr;
+                free(expr);
                 expr = EvalAst(_Root, _Current->_Child);
             }
+            break;
+
+        case NODE_CUSTOM:
+            RunCustomExecutor(_Current->_Value, expr);
+            break;
 
         default:
             break;
@@ -305,6 +310,5 @@ RESULTLANG ExecuteTokens(TOKENS _Tokens)
         return NULL;
     variable = memory("SOARE", strdup("1"), NULL);
     free(RunInstructions(ast, ast->_Child));
-    token_free(_Tokens);
     return resultlang(ast, variable);
 }

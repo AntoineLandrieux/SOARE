@@ -46,11 +46,11 @@ char *string_slice(const char *_String, const unsigned long long _To);
  * @author Antoine LANDRIEUX
  *
  * @param x
- * @param operator
+ * @param _Operator
  * @param y
  * @return char*
  */
-char *string_eval(char *x, char operator, char * y);
+char *string_eval(char *x, char _Operator, char *y);
 
 /**
  * @author Antoine LANDRIEUX

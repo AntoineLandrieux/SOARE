@@ -28,8 +28,6 @@ FUNCTION main() {
 		PROMPT player2;
 		PUTS "Hello " + player1 + " & " + player2;
 		GLOBAL player1 player2;
-		
-		$GAME 1;
 	}
 	
 	FUNCTION update(_Case _Player) {
@@ -70,9 +68,10 @@ FUNCTION main() {
 		IF VICTORY() {
 			PUTS "=========================";
 			PUTS PLAYER_BY_LETTER(_Player) + " win!";
-			
-			$GAME 0;
-		} RETURN 1;
+			$GAME 99;
+		} 
+		$GAME GAME + 1
+		RETURN 1;
 	}
 	
 	FUNCTION loop() {
@@ -86,7 +85,7 @@ FUNCTION main() {
 			PUTS "" + SQUARE[6] + " | " + SQUARE[7] +  " | " + SQUARE[8];			
 		}
 		
-		WHILE GAME {
+		WHILE GAME < 9 {
 			$user;
 			
 			PUTS "=========================";
@@ -102,6 +101,9 @@ FUNCTION main() {
 		}
 		
 		square_puts();
+		IF GAME ! 100 {
+			PUTS "GAME OVER!";
+		}
 	}
 	
 	init();

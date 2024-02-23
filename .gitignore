@@ -1,5 +1,3 @@
-### DOSSIERS
-
 # IDE
 
 .vscode/
@@ -10,8 +8,3 @@
 tmp/
 bin/
 lib/
-
-### FICHIERS
-
-*.txt
-test.*
