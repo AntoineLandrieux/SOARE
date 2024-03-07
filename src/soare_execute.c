@@ -5,6 +5,22 @@
 
 #include <SOARE/SOARE.h>
 
+/*
+ _____  _____  ___  ______ _____
+/  ___||  _  |/ _ \ | ___ \  ___|
+\ `--. | | | / /_\ \| |_/ / |__
+ `--. \| | | |  _  ||    /|  __|
+/\__/ /\ \_/ / | | || |\ \| |___
+\____/  \___/\_| |_/\_| \_\____/
+
+ * Antoine LANDRIEUX
+ * GNU General Public License v3.0
+ * https://www.gnu.org/licenses/
+ * 
+ * SOARE
+ * soare_execute.h
+*/
+
 MEMORY variable = NULL;
 
 MEMORY memory(char *_Name, char *_Value, AST _Access)
@@ -112,8 +128,10 @@ static char *Array(AST _Root, char *_String, AST _Index)
     char *expr = EvalAst(_Root, _Index);
     size_t pos = MIN((size_t)strtol(expr, NULL, 10), strlen(_String) - 1);
 
+    char *_Result = string_slice(&_String[pos], 1);
     free(expr);
-    return string_slice(&_String[pos], 1);
+    free(_String);
+    return _Result;
 }
 
 char *EvalAst(AST _Root, AST _Ast)
@@ -124,20 +142,17 @@ char *EvalAst(AST _Root, AST _Ast)
     switch (_Ast->_Type)
     {
     case NODE_CALL:
-        char *function = ExecuteFunction(_Root, _Ast->_Parent, _Ast->_Value, _Ast->_Child);
-        char *array = Array(_Root, function, _Ast->_Array);
-        free(function);
-        return array;
+        return Array(_Root, ExecuteFunction(_Root, _Ast->_Parent, _Ast->_Value, _Ast->_Child), _Ast->_Array);
 
     case NODE_STRING:
-        return Array(_Root, _Ast->_Value, _Ast->_Array);
+        return Array(_Root, strdup(_Ast->_Value), _Ast->_Array);
 
     case NODE_NUMBER:
-        return Array(_Root, _Ast->_Value, _Ast->_Array);
+        return Array(_Root, strdup(_Ast->_Value), _Ast->_Array);
 
     case NODE_GET:
         MEMORY tmp = memory_get(variable, _Ast->_Value, _Ast->_Parent);
-        return Array(_Root, tmp == NULL ? SOARE_UNDEFINED : tmp->_Value, _Ast->_Array);
+        return Array(_Root, strdup(tmp == NULL ? SOARE_UNDEFINED : tmp->_Value), _Ast->_Array);
 
     case NODE_OPERATOR:
         return string_eval(EvalAst(_Root, _Ast->_Child), *_Ast->_Value, EvalAst(_Root, _Ast->_Child->_SiblingR));
@@ -225,12 +240,12 @@ static char *RunInstructions(AST _Root, AST _Current)
             break;
 
         case NODE_RETURN:
-            return EvalAst(_Root, _Current->_Child);
+            return expr;
 
         case NODE_SET:
             if (_Current->_Array == NULL)
             {
-                memory_set(variable, _Current->_Value, EvalAst(_Root, _Current->_Child), EQU(_Root, _Current->_Parent, NULL));
+                memory_set(variable, _Current->_Value, strdup(expr), EQU(_Root, _Current->_Parent, NULL));
                 break;
             }
 

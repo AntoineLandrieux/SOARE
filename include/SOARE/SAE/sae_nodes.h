@@ -1,6 +1,22 @@
 #ifndef __SAE_AST_H__
 #define __SAE_AST_H__ 0x1
 
+/*
+ _____  _____  ___  ______ _____
+/  ___||  _  |/ _ \ | ___ \  ___|
+\ `--. | | | / /_\ \| |_/ / |__
+ `--. \| | | |  _  ||    /|  __|
+/\__/ /\ \_/ / | | || |\ \| |___
+\____/  \___/\_| |_/\_| \_\____/
+
+ * Antoine LANDRIEUX
+ * GNU General Public License v3.0
+ * https://www.gnu.org/licenses/
+ * 
+ * SOARE HEADER
+ * sae_nodes.h
+*/
+
 /**
  * @brief SOARE NodeType
  * @author Antoine LANDRIEUX
