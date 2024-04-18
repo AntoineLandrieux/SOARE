@@ -190,7 +190,8 @@ static char *ExecuteFunction(AST _Root, AST _At, char *_Name, AST _Arg)
         _Arg = _Arg->_SiblingR;
     }
 
-    return RunInstructions(_Root, tmp->_Child);
+    char *run = RunInstructions(_Root, tmp->_Child);
+    return run == NULL ? strdup(SOARE_NULL) : run;
 }
 
 static void ExecuteSection(AST _Root, AST _At, char *_Name)
