@@ -16,7 +16,7 @@
  * https://www.gnu.org/licenses/
  * 
  * SOARE
- * soare_error.h
+ * soare_error.c
 */
 
 static const char *ERRORS[] = {

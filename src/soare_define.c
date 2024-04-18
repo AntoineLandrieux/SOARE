@@ -17,7 +17,7 @@
  * https://www.gnu.org/licenses/
  * 
  * SOARE
- * soare_define.h
+ * soare_define.c
 */
 
 static Executor executor[0xFF];

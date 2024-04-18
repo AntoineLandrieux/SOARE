@@ -17,7 +17,7 @@
  * https://www.gnu.org/licenses/
  * 
  * SOARE
- * soare_utils.h
+ * soare_utils.c
 */
 
 unsigned char char_operator(const char _Char)

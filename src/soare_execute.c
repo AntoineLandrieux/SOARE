@@ -18,7 +18,7 @@
  * https://www.gnu.org/licenses/
  * 
  * SOARE
- * soare_execute.h
+ * soare_execute.c
 */
 
 MEMORY variable = NULL;

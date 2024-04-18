@@ -17,7 +17,7 @@
  * https://www.gnu.org/licenses/
  * 
  * SOARE
- * soare_parser.h
+ * soare_parser.c
 */
 
 AST branch(char *_Value, NodeType _Type)

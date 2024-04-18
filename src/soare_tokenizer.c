@@ -16,7 +16,7 @@
  * https://www.gnu.org/licenses/
  * 
  * SOARE
- * soare_tokenizer.h
+ * soare_tokenizer.c
 */
 
 TOKENS token(char *_Value, TokenType _Type, unsigned long long _Ln, unsigned long long _Col)
