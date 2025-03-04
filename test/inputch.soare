@@ -1,0 +1,79 @@
+
+__WRITE_END__ = "";
+
+$w = 20;
+$h = 5;
+
+$x = 0;
+$y = 0;
+
+$key = "";
+$loop = 1;
+
+while loop do
+
+  $tmpX = 0;
+  $tmpY = 0;
+
+  write CLS;
+  write "MAP " + w + "x" + h + " CHAR" + LN;
+  write "POS " + x + " " + y + LN;
+  write "PRESS SPACE FOR QUIT" + LN;
+  write "USE ZQSD FOR MOVE" + LN;
+
+  while tmpX < w do
+    write "=";
+    tmpX = tmpX + 1;
+  end;
+
+  tmpX = 0;
+  write LN;
+
+  while tmpY < y do
+    write LN;
+    tmpY = tmpY + 1;
+  end;
+  while tmpX < x do
+    write " ";
+    tmpX = tmpX + 1;
+  end;
+
+  write "x"
+  tmpX = h - tmpY;
+
+  while tmpX > 0 do
+    write LN;
+    tmpX = tmpX - 1;
+  end;
+  while tmpX < w do
+    write "=";
+    tmpX = tmpX + 1;
+  end;
+
+  inputch key;
+
+  if key == 'Z' || key == 'z' do
+    y = y - 1
+  or key == 'Q' || key == 'q' do
+    x = x - 1
+  or key == 'S' || key == 's' do
+    y = y + 1
+  or key == 'D' || key == 'd' do
+    x = x + 1
+  or key == " " do
+    loop = 0;
+  end;
+
+  if x < 0 do
+    x = 0;
+  or x > w - 1 do
+    x = w - 1
+  end;
+
+  if y < 0 do
+    y = 0;
+  or y > h - 1 do
+    y = h - 1
+  end;
+
+end;

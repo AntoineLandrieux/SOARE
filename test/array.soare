@@ -1,0 +1,26 @@
+
+? loadimport "../script/std.soare";
+
+$msg="Hello World!";
+
+__WRITE_END__ = "";
+
+@spell(message)
+  $index = 0;
+  write "";
+  while 1 do
+    try
+      write message[index];
+      if in("AEIOUYaeiouy"; message[index]) do
+        write " is vowel"
+      end;
+      write LN;
+    iferror
+      return null;
+    end;
+    index = index + 1;
+  end;
+end;
+
+spell(msg);
+__WRITE_END__ = LN;

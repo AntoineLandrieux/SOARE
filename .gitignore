@@ -1,0 +1,32 @@
+#
+#  _____  _____  ___  ______ _____
+# /  ___||  _  |/ _ \ | ___ \  ___|
+# \ `--. | | | / /_\ \| |_/ / |__
+#  `--. \| | | |  _  ||    /|  __|
+# /\__/ /\ \_/ / | | || |\ \| |___
+# \____/  \___/\_| |_/\_| \_\____/
+#
+# Antoine LANDRIEUX (MIT License) <.gitignore>
+# <https://github.com/AntoineLandrieux/SOARE/>
+#
+
+# IDE
+
+.vscode/
+.idea/
+
+# TMP
+
+bin/
+lib/
+min/
+tmp/
+
+# BIN
+
+*.a
+*.o
+*.out
+*.bin
+*.exe
+*.res

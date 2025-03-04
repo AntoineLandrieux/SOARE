@@ -1,0 +1,25 @@
+
+@Fib(n)
+
+  @Check(x)
+    if x < 1 do
+      return "Invalid Input"
+    or x == 1 do
+      return 0;
+    or x == 2 do
+      return 1;
+    end;
+    return 0-1;
+  end;
+
+  $value = Check(n);
+
+  if value < 0 do
+    return Fib(n-1) + Fib(n-2);
+  end;
+
+  return value;
+
+end;
+
+write Fib(10); ? 34

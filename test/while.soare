@@ -1,0 +1,27 @@
+
+? loadimport "../script/std.soare";
+
+write "Please wait 10 seconds..."
+$times = 0;
+
+while times < 10 + 1 do
+  
+  __WRITE_END__ = "";
+  write "[" + times + "/" + 10 + "]" + TAB;
+
+  $progressbar = 0;
+  while progressbar < times + 1 do
+    write "=";
+    progressbar = progressbar + 1;
+  end;
+
+  sleep(1);
+  times = times + 1;
+
+  __WRITE_END__ = CR;
+  write "";
+
+end;
+
+__WRITE_END__ = LN;
+write "===== SUCESS =====";

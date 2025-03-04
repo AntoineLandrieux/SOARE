@@ -1,0 +1,21 @@
+
+? "Hello World!"
+try
+  write "Hello World!";
+iferror
+  write "Error ! #1";
+end;
+
+? "Error ! #2"
+try
+  raise "problem";
+iferror
+  write "Error ! #2";
+end;
+
+? "Error ! #3"
+try
+  write 3/0;
+iferror
+  write "Error ! #3";
+end;
