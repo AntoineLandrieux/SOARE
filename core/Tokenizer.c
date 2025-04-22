@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 /**
  *  _____  _____  ___  ______ _____
@@ -186,10 +187,37 @@ Tokens *Token(char *filename, char *value, token_type type)
  * @author Antoine LANDRIEUX
  *
  * @param tokens
+ * @param step
  */
-void TokenNext(Tokens **tokens)
+void TokenNext(Tokens **tokens, unsigned int step)
 {
-    *tokens = (*tokens)->next;
+    for (unsigned int i = 0; i < step; i++)
+        *tokens = (*tokens)->next;
+}
+
+/**
+ * @brief Check if a sequence of tokens corresponds with a sequence of token types
+ * @author Antoine LANDRIEUX
+ *
+ * @param tokens
+ * @param iteration
+ * @param ...
+ * @return unsigned char
+ */
+unsigned char TokensFollowPattern(Tokens *tokens, unsigned int iteration, ...)
+{
+    va_list args;
+    va_start(args, iteration);
+    unsigned char result = 1;
+
+    for (unsigned int i = 0; result && i < iteration && tokens; i++)
+    {
+        result = va_arg(args, token_type) != tokens->type;
+        tokens = tokens->next;
+    }
+
+    va_end(args);
+    return result;
 }
 
 /**

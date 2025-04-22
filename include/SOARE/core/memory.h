@@ -1,7 +1,7 @@
 #ifndef __SOARE_MEMORY_H__
 #define __SOARE_MEMORY_H__ 0x1
 
-/* #prama once */
+/* #pragma once */
 
 /**
  *  _____  _____  ___  ______ _____

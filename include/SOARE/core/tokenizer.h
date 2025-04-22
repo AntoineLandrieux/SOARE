@@ -1,7 +1,7 @@
 #ifndef __SOARE_TOKENIZER_H__
 #define __SOARE_TOKENIZER_H__ 0x1
 
-/* #prama once */
+/* #pragma once */
 
 /**
  *  _____  _____  ___  ______ _____
@@ -82,8 +82,20 @@ Tokens *Token(char *filename, char *value, token_type type);
  * @author Antoine LANDRIEUX
  *
  * @param tokens
+ * @param step
  */
-void TokenNext(Tokens **tokens);
+void TokenNext(Tokens **tokens, unsigned int step);
+
+/**
+ * @brief Check if a sequence of tokens corresponds with a sequence of token types
+ * @author Antoine LANDRIEUX
+ *
+ * @param tokens
+ * @param iteration
+ * @param ...
+ * @return unsigned char
+ */
+unsigned char TokensFollowPattern(Tokens *tokens, unsigned int iteration, ...);
 
 /**
  * @brief Free the memory allocated by the tokens

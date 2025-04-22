@@ -33,7 +33,7 @@ else
 WINDRES = echo
 endif
 
-DEBUG = -D __SOARE_DEBUG
+# DEBUG = -D __SOARE_DEBUG
 # NO_COLORED_OUTPUT = -D __SOARE_NO_COLORED_OUTPUT
 
 default: $(BIN)/$(APP)

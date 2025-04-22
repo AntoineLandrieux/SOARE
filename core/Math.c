@@ -121,11 +121,11 @@ static AST ParseArray(Tokens **tokens)
 {
     if ((*tokens)->type != TKN_ARRAYL)
         return NULL;
-    TokenNext(tokens);
+    TokenNext(tokens, 1);
     AST value = ParseExpr(tokens, 0xF);
     if ((*tokens)->type != TKN_ARRAYR)
         return NULL;
-    TokenNext(tokens);
+    TokenNext(tokens, 1);
     return BranchJoin(Branch("ARRAY", NODE_ARRAY, (*tokens)->file), value);
 }
 
@@ -140,7 +140,7 @@ AST ParseValue(Tokens **tokens)
 {
     Node *value = Branch((*tokens)->value, NODE_ROOT, (*tokens)->file);
     Tokens *old = *tokens;
-    TokenNext(tokens);
+    TokenNext(tokens, 1);
 
     switch (old->type)
     {
@@ -158,7 +158,7 @@ AST ParseValue(Tokens **tokens)
             break;
 
         value->type = NODE_CALL;
-        TokenNext(tokens);
+        TokenNext(tokens, 1);
         AST expr = NULL;
 
         while ((*tokens)->type != TKN_PARENR)
@@ -171,7 +171,7 @@ AST ParseValue(Tokens **tokens)
             BranchJoin(value, expr);
             if ((*tokens)->type != TKN_SEMICOLON)
                 break;
-            TokenNext(tokens);
+            TokenNext(tokens, 1);
         }
 
         if ((*tokens)->type != TKN_PARENR)
@@ -179,7 +179,7 @@ AST ParseValue(Tokens **tokens)
             TreeFree(value);
             return NULL;
         }
-        TokenNext(tokens);
+        TokenNext(tokens, 1);
         break;
 
     default:
@@ -216,7 +216,7 @@ AST ParseExpr(Tokens **tokens, u8 priority)
             break;
 
         symbol = Branch((*tokens)->value, NODE_OPERATOR, (*tokens)->file);
-        TokenNext(tokens);
+        TokenNext(tokens, 1);
         y = ParseExpr(tokens, op);
 
         if (!symbol || !y)

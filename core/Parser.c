@@ -182,7 +182,7 @@ AST Parse(Tokens *tokens)
             break;
 
         Tokens *old = tokens;
-        TokenNext(&tokens);
+        tokens = tokens->next;
 
         switch (old->type)
         {
@@ -193,7 +193,7 @@ AST Parse(Tokens *tokens)
 
             if (*(old->value) == '@')
             {
-                if (tokens->type != TKN_NAME || tokens->next->type != TKN_PARENL)
+                if (TokensFollowPattern(tokens, 2, TKN_NAME, TKN_ARRAYL))
                 {
                     TreeFree(root);
                     return LeaveException(SyntaxError, old->value, old->file);
@@ -201,9 +201,7 @@ AST Parse(Tokens *tokens)
 
                 AST function = Branch(tokens->value, NODE_FUNCTION, old->file);
                 AST body = Branch("BODY", NODE_BODY, old->file);
-
-                TokenNext(&tokens);
-                TokenNext(&tokens);
+                TokenNext(&tokens, 2);
                 BranchJoin(curr, function);
 
                 while (1)
@@ -219,28 +217,24 @@ AST Parse(Tokens *tokens)
                     }
 
                     BranchJoin(function, Branch(tokens->value, NODE_MEMSET, tokens->file));
-                    TokenNext(&tokens);
-
-                    if (tokens->type == TKN_SEMICOLON)
-                        TokenNext(&tokens);
+                    TokenNext(&tokens, 1+(tokens->next->type == TKN_SEMICOLON));
                 }
 
                 BranchJoin(function, body);
-                TokenNext(&tokens);
+                tokens = tokens->next;
                 curr = body;
             }
 
             else if (*(old->value) == '$')
             {
-                if (tokens->type != TKN_NAME || tokens->next->type != TKN_ASSIGN)
+                if (TokensFollowPattern(tokens, 2, TKN_NAME, TKN_ASSIGN))
                 {
                     TreeFree(root);
                     return LeaveException(SyntaxError, old->value, old->file);
                 }
 
                 old = tokens;
-                TokenNext(&tokens);
-                TokenNext(&tokens);
+                TokenNext(&tokens, 2);
                 AST content = ParseExpr(&tokens, 0xF);
 
                 if (!content)
@@ -264,7 +258,7 @@ AST Parse(Tokens *tokens)
                 }
 
                 BranchJoin(curr, Branch(tokens->value, NODE_INPUT, old->file));
-                TokenNext(&tokens);
+                tokens = tokens->next;
             }
 
             else if (!strcmp(old->value, KEYWORD_LOADIMPORT) || !strcmp(old->value, KEYWORD_RAISE))
@@ -276,7 +270,7 @@ AST Parse(Tokens *tokens)
                 }
 
                 BranchJoin(curr, Branch(tokens->value, strcmp(old->value, KEYWORD_RAISE) ? NODE_IMPORT : NODE_RAISE, old->file));
-                TokenNext(&tokens);
+                tokens = tokens->next;
             }
 
             else if (!strcmp(old->value, KEYWORD_TRY))
@@ -292,7 +286,7 @@ AST Parse(Tokens *tokens)
             {
                 Node *enumerate = Branch(old->value, NODE_ENUMERATE, old->file);
 
-                for (; tokens->type != TKN_KEYWORD || strcmp(KEYWORD_END, tokens->value); TokenNext(&tokens))
+                for (; tokens->type != TKN_KEYWORD && strcmp(KEYWORD_END, tokens->value); tokens = tokens->next)
                 {
                     if (tokens->type != TKN_NAME)
                     {
@@ -304,7 +298,7 @@ AST Parse(Tokens *tokens)
                 }
 
                 BranchJoin(curr, enumerate);
-                TokenNext(&tokens);
+                tokens = tokens->next;
             }
 
             else if (!strcmp(old->value, KEYWORD_IFERROR))
@@ -317,7 +311,6 @@ AST Parse(Tokens *tokens)
 
                 Node *iferror = Branch(old->value, NODE_IFERROR, old->file);
                 BranchJoin(curr->parent, iferror);
-
                 curr = iferror;
             }
 
@@ -339,7 +332,7 @@ AST Parse(Tokens *tokens)
                 BranchJoin(curr, statement);
 
                 curr = body;
-                TokenNext(&tokens);
+                tokens = tokens->next;
             }
 
             else if (!strcmp(old->value, KEYWORD_OR))
@@ -364,7 +357,7 @@ AST Parse(Tokens *tokens)
                 BranchJoin(curr->parent, body);
 
                 curr = body;
-                TokenNext(&tokens);
+                tokens = tokens->next;
             }
 
             else if (!strcmp(old->value, KEYWORD_ELSE))
@@ -428,7 +421,7 @@ AST Parse(Tokens *tokens)
                     TreeFree(parsed);
                     return LeaveException(UnexpectedNear, old->value, old->file);
                 }
-                TokenNext(&tokens);
+                tokens = tokens->next;
                 AST content = ParseExpr(&tokens, 0xF);
                 if (!content)
                 {

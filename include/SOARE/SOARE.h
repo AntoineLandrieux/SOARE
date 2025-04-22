@@ -31,7 +31,7 @@ namespace SOARE
 /* SOARE minor */
 #define SOARE_MINOR 0
 /* SOARE patch */
-#define SOARE_PATCH 0
+#define SOARE_PATCH 1
 
         /**
          * @brief Structure of a document

@@ -1,7 +1,7 @@
 #ifndef __SOARE_PARSER_H__
 #define __SOARE_PARSER_H__ 0x1
 
-/* #prama once */
+/* #pragma once */
 
 /**
  *  _____  _____  ___  ______ _____
