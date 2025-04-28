@@ -103,11 +103,11 @@ end;
   x = radians(x % 180)
 
   while n < 10 do
-    sin = sin + pow(0-1; n) * pow(x; 2 * n + 1) / factorial(2 * n + 1);
+    sine = sine + pow(0-1; n) * pow(x; 2 * n + 1) / factorial(2 * n + 1);
     n = n + 1;
   end;
     
-  return sin;
+  return sine;
 end;
 
 ? @brief The cosine function
@@ -118,11 +118,11 @@ end;
   x = radians(x % 180)
 
   while n < 10 do
-    cos = cos + pow(0-1; n) * pow(x; 2 * n) / factorial(2 * n);
+    cosine = cosine + pow(0-1; n) * pow(x; 2 * n) / factorial(2 * n);
     n = n + 1;
   end;
     
-  return cos;
+  return cosine;
 end;
 
 ? @brief The tangent function
