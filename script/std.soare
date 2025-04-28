@@ -10,55 +10,28 @@
 ? Antoine LANDRIEUX (MIT License) <std.soare>
 ? <https://github.com/AntoineLandrieux/SOARE/>
 ?
-
-$null = "";
+? Included Variables:
+?   - false
+?   - true
+?   - null
+?
+? Included Functions:
+?   - in
+?   - input
+?   - sleep
 
 enumerate
   false
   true
 end;
 
-? @brief Useful for math, ex: 5*M(1+2)
-@M(any)
-  return any;
-end;
-
-? @brief NaN
-@NaN(number)
-  try
-    number = number * 1;
-  iferror
-    return 1;
-  end;
-  return 0;
-end;
-
-? @brief ftoi
-@ftoi(float)
-  if NaN(float) do
-    raise "NaN";
-  end;
-  return float^0;
-end;
-
-? @brief sleep
-? @deprecated
-@sleep(time)
-  if NaN(time) do
-    raise "NaN";
-  or time < 0 do
-    return null;
-  end;
-  time = time * 999999;
-  while time > 0 do
-    time = time - 1;
-  end;
-end;
+$ null = "";
 
 ? @brief in
 @in(parent; source)
-  $index = 0;
-  $r = index;
+  $ index = 0;
+  $ r     = index;
+
   while 1 do
     try
       r = parent[index] == source;
@@ -70,40 +43,41 @@ end;
     end;
     index = index+1;
   end;
-end;
 
-? @brief alloc
-@alloc(size)
-  if NaN(size) do
-    raise "NaN";
-  or size < 1 do
-    return null;
-  end;
-  $str = null;
-  $ptr = 0;
-  while ptr != size do
-    str = str + " ";
-    ptr = ptr + 1
-  end;
-  return str;
 end;
 
 ? @brief input
 ? @deprecated
 @input(message)
-  $conf = __WRITE_END__;
+  $ conf = __WRITE_END__;
   __WRITE_END__ = CR;
+
   write message;
-  $usr = "";
-  $key = "";
+
+  $ usr = "";
+  $ key = "";
+
   inputch key;
+
   while key != LN && key != CR do
     sleep(0.1);
     usr = usr + key;
     write message + usr;
     inputch key;
   end;
+
   write LN;
   __WRITE_END__ = conf;
   return usr;
+end;
+
+? @brief sleep
+@sleep(time)
+  if time < 0 do
+    return null;
+  end;
+  time = time * 999999;
+  while time > 0 do
+    time = time - 1;
+  end;
 end;

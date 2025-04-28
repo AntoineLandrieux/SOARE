@@ -1,5 +1,6 @@
 
-loadimport "../script/std.soare";
+loadimport "script/std.soare";
+loadimport "script/math.soare";
 
 write CLS;
 write __SOARE__;
@@ -7,19 +8,19 @@ write __BUILD__;
 
 try
   write "=================";
-  loadimport "array.soare";
+  loadimport "test/array.soare";
   write "=================";
-  loadimport "function.soare";
+  loadimport "test/function.soare";
   write "=================";
-  loadimport "maths.soare";
+  loadimport "test/maths.soare";
   write "=================";
-  loadimport "try-iferror.soare";
+  loadimport "test/try-iferror.soare";
   write "=================";
-  loadimport "while.soare";
+  loadimport "test/while.soare";
   write "Press any key..."
   inputch __WRITE_END__;
   write "=================";
-  loadimport "inputch.soare";
+  loadimport "test/inputch.soare";
 
   write LN + "SUCCESS" + LN;
 

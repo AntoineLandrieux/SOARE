@@ -1,0 +1,131 @@
+
+?
+?  _____  _____  ___  ______ _____
+? /  ___||  _  |/ _ \ | ___ \  ___|
+? \ `--. | | | / /_\ \| |_/ / |__
+?  `--. \| | | |  _  ||    /|  __|
+? /\__/ /\ \_/ / | | || |\ \| |___
+? \____/  \___/\_| |_/\_| \_\____/
+?
+? Antoine LANDRIEUX (MIT License) <math.soare>
+? <https://github.com/AntoineLandrieux/SOARE/>
+?
+? Included Variables:
+?   - pi
+?   - deg
+?   - rad
+?
+? Included Functions:
+?   - M
+?   - Math
+?   - NaN
+?   - ftoi
+?   - pow
+?   - factorial
+?   - cos
+?   - sin
+?   - tan
+
+$ pi  = 3.14159265;
+$ deg = 180 / pi;
+$ rad = pi / 180;
+
+? @brief Useful for math, ex: 5*M(1+2)
+@M(f)
+  return f;
+end;
+
+? @brief Useful for math, ex: 5*M(1+2)
+@Math(f)
+  return f*1;
+end;
+
+? @brief Returns true if a value is Not-a-Number
+@NaN(x)
+  try
+    x = x * 1;
+  iferror
+    return 1;
+  end;
+  return 0;
+end;
+
+? @brief Floating point to integer conversion
+@ftoi(float)
+  return float^0;
+end;
+
+? @brief Returns the value of x to the power of y
+@pow(x; y)
+  $ result = 1;
+
+  while y do
+    result = result * x;
+    y = y - 1;
+  end;
+    
+  return result;
+end;
+
+? @brief The factorial of a non-negative integer
+@factorial(x)
+  $ result = 1;
+  $ n      = 1;
+
+  x = ftoi(x);
+  if x < 0 do
+    raise "Undefined";
+  end;
+
+  while n < x + 1 do
+    result = result * n;
+    n = n + 1;
+  end;
+    
+  return result;
+end;
+
+? @brief Convert Degrees to Radians
+@radians(x)
+  return x * rad;
+end;
+
+? @brief Convert Radians to Degrees
+@degrees(x)
+  return x * deg;
+end;
+
+? @brief The sine function
+@sin(x)
+  $ sine = 0;
+  $ n    = 0;
+
+  x = radians(x % 180)
+
+  while n < 10 do
+    sin = sin + pow(0-1; n) * pow(x; 2 * n + 1) / factorial(2 * n + 1);
+    n = n + 1;
+  end;
+    
+  return sin;
+end;
+
+? @brief The cosine function
+@cos(x)
+  $ cosine = 0;
+  $ n      = 0;
+
+  x = radians(x % 180)
+
+  while n < 10 do
+    cos = cos + pow(0-1; n) * pow(x; 2 * n) / factorial(2 * n);
+    n = n + 1;
+  end;
+    
+  return cos;
+end;
+
+? @brief The tangent function
+@tan(x)
+  return sin(x) / cos(x);
+end;
