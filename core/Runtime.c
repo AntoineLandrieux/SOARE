@@ -56,7 +56,7 @@ static AST loadimport(char *filename)
     long size = ftell(file);
     rewind(file);
 
-    char *content = (char *)malloc(size);
+    char *content = (char *)malloc(size + 1);
 
     if (!content)
     {
@@ -115,20 +115,23 @@ char *RunFunction(AST tree)
 
     AST ptr = func->child;
     AST src = tree->child;
-    FUNCTION = Mem();
+    MEM memf = Mem();
 
     while (ptr)
     {
         if (ptr->type == NODE_BODY)
+        {
+            FUNCTION = memf;
             return Runtime(ptr);
+        }
 
         if (!src)
         {
-            FUNCTION = MemFree(FUNCTION);
+            memf = MemFree(memf);
             return LeaveException(UndefinedReference, ptr->value, tree->file);
         }
 
-        MemPush(FUNCTION, ptr->value, Eval(src));
+        MemPush(memf, ptr->value, Eval(src));
         src = src->sibling;
         ptr = ptr->sibling;
     }
@@ -257,14 +260,11 @@ char *Runtime(AST tree)
                     break;
                 }
 
+                free(returned);
                 if (!(tmp = tmp->sibling->sibling))
                     break;
-
-                free(returned);
                 returned = Eval(tmp);
             }
-
-            free(returned);
             break;
 
         case NODE_REPETITION:

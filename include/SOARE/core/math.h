@@ -30,18 +30,18 @@ AST ParseValue(Tokens **tokens);
  * @author Antoine LANDRIEUX
  *
  * @param tokens
- * @param priority 
+ * @param priority
  * @return AST
  */
 AST ParseExpr(Tokens **tokens, u8 priority);
 
 /**
- * @brief Get the Array Index
+ * @brief Get the Array Index object
  * @author Antoine LANDRIEUX
- * 
- * @param array 
- * @param value 
- * @return long long 
+ *
+ * @param array
+ * @param value
+ * @return long long
  */
 long long GetArrayIndex(AST array, char *value);
 

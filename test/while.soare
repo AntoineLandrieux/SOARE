@@ -2,13 +2,13 @@
 ? loadimport "script/std.soare";
 ? loadimport "script/math.soare";
 
-write "Please wait 10 seconds..."
+write "Please wait 5 seconds..."
 $times = 0;
 
-while times < 10 + 1 do
+while times < 5 + 1 do
   
   __WRITE_END__ = "";
-  write "[" + times + "/" + 10 + "]" + TAB;
+  write "[" + times + "/" + 5 + "]" + TAB;
 
   $progressbar = 0;
   while progressbar < times + 1 do

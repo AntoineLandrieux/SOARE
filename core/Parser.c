@@ -145,16 +145,14 @@ void TreeLog(AST tree)
 
     if (tree->parent)
         printf(
-            "[%p, %s:%.5lld:%.5lld, %.2X, \"%s\"]\t",
-            (void *)tree->parent,
+            "[%s:%.5lld:%.5lld, %.2X, \"%s\"]\t",
             tree->parent->file.file,
             tree->parent->file.ln,
             tree->parent->file.col,
             tree->parent->type,
             tree->parent->value);
     printf(
-        "[%p, %s:%.5lld:%.5lld, %.2X, \"%s\"]\n",
-        (void *)tree,
+        "[%s:%.5lld:%.5lld, %.2X, \"%s\"]\n",
         tree->file.file,
         tree->file.ln,
         tree->file.col,
@@ -193,7 +191,7 @@ AST Parse(Tokens *tokens)
 
             if (*(old->value) == '@')
             {
-                if (TokensFollowPattern(tokens, 2, TKN_NAME, TKN_ARRAYL))
+                if (!TokensFollowPattern(tokens, 2, TKN_NAME, TKN_PARENL))
                 {
                     TreeFree(root);
                     return LeaveException(SyntaxError, old->value, old->file);
@@ -217,7 +215,7 @@ AST Parse(Tokens *tokens)
                     }
 
                     BranchJoin(function, Branch(tokens->value, NODE_MEMSET, tokens->file));
-                    TokenNext(&tokens, 1+(tokens->next->type == TKN_SEMICOLON));
+                    TokenNext(&tokens, 1 + (tokens->next->type == TKN_SEMICOLON));
                 }
 
                 BranchJoin(function, body);
@@ -227,7 +225,7 @@ AST Parse(Tokens *tokens)
 
             else if (*(old->value) == '$')
             {
-                if (TokensFollowPattern(tokens, 2, TKN_NAME, TKN_ASSIGN))
+                if (!TokensFollowPattern(tokens, 2, TKN_NAME, TKN_ASSIGN))
                 {
                     TreeFree(root);
                     return LeaveException(SyntaxError, old->value, old->file);

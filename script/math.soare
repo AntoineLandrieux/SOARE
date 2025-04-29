@@ -19,7 +19,11 @@
 ?   - M
 ?   - Math
 ?   - NaN
-?   - ftoi
+?   - abs
+?   - not
+?   - floor
+?   - integer_division
+?   - integer_sqrt
 ?   - pow
 ?   - factorial
 ?   - cos
@@ -50,39 +54,107 @@ end;
   return 0;
 end;
 
+? Absolute value
+@abs(x)
+  if x < 0 do
+    return x*M(0-1);
+  end;
+  return Math(x);
+end;
+
+? Invert the truth value of Boolean expressions
+@not(x)
+  return x == 0;
+end;
+
 ? @brief Floating point to integer conversion
-@ftoi(float)
+@floor(float)
   return float^0;
+end;
+
+? @brief Integer division
+@integer_division(x; y)
+  $ res = 0;
+  while x >= y do
+    x = x - y;
+    res = res + 1;
+  end;
+  return res
+end;
+
+@round(x)
+  $ sign = x < 0;
+  $ y = abs(x);
+  $ t = floor(y);
+
+  if sign do
+    sign = 0 - 1;
+  else
+    sign = 1;
+  end;
+
+  if y - t >= 0.5 do
+    return sign * M(t + 1);
+  end;
+
+  return sign * t;
+end;
+
+? @brief Integer square root
+@integer_sqrt(x)
+  x = round(x);
+
+  if x == 0 do
+    return 0;
+  or x < 0 do
+    raise "Non-Real Number";
+  end;
+  
+  $ n = x;
+  $ a = 0;
+
+  while 1 do
+    a = integer_division(n + integer_division(x; n); 2)
+    if a == n do
+      return n;
+    end;
+    n = a;
+  end;
 end;
 
 ? @brief Returns the value of x to the power of y
 @pow(x; y)
-  $ result = 1;
+  $ res = 1;
+  $ neg = y < 0;
+  y = floor(abs(y))
 
   while y do
-    result = result * x;
+    res = res * x;
     y = y - 1;
   end;
-    
-  return result;
-end;
+  
+  if neg do
+    res = 1 / res;
+  end;
+  return res;
+end;    
 
 ? @brief The factorial of a non-negative integer
 @factorial(x)
-  $ result = 1;
+  $ res = 1;
   $ n      = 1;
 
-  x = ftoi(x);
+  x = floor(x);
   if x < 0 do
     raise "Undefined";
   end;
 
   while n < x + 1 do
-    result = result * n;
+    res = res * n;
     n = n + 1;
   end;
     
-  return result;
+  return res;
 end;
 
 ? @brief Convert Degrees to Radians

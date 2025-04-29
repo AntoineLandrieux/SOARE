@@ -210,10 +210,11 @@ unsigned char TokensFollowPattern(Tokens *tokens, unsigned int iteration, ...)
     va_start(args, iteration);
     unsigned char result = 1;
 
-    for (unsigned int i = 0; result && i < iteration && tokens; i++)
+    for (unsigned int i = 0; result && i < iteration; i++)
     {
-        result = va_arg(args, token_type) != tokens->type;
+        result = va_arg(args, token_type) == tokens->type;
         tokens = tokens->next;
+        result = result && (tokens || i - 1 == iteration);
     }
 
     va_end(args);
@@ -248,8 +249,7 @@ void TokensLog(Tokens *token)
         return;
 
     printf(
-        "[TOKENS] [%p, %s:%.5lld:%.5lld, %.2X, \"%s\"]\n",
-        (void *)token,
+        "[TOKENS] [%s:%.5lld:%.5lld, %.2X, \"%s\"]\n",
         token->file.file,
         token->file.ln,
         token->file.col,

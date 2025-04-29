@@ -38,7 +38,7 @@ endif
 
 default: $(BIN)/$(APP)
 
-$(LIB)/libsoare.a: $(CORE_OBJS)
+$(LIB)/libsoare$(VERSION_MAJ).a: $(CORE_OBJS)
 
 CORE_OBJS := $(patsubst $(CORE)/%.c, $(LIB)/%.o, $(wildcard $(CORE)/*.c))
 

@@ -17,4 +17,4 @@ iferror
   write "Can't devide by 0"
 end;
 
-write ftoi(pi) ? 3
+write floor(pi) ? 3

@@ -60,8 +60,8 @@ static char *vardup(char *value)
 /**
  * @brief Remove useless zeros
  * @author Antoine LANDRIEUX
- * 
- * @param string 
+ *
+ * @param string
  */
 static void zeros(char *string)
 {
@@ -82,10 +82,10 @@ static void zeros(char *string)
  */
 static char *__float(long double number)
 {
-    char string[100];
+    char string[100] = {0};
     sprintf(string, "%Lf", number);
     zeros(string);
-    char *result = (char *)malloc(strlen(string));
+    char *result = (char *)malloc(strlen(string) + 1);
     if (!result)
         return __SOARE_OUT_OF_MEMORY();
     strcpy(result, string);
@@ -397,9 +397,9 @@ char *Math(AST tree)
         case '|':
             return __float(dx || dy);
         case '^':
-            return __float((double)((int)dx ^ (int)dy));
+            return __float((long double)((int)dx ^ (int)dy));
         case '%':
-            return __float((double)((int)dx % (int)dy));
+            return __float((long double)((int)dx % (int)dy));
         case '*':
             return __float(dx * dy);
         case '/':
