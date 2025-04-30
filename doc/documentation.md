@@ -206,7 +206,7 @@ $b = 1;
 $next = b;
 
 while a < 100 do
-  write a + " ";
+  write a;
   a = b;
   b = next;
   next = a + b;
@@ -218,10 +218,9 @@ end;
 The most well-known type of statement is perhaps the if statement. For example:
 
 ```txt
-
-? Include standard functions
 try
-  loadimport "script_path/std.soare";
+  ? Include standard functions
+  loadimport "script/math.soare";
 
   write "Enter a digit:";
   $x = 0;
@@ -247,15 +246,18 @@ end;
 Strings or numbers are actually arrays of characters:
 
 ```txt
-$message = "Hello";
-$index = 0;
+? For len() function
+loadimport "script/std.soare";
 
-while index > 0 do
-  try
-    write message[index];
-  iferror
-    index = 0-1;
-  end;
+$msg="Hello World!";
+
+$index = 0;
+? Returns the number of characters in the string
+$size = len(msg);
+
+while index < size do
+  write msg[index];
+  index = index + 1;
 end;
 ```
 

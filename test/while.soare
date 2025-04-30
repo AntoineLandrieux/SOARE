@@ -1,6 +1,5 @@
 
 ? loadimport "script/std.soare";
-? loadimport "script/math.soare";
 
 write "Please wait 5 seconds..."
 $times = 0;

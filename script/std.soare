@@ -17,6 +17,7 @@
 ?
 ? Included Functions:
 ?   - in
+?   - len
 ?   - input
 ?   - sleep
 
@@ -42,6 +43,22 @@ $ null = "";
       return index+1
     end;
     index = index+1;
+  end;
+
+end;
+
+? @brief Returns the number of characters in the string
+@len(string)
+  $ index = 0;
+  $ tmp   = " ";
+  
+  while 1 do
+    try
+      tmp = string[index];
+    iferror
+      return index;
+    end;
+    index = index + 1;
   end;
 
 end;
