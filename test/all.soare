@@ -22,7 +22,7 @@ try
   write "=================";
   loadimport "test/inputch.soare";
 
-  write LN + "SUCCESS" + LN;
+  write LN, "SUCCESS", LN;
 
 iferror
   write "Can't load all files...";

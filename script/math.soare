@@ -79,7 +79,7 @@ end;
     x = x - y;
     res = res + 1;
   end;
-  return res
+  return res;
 end;
 
 @round(x)
@@ -142,7 +142,7 @@ end;
 ? @brief The factorial of a non-negative integer
 @factorial(x)
   $ res = 1;
-  $ n      = 1;
+  $ n   = 1;
 
   x = floor(x);
   if x < 0 do

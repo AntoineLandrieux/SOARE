@@ -18,7 +18,7 @@
 ? Included Functions:
 ?   - in
 ?   - len
-?   - input
+?   - reverse
 ?   - sleep
 
 enumerate
@@ -31,18 +31,16 @@ $ null = "";
 ? @brief in
 @in(parent; source)
   $ index = 0;
-  $ r     = index;
-
-  while 1 do
-    try
-      r = parent[index] == source;
-    iferror
-      return 0;
+  
+  try
+    while 1 do
+      if parent[index] == source do
+        return index+1
+      end;
+      index = index+1;
     end;
-    if r do
-      return index+1
-    end;
-    index = index+1;
+  iferror
+    return 0;
   end;
 
 end;
@@ -63,29 +61,18 @@ end;
 
 end;
 
-? @brief input
-? @deprecated
-@input(message)
-  $ conf = __WRITE_END__;
-  __WRITE_END__ = CR;
+? @brief Reverse string
+@reverse(string)
+  $ res = string;
+  $ s = len(res);
+  $ n = 0;
 
-  write message;
-
-  $ usr = "";
-  $ key = "";
-
-  inputch key;
-
-  while key != LN && key != CR do
-    sleep(0.1);
-    usr = usr + key;
-    write message + usr;
-    inputch key;
+  while n < s do
+    res[0-n-1] = string[n];
+    n = n + 1;
   end;
 
-  write LN;
-  __WRITE_END__ = conf;
-  return usr;
+  return res;
 end;
 
 ? @brief sleep

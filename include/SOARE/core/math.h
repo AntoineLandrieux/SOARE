@@ -40,10 +40,10 @@ AST ParseExpr(Tokens **tokens, u8 priority);
  * @author Antoine LANDRIEUX
  *
  * @param array
- * @param value
+ * @param size
  * @return long long
  */
-long long GetArrayIndex(AST array, char *value);
+long long GetArrayIndex(AST array, size_t size);
 
 /**
  * @brief Evaluates the mathematical expression of a tree

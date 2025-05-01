@@ -240,10 +240,10 @@ AST ParseExpr(Tokens **tokens, u8 priority)
  * @author Antoine LANDRIEUX
  *
  * @param array
- * @param value
+ * @param size
  * @return long long
  */
-long long GetArrayIndex(AST array, char *value)
+long long GetArrayIndex(AST array, size_t size)
 {
     while (array)
         if (array->type != NODE_ARRAY)
@@ -251,23 +251,20 @@ long long GetArrayIndex(AST array, char *value)
         else
             break;
 
-    if (!array || !value)
+    if (!array)
         return -1;
 
     array = array->child;
     char *index = Eval(array);
 
-    if (isNaN(index))
-    {
-        free(index);
-        LeaveException(MathError, array->value, array->file);
+    if (!index)
         return -1;
-    }
 
     long long indexlld = atoll(index);
     free(index);
+    indexlld = indexlld < 0 ? (long long)size + indexlld : indexlld;
 
-    if (strlen(value) <= (size_t)indexlld || indexlld < 0)
+    if (size <= (size_t)indexlld || indexlld < 0)
     {
         LeaveException(IndexOutOfRange, array->value, array->file);
         return -1;
@@ -286,7 +283,10 @@ long long GetArrayIndex(AST array, char *value)
  */
 static char *Array(char *value, AST array)
 {
-    long long index = GetArrayIndex(array, value);
+    if (!value || !array)
+        return value;
+
+    long long index = GetArrayIndex(array, strlen(value));
 
     if (index < 0)
         return value;
@@ -347,10 +347,17 @@ char *Math(AST tree)
         if (!sx || !sy)
             return NULL;
 
+        if (*(tree->value) == ',')
+        {
+            if (!(result = malloc(strlen(sx) + strlen(sy) + 1)))
+                return __SOARE_OUT_OF_MEMORY();
+            strcat(strcpy(result, sx), sy);
+            return result;
+        }
+
         if (isNaN(sx) || isNaN(sy))
         {
-            result = malloc(2);
-            if (!result)
+            if (!(result = malloc(2)))
                 return __SOARE_OUT_OF_MEMORY();
 
             switch (*(tree->value))
@@ -366,12 +373,6 @@ char *Math(AST tree)
                 break;
             case '|':
                 snprintf(result, 2, "%d", *sx || *sy);
-                break;
-            case '+':
-                result = realloc(result, strlen(sx) + strlen(sy) + 1);
-                if (!result)
-                    return __SOARE_OUT_OF_MEMORY();
-                strcat(strcpy(result, sx), sy);
                 break;
             default:
                 free(result);

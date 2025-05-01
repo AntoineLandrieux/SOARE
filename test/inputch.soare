@@ -16,10 +16,10 @@ while loop do
   $tmpY = 0;
 
   write CLS;
-  write "MAP " + w + "x" + h + " CHAR" + LN;
-  write "POS " + x + " " + y + LN;
-  write "PRESS SPACE FOR QUIT" + LN;
-  write "USE ZQSD FOR MOVE" + LN;
+  write "MAP ", w, "x", h, " CHAR", LN;
+  write "POS ", x, " ", y, LN;
+  write "PRESS SPACE FOR QUIT", LN;
+  write "USE ZQSD FOR MOVE", LN;
 
   while tmpX < w do
     write "=";

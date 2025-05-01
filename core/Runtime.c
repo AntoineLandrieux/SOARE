@@ -211,7 +211,7 @@ char *Runtime(AST tree)
                 break;
             }
 
-            num = GetArrayIndex(curr->child, get->value);
+            num = GetArrayIndex(curr->child, get->value ? strlen(get->value) : 0);
             returned = Eval(num < 0 ? curr->child : curr->child->sibling);
 
             if (!returned)

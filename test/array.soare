@@ -1,5 +1,5 @@
 
-? loadimport "script/std.soare";
+loadimport "script/std.soare";
 
 $msg="Hello World!";
 
@@ -19,3 +19,4 @@ end;
 __WRITE_END__ = "";
 spell(msg);
 __WRITE_END__ = LN;
+write msg, " -> ", reverse(msg);

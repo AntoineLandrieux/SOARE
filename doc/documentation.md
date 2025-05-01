@@ -160,8 +160,8 @@ $age = 15
 ? here the variable age already exists, so no need for the $ sign
 age = age + 1
 
-? the + sign with strings allows you to concatenate them
-write "Hello " + name + " " + age + "yo";
+? the , sign with strings and numbers allows you to concatenate them
+write "Hello ", name, " ", age, "yo";
 ```
 
 ### Defining Functions
@@ -185,7 +185,7 @@ We can create a function that writes the Fibonacci series:
   return a;
 end;
 
-write "The last value is " + fib(100);
+write "The last value is ", fib(100);
 ```
 
 The `@` keyword introduces a function definition. It must be followed by the function name and the list of formal parameters in parentheses and separated by a ;.
@@ -259,6 +259,10 @@ while index < size do
   write msg[index];
   index = index + 1;
 end;
+
+? Negative number can be used to start with the end
+write msg[0-1]; ? Write the last character of "msg", here "!"
+write msg[0-2]; ? Write the one before last character of "msg", here "d"
 ```
 
 ### User Inputs
@@ -269,20 +273,20 @@ You can capture user input using `inputch`
 $input="";
 
 inputch input;
-write "The " + input + " key has been pressed";
+write "The ", input, " key has been pressed";
 ```
 
 ### Predefined Variables
 
-| name            | value                                   |
-|-----------------|-----------------------------------------|
-| \_\_SOARE__     | `SOARE Antoine LANDRIEUX (MIT LICENSE)` |
-| \_\_BUILD__     | *build date*                            |
-| \_\_WRITE_END__ | `\n`                                    |
-| BC              | `\b`                                    |
-| CR              | `\r`                                    |
-| LN              | `\n`                                    |
-| TAB             | `\t`                                    |
-| CLS             | `\033c\033[3J`                          |
+| name              | value                                   |
+|-------------------|-----------------------------------------|
+| \_\_SOARE\_\_     | `SOARE Antoine LANDRIEUX (MIT LICENSE)` |
+| \_\_BUILD\_\_     | *build date*                            |
+| \_\_WRITE_END\_\_ | `\n`                                    |
+| BC                | `\b`                                    |
+| CR                | `\r`                                    |
+| LN                | `\n`                                    |
+| TAB               | `\t`                                    |
+| CLS               | `\033c\033[3J`                          |
 
 > SOARE Antoine LANDRIEUX <https://github.com/AntoineLandrieux/SOARE> (MIT LICENSE)

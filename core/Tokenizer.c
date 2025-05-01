@@ -76,7 +76,7 @@ static u8 chrSpace(const char character)
  */
 static u8 chrOperator(const char character)
 {
-    return strchr("<+-^*/%%>", character) != NULL;
+    return strchr("<,+-^*/%%>", character) != NULL;
 }
 
 /**

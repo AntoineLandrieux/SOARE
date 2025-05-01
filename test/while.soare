@@ -7,7 +7,7 @@ $times = 0;
 while times < 5 + 1 do
   
   __WRITE_END__ = "";
-  write "[" + times + "/" + 5 + "]" + TAB;
+  write "[", times, "/", 5, "]", TAB;
 
   $progressbar = 0;
   while progressbar < times + 1 do
