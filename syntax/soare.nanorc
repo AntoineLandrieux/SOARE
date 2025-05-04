@@ -17,9 +17,9 @@ syntax "soare" "\.soare$"
 magic "Soare script"
 
 ## built-in functions
-color cyan "\<(M|NaN|ftoi|sleep|in|alloc|input)\>"
+color cyan "\<(in|len|reverse|sleep|M|Math|NaN|abs|not|floor|integer_division|integer_sqrt|pow|factorial|cos|sin|tan)\>"
 ## Keywords
-color brightblue "\<(do|else|end|enumerate|if|iferror|loadimport|nop|or|inputch|raise|return|try|while|write|false|true|null)\>"
+color brightblue "\<(do|else|end|enumerate|if|iferror|loadimport|or|inputch|raise|return|try|while|write|false|true|null|pi|rad|deg)\>"
 
 ## operators
 color magenta "[.:;,+*|=!\%@$]" "<" ">" "/" "-" "&"

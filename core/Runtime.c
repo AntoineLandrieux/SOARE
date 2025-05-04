@@ -101,17 +101,19 @@ static void InterpreterVar()
  * @brief Execute a function
  * @author Antoine LANDRIEUX
  *
- * @deprecated
- *
  * @param tree
  * @return char*
  */
 char *RunFunction(AST tree)
 {
-    AST func = BranchFind(tree->parent->child, tree->value, NODE_FUNCTION);
+    MEM get = MemGet(MEMORY, tree->value);
+    AST func = NULL;
 
-    if (!func)
+    if (!get)
         return LeaveException(UndefinedReference, tree->value, tree->file);
+
+    if (!(func = get->body))
+        return LeaveException(ObjectIsNotCallable, tree->value, tree->file);
 
     AST ptr = func->child;
     AST src = tree->child;
@@ -169,6 +171,10 @@ char *Runtime(AST tree)
 
         switch (curr->type)
         {
+        case NODE_FUNCTION:
+            MemPushf(statement, curr);
+            break;
+
         case NODE_IMPORT:
 
             if ((tmp = loadimport(curr->value)))
@@ -203,15 +209,19 @@ char *Runtime(AST tree)
 
         case NODE_MEMSET:
 
-            get = MemGet(MEMORY, curr->value);
-
-            if (!get)
+            if (!(get = MemGet(MEMORY, curr->value)))
             {
                 LeaveException(UndefinedReference, curr->value, curr->file);
                 break;
             }
 
-            num = GetArrayIndex(curr->child, get->value ? strlen(get->value) : 0);
+            if (get->body)
+            {
+                LeaveException(VariableDefinedAsFunction, curr->value, curr->file);
+                break;
+            }
+
+            num = GetArrayIndex(curr->child, strlen(get->value));
             returned = Eval(num < 0 ? curr->child : curr->child->sibling);
 
             if (!returned)
@@ -231,12 +241,12 @@ char *Runtime(AST tree)
 
             for (tmp = curr->child; tmp; tmp = tmp->sibling)
             {
-                if (!(returned = malloc(((i64)(num / 10)) + 2)))
+                if (!(returned = malloc(3)) || num >= 100)
                 {
                     __SOARE_OUT_OF_MEMORY();
                     break;
                 }
-                snprintf(returned, (((i64)(num / 10))) + 2, "%lld", num);
+                sprintf(returned, "%lld", num);
                 MemPush(statement, tmp->value, returned);
                 num += 1;
             }
@@ -335,7 +345,7 @@ char *Runtime(AST tree)
  *
  * @param rawcode
  */
-int Execute(char *file, char *rawcode)
+int Execute(char *__restrict__ file, char *__restrict__ rawcode)
 {
     ClearException();
     Tokens *tokens = Tokenizer(file, rawcode);

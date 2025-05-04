@@ -75,7 +75,7 @@ Document EmptyDocument(void);
  * @param type
  * @return Tokens*
  */
-Tokens *Token(char *filename, char *value, token_type type);
+Tokens *Token(char *__restrict__ filename, char *__restrict__ value, token_type type);
 
 /**
  * @brief Move on to the next token
@@ -121,6 +121,6 @@ void TokensLog(Tokens *token);
  * @param text
  * @return Tokens*
  */
-Tokens *Tokenizer(char *filename, char *text);
+Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text);
 
 #endif /* __SOARE_TOKENIZER_H__ */

@@ -1,0 +1,9 @@
+$pi=3.14159265;$deg=180/pi;$rad=pi/180;@M(f)return f;end;@Math(f)return f*1;end;@NaN(x)try x=x*1;iferror return 1;end;return 0;end;@abs(x)if x<0 do return 
+x*M(0-1);end;return Math(x);end;@not(x)return x==0;end;@floor(float)return float^0;end;@integer_division(x;y)$res=0;while x>=y do x=x-y;res=res+
+1;end;return res;end;@round(x)$sign=x<0;$y=abs(x);$t=floor(y);if sign do sign=0-1;else sign=1;end;if y-t>=0.5 do return sign*M(t+1);end;return sign*t
+;end;@integer_sqrt(x)x=round(x);if x==0 do return 0;or x<0 do raise "Non-Real Number";end;$n=x;$a=0;while 1 do a=integer_division(n+integer_division(
+x;n);2)if a==n do return n;end;n=a;end;end;@pow(x;y)$res=1;$neg=y<0;y=floor(abs(y))while y do res=res*x;y=y-1;end;if neg do res=1/res;end;return res;
+end;@factorial(x)$res=1;$n=1;x=floor(x);if x<0 do raise "Undefined";end;while n<x+1 do res=res*n;n=n+1;end;return res;end;@radians(x)return x*rad;end
+;@degrees(x)return x*deg;end;@sin(x)$sine=0;$n=0;x=radians(x%180)while n<10 do sine=sine+pow(0-1;n)*pow(x;2*n+1)/factorial(2*n+1);n=n+1;end;return sine
+;end;@cos(x)$cosine=0;$n=0;x=radians(x%180)while n<10 do cosine=cosine+pow(0-1;n)*pow(x;2*n)/factorial(2*n);n=n+1;end;return cosine;end;@tan(x)return 
+sin(x)/cos(x);end;

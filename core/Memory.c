@@ -32,6 +32,7 @@ MEM Mem(void)
 
     memory->name = NULL;
     memory->next = NULL;
+    memory->body = NULL;
     memory->value = NULL;
 
     return memory;
@@ -48,10 +49,9 @@ MEM MemLast(MEM memory)
 {
     if (!memory)
         return NULL;
-    MEM curr = memory;
-    for (; curr->next; curr = curr->next)
+    for (; memory->next; memory = memory->next)
         ;
-    return curr;
+    return memory;
 }
 
 /**
@@ -62,7 +62,7 @@ MEM MemLast(MEM memory)
  * @param name
  * @return MEM
  */
-MEM MemPush(MEM memory, char *name, char *value)
+MEM MemPush(MEM __restrict__ memory, char *__restrict__ name, char *__restrict__ value)
 {
     if (!memory)
         return NULL;
@@ -72,12 +72,32 @@ MEM MemPush(MEM memory, char *name, char *value)
     mem = mem->next;
 
     if (!mem)
+    {
+        free(value);
         return __SOARE_OUT_OF_MEMORY();
+    }
 
     mem->next = NULL;
+    mem->body = NULL;
     mem->name = name;
     mem->value = value;
 
+    return mem;
+}
+
+/**
+ * @brief Add a function to an existing memory
+ * @author Antoine LANDRIEUX
+ *
+ * @param memory
+ * @param body
+ * @return MEM
+ */
+MEM MemPushf(MEM __restrict__ memory, AST __restrict__ body)
+{
+    MEM mem = MemPush(memory, body->value, strdup(__SOARE_FUNCTION__));
+    if (mem)
+        mem->body = body;
     return mem;
 }
 
@@ -89,7 +109,7 @@ MEM MemPush(MEM memory, char *name, char *value)
  * @param name
  * @return MEM
  */
-MEM MemGet(MEM memory, char *name)
+MEM MemGet(MEM __restrict__ memory, char *__restrict__ name)
 {
     if (!memory)
         return NULL;
@@ -108,7 +128,7 @@ MEM MemGet(MEM memory, char *name)
  * @param name
  * @return MEM
  */
-MEM MemSet(MEM memory, char *value)
+MEM MemSet(MEM __restrict__ memory, char *__restrict__ value)
 {
     if (!memory)
         return NULL;
@@ -128,8 +148,7 @@ void MemLog(MEM memory)
     if (!memory)
         return;
     printf(
-        "[MEMORY] [%p, %s\t%s]\n",
-        (void *)memory,
+        "[MEMORY] [%s\t%s]\n",
         memory->name,
         memory->value);
     MemLog(memory->next);
@@ -142,7 +161,7 @@ void MemLog(MEM memory)
  * @param to
  * @param from
  */
-void MemJoin(MEM to, MEM from)
+void MemJoin(MEM __restrict__ to, MEM __restrict__ from)
 {
     if (!to || !from)
         return;

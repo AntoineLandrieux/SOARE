@@ -23,8 +23,6 @@ extern MEM MEMORY;
  * @brief Execute a function
  * @author Antoine LANDRIEUX
  *
- * @deprecated
- *
  * @param tree
  * @return char*
  */
@@ -45,6 +43,6 @@ char *Runtime(AST tree);
  *
  * @param rawcode
  */
-int Execute(char *file, char *rawcode);
+int Execute(char *__restrict__ file, char *__restrict__ rawcode);
 
 #endif /* __SOARE_RUNTIME_H__ */

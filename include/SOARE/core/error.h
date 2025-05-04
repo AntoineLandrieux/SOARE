@@ -29,6 +29,8 @@ typedef enum SoareExceptions
     SyntaxError,
     UnexpectedNear,
     UndefinedReference,
+    ObjectIsNotCallable,
+    VariableDefinedAsFunction,
     MathError,
     IndexOutOfRange,
     DivideByZero,

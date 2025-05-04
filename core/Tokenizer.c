@@ -76,7 +76,7 @@ static u8 chrSpace(const char character)
  */
 static u8 chrOperator(const char character)
 {
-    return strchr("<,+-^*/%%>", character) != NULL;
+    return strchr("<,+-^*/%>", character) != NULL;
 }
 
 /**
@@ -163,7 +163,7 @@ Document EmptyDocument(void)
  * @param type
  * @return Tokens*
  */
-Tokens *Token(char *filename, char *value, token_type type)
+Tokens *Token(char *__restrict__ filename, char *__restrict__ value, token_type type)
 {
     Tokens *token = (Tokens *)malloc(sizeof(Tokens));
 
@@ -286,7 +286,7 @@ static char *strcut(const char *string, size_t size)
  * @param ln
  * @param col
  */
-static void updateln(u64 *ln, u64 *col)
+static void updateln(u64 *__restrict__ ln, u64 *__restrict__ col)
 {
     *ln = (*ln) + 1;
     *col = 1;
@@ -300,7 +300,7 @@ static void updateln(u64 *ln, u64 *col)
  * @param text
  * @return Tokens*
  */
-Tokens *Tokenizer(char *filename, char *text)
+Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
 {
     if (!text)
         return NULL;
@@ -346,8 +346,7 @@ Tokens *Tokenizer(char *filename, char *text)
         char operator[3] = {
             0 [text],
             1 [text],
-            0
-        };
+            0};
 
         if (strOperator(operator))
         {

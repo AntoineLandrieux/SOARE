@@ -1,0 +1,4 @@
+enumerate false true end;$null="";@in(parent;source)$index=0;try while 1 do if parent[index]==source do return index+1 end;index=index+1;end;iferror return 
+0;end;end;@len(string)$index=0;$tmp=" ";while 1 do try tmp=string[index];iferror return index;end;index=index+1;end;end;@reverse(string)$res=string
+;$s=len(res);$n=0;while n<s do res[0-n-1]=string[n];n=n+1;end;return res;end;@sleep(time)if time<0 do return null;end;time=time*999999;while time
+>0 do time=time-1;end;end;

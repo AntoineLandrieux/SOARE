@@ -30,14 +30,12 @@
  */
 static u8 isNaN(char *string)
 {
-    if (!string)
-        return 1;
     if (*string == '+' || *string == '-')
         (volatile char *)string++;
     for (u8 dot = 1; *string; (volatile char *)string++)
         if (*string == '.' && dot)
             dot = 0;
-        else if (!(*string >= '0' && *string <= '9'))
+        else if (*string < '0' || *string > '9')
             return 1;
     return 0;
 }
@@ -261,8 +259,8 @@ long long GetArrayIndex(AST array, size_t size)
         return -1;
 
     long long indexlld = atoll(index);
-    free(index);
     indexlld = indexlld < 0 ? (long long)size + indexlld : indexlld;
+    free(index);
 
     if (size <= (size_t)indexlld || indexlld < 0)
     {
@@ -287,13 +285,12 @@ static char *Array(char *value, AST array)
         return value;
 
     long long index = GetArrayIndex(array, strlen(value));
+    char *result = NULL;
 
     if (index < 0)
         return value;
 
-    char *result = malloc(2);
-
-    if (!result)
+    if (!(result = malloc(2)))
     {
         free(value);
         return __SOARE_OUT_OF_MEMORY();
@@ -328,6 +325,8 @@ char *Math(AST tree)
         get = MemGet(MEMORY, tree->value);
         if (!get)
             return LeaveException(UndefinedReference, tree->value, tree->file);
+        if (get->body)
+            return LeaveException(VariableDefinedAsFunction, tree->value, tree->file);
         return vardup(get->value);
 
     case NODE_CALL:
@@ -345,7 +344,11 @@ char *Math(AST tree)
         sy = Eval(tree->child->sibling);
 
         if (!sx || !sy)
+        {
+            free(sx);
+            free(sy);
             return NULL;
+        }
 
         if (*(tree->value) == ',')
         {
@@ -355,24 +358,19 @@ char *Math(AST tree)
             return result;
         }
 
-        if (isNaN(sx) || isNaN(sy))
+        if (isNaN(sx))
         {
             if (!(result = malloc(2)))
                 return __SOARE_OUT_OF_MEMORY();
+            result[1] = 0;
 
             switch (*(tree->value))
             {
-            case '&':
-                snprintf(result, 2, "%d", *sx && *sy);
-                break;
             case '=':
-                snprintf(result, 2, "%d", !strcmp(sx, sy));
+                *result = '0' + !strcmp(sx, sy);
                 break;
             case '!':
-                snprintf(result, 2, "%d", strcmp(sx, sy));
-                break;
-            case '|':
-                snprintf(result, 2, "%d", *sx || *sy);
+                *result = '0' + strcmp(sx, sy);
                 break;
             default:
                 free(result);
@@ -384,7 +382,7 @@ char *Math(AST tree)
         dx = strtold(sx, &result);
         dy = strtold(sy, &result);
 
-        if (strchr("/%", *(tree->value)) && !dy)
+        if ((*(tree->value) == '/' || *(tree->value) == '%') && !dy)
             return LeaveException(DivideByZero, tree->value, tree->file);
 
         switch (*(tree->value))

@@ -27,6 +27,8 @@ typedef struct mem
     char *name;
     // Value
     char *value;
+    // Body
+    AST body;
 
     // Next
     struct mem *next;
@@ -58,7 +60,18 @@ MEM MemLast(MEM memory);
  * @param name
  * @return MEM
  */
-MEM MemPush(MEM memory, char *name, char *value);
+MEM MemPush(MEM __restrict__ memory, char * __restrict__ name, char * __restrict__ value);
+
+
+/**
+ * @brief Add a function to an existing memory
+ * @author Antoine LANDRIEUX
+ *
+ * @param memory
+ * @param body
+ * @return MEM
+ */
+MEM MemPushf(MEM __restrict__ memory, AST __restrict__ body);
 
 /**
  * @brief Find a variable in the memory
@@ -68,7 +81,7 @@ MEM MemPush(MEM memory, char *name, char *value);
  * @param name
  * @return MEM
  */
-MEM MemGet(MEM memory, char *name);
+MEM MemGet(MEM __restrict__ memory, char * __restrict__ name);
 
 /**
  * @brief Update a variable
@@ -78,7 +91,7 @@ MEM MemGet(MEM memory, char *name);
  * @param name
  * @return MEM
  */
-MEM MemSet(MEM memory, char *value);
+MEM MemSet(MEM __restrict__ memory, char * __restrict__ value);
 
 /**
  * @brief Display all variables
@@ -95,7 +108,7 @@ void MemLog(MEM memory);
  * @param to
  * @param from
  */
-void MemJoin(MEM to, MEM from);
+void MemJoin(MEM __restrict__ to, MEM __restrict__ from);
 
 /**
  * @brief Free the allocated memory
