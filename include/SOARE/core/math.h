@@ -33,7 +33,7 @@ AST ParseValue(Tokens **tokens);
  * @param priority
  * @return AST
  */
-AST ParseExpr(Tokens **tokens, u8 priority);
+AST ParseExpr(Tokens **tokens, unsigned char priority);
 
 /**
  * @brief Get the Array Index object

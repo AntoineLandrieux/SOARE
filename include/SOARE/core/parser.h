@@ -43,6 +43,8 @@ typedef enum node_type
     NODE_OPERATOR,
     NODE_CONDITION,
     NODE_REPETITION,
+    NODE_REINTERPRET,
+    NODE_SHELL,
     NODE_RETURN
 
 } node_type;
@@ -91,7 +93,7 @@ Node *Branch(char *value, node_type type, Document file);
  * @param type
  * @return Node*
  */
-Node *BranchFind(AST __restrict__ source, char *__restrict__ value, node_type type);
+Node *BranchFind(AST source, char *value, node_type type);
 
 /**
  * @brief Add a sibling branch
@@ -101,7 +103,7 @@ Node *BranchFind(AST __restrict__ source, char *__restrict__ value, node_type ty
  * @param element
  * @return AST
  */
-AST BranchJuxtapose(Node *__restrict__ source, AST __restrict__ element);
+AST BranchJuxtapose(Node *source, AST element);
 
 /**
  * @brief Join 2 branches
@@ -111,7 +113,7 @@ AST BranchJuxtapose(Node *__restrict__ source, AST __restrict__ element);
  * @param child
  * @return AST
  */
-AST BranchJoin(Node *__restrict__ parent, Node *__restrict__ child);
+AST BranchJoin(Node *parent, Node *child);
 
 /**
  * @brief Frees the memory allocated by a tree

@@ -97,10 +97,8 @@ class Minifier {
         let code = "";
         let ln = 1;
 
-        for (let tkn = 0; tkn < this.#Tokens.length; tkn++)
-        {
-            if (code.length >= this.MaxCharPerLine * ln)
-            {
+        for (let tkn = 0; tkn < this.#Tokens.length; tkn++) {
+            if (code.length >= this.MaxCharPerLine * ln) {
                 ln++;
                 code += '\n';
             }

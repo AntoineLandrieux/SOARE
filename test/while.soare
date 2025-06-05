@@ -1,13 +1,12 @@
 
-loadimport "script/std.soare";
+loadimport "script/std.min.soare";
 
-write "Please wait 5 seconds..."
+write ""
 $times = 0;
 
 while times < 5 + 1 do
   
-  __WRITE_END__ = "";
-  write "[", times, "/", 5, "]", TAB;
+  write "Please wait 5 seconds: [", times, "/", 5, "] ";
 
   $progressbar = 0;
   while progressbar < times + 1 do
@@ -18,10 +17,8 @@ while times < 5 + 1 do
   sleep(1);
   times = times + 1;
 
-  __WRITE_END__ = CR;
-  write "";
+  write "\r";
 
 end;
 
-__WRITE_END__ = LN;
-write "===== SUCESS =====";
+write "\n\t===== SUCESS =====\n";

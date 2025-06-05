@@ -1,21 +1,21 @@
 
 ? "Hello World!"
 try
-  write "Hello World!";
+  write "Hello World!\n";
 iferror
-  write "Error ! #1";
+  write "Error ! #1\n";
 end;
 
 ? "Error ! #2"
 try
   raise "problem";
 iferror
-  write "Error ! #2";
+  write "Error ! #2\n";
 end;
 
 ? "Error ! #3"
 try
   write 3/0;
 iferror
-  write "Error ! #3";
+  write "Error ! #3\n";
 end;

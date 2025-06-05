@@ -19,7 +19,7 @@ magic "Soare script"
 ## built-in functions
 color cyan "\<(in|len|reverse|sleep|M|Math|NaN|abs|not|floor|integer_division|integer_sqrt|pow|factorial|cos|sin|tan)\>"
 ## Keywords
-color brightblue "\<(do|else|end|enumerate|if|iferror|loadimport|or|inputch|raise|return|try|while|write|false|true|null|pi|rad|deg)\>"
+color brightblue "\<(do|else|end|enumerate|if|iferror|loadimport|or|input|raise|return|try|while|write|false|true|null|pi|rad|deg)\>"
 
 ## operators
 color magenta "[.:;,+*|=!\%@$]" "<" ">" "/" "-" "&"

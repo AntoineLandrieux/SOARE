@@ -21,6 +21,8 @@
   - [Loops and conditional structures](#loops-and-conditional-structures)
   - [Arrays](#arrays)
   - [User inputs](#user-inputs)
+  - [Shell and Reinterpret](#shell-and-reinterpret)
+  - [Escape Sequence](#escape-sequence)
   - [Predefined variables](#predefined-variables)
 
 ---
@@ -144,9 +146,13 @@ SOARE can manipulate text (represented by a string) as well as numbers. This inc
 To display text, we use the write keyword:
 
 ```txt
-write "Hello World!";
+write "Hello World!\n"; ? (1) A newline character or \n is a control character for Line feed
 write 123.456;
 ```
+
+>
+> **(1)** See [Escape Sequence](#escape-sequence)
+>
 
 ### Storing Data
 
@@ -176,7 +182,7 @@ We can create a function that writes the Fibonacci series:
   $next = b;
   
   while a < n do
-    write a;
+    write a, '\n';
     a = b;
     b = next;
     next = a + b;
@@ -206,7 +212,7 @@ $b = 1;
 $next = b;
 
 while a < 100 do
-  write a;
+  write a, '\n';
   a = b;
   b = next;
   next = a + b;
@@ -227,13 +233,13 @@ try
   inputch x;
 
   if NaN(x) do
-    write "Not a number"
+    write "\nNot a number"
   or x < 0 do
-    write "Negative";
+    write "\nNegative";
   or x == 0 do
-    write "Zero";
+    write "\nZero";
   else
-    write "Positive";
+    write "\nPositive";
   end;
 
 iferror
@@ -256,37 +262,82 @@ $index = 0;
 $size = len(msg);
 
 while index < size do
-  write msg[index];
+  write msg[index], '\n';
   index = index + 1;
 end;
 
 ? Negative number can be used to start with the end
-write msg[0-1]; ? Write the last character of "msg", here "!"
-write msg[0-2]; ? Write the one before last character of "msg", here "d"
+write msg[0-1], '\n'; ? Write the last character of "msg", here "!"
+write msg[0-2], '\n'; ? Write the one before last character of "msg", here "d"
 ```
 
 ### User Inputs
 
-You can capture user input using `inputch`
+You can capture user input using `input`
 
 ```txt
-$input="";
+$usr = "";
 
-inputch input;
-write "The ", input, " key has been pressed";
+write "Enter your name: ";
+input usr;
+
+write "Hello ", usr, "!";
 ```
+
+### Shell and Reinterpret
+
+- `$^` -> Run shell command
+- `$<` -> Reinterpret code
+
+**Run shell command:**
+
+```txt
+? Clear terminal
+
+? __PLATFORM__ : Get OS name
+if __PLATFORM__ == "Windows" do
+  $^"cls";
+else
+  $^"clear";
+end;
+
+$^"echo Terminal cleared"
+```
+
+**Reinterpret code:**
+
+```txt
+$msg = "Hello";
+
+$<"write \"", msg, "\";";
+
+$msg = "Hello";$<"write \"", msg, "\";";?commit
+```
+
+### Escape Sequence
+
+| Escape Sequence | Name               | Description                                                                            |
+|-----------------|--------------------|----------------------------------------------------------------------------------------|
+| \\a             | Alarm or Beep      | It is used to generate a bell sound.                                                   |
+| \\b             | Backspace          | It is used to move the cursor one place backward.                                      |
+| \\f             | Form Feed          | It is used to move the cursor to the start of the next logical page.                   |
+| \\n             | New Line           | It moves the cursor to the start of the next line.                                     |
+| \\r             | Carriage Return    | It moves the cursor to the start of the current line.                                  |
+| \\t             | Horizontal Tab     | It inserts some whitespace to the left of the cursor and moves the cursor accordingly. |
+| \\v             | Vertical Tab       | It is used to insert vertical space.                                                   |
+| \\\\            | Backlash           | Use to insert backslash character.                                                     |
+| \\`             | Single Quote       | It is used to display a single quotation mark.                                         |
+| \\'             | Single Quote       | It is used to display a single quotation mark.                                         |
+| \\"             | Double Quote       | It is used to display double quotation marks.                                          |
+| \\ooo           | Octal Number       | It is used to represent an octal number.                                               |
+| \\xhh           | Hexadecimal Number | It represents the hexadecimal number.                                                  |
 
 ### Predefined Variables
 
-| name              | value                                   |
-|-------------------|-----------------------------------------|
-| \_\_SOARE\_\_     | `SOARE Antoine LANDRIEUX (MIT LICENSE)` |
-| \_\_BUILD\_\_     | *build date*                            |
-| \_\_WRITE_END\_\_ | `\n`                                    |
-| BC                | `\b`                                    |
-| CR                | `\r`                                    |
-| LN                | `\n`                                    |
-| TAB               | `\t`                                    |
-| CLS               | `\033c\033[3J`                          |
+| name              | value                 |
+|-------------------|-----------------------|
+| \_\_SOARE\_\_     | `SOARE (MIT LICENSE)` |
+| \_\_BUILD\_\_     | *build date*          |
+| \_\_PLATFORM\_\_  | *current OS*          |
 
 > SOARE Antoine LANDRIEUX <https://github.com/AntoineLandrieux/SOARE> (MIT LICENSE)

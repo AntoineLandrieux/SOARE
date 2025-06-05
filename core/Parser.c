@@ -52,7 +52,7 @@ Node *Branch(char *value, node_type type, Document file)
  * @param type
  * @return Node*
  */
-Node *BranchFind(AST __restrict__ source, char *__restrict__ value, node_type type)
+Node *BranchFind(AST source, char *value, node_type type)
 {
     if (!source)
         return NULL;
@@ -71,7 +71,7 @@ Node *BranchFind(AST __restrict__ source, char *__restrict__ value, node_type ty
  * @param element
  * @return AST
  */
-AST BranchJuxtapose(Node *__restrict__ source, AST __restrict__ element)
+AST BranchJuxtapose(Node *source, AST element)
 {
     if (!source || !element)
         return source;
@@ -96,7 +96,7 @@ AST BranchJuxtapose(Node *__restrict__ source, AST __restrict__ element)
  * @param child
  * @return AST
  */
-AST BranchJoin(Node * __restrict__ parent, Node * __restrict__ child)
+AST BranchJoin(Node *parent, Node *child)
 {
     if (!child || !parent)
         return NULL;
@@ -225,6 +225,22 @@ AST Parse(Tokens *tokens)
 
             else if (*(old->value) == '$')
             {
+                if (tokens->type == TKN_OPERATOR)
+                {
+                    char value = *(tokens->value);
+                    tokens = tokens->next;
+                    AST content = ParseExpr(&tokens, 0xF);
+
+                    if (!content || (value != '^' && value != '<'))
+                    {
+                        TreeFree(root);
+                        return LeaveException(SyntaxError, old->value, old->file);
+                    }
+
+                    BranchJoin(curr, BranchJoin(Branch("$", value == '^' ? NODE_SHELL : NODE_REINTERPRET, old->file), content));
+                    continue;
+                }
+
                 if (!TokensFollowPattern(tokens, 2, TKN_NAME, TKN_ASSIGN))
                 {
                     TreeFree(root);
@@ -247,7 +263,7 @@ AST Parse(Tokens *tokens)
             else if (!strcmp(old->value, KEYWORD_RETURN))
                 BranchJoin(curr, BranchJoin(Branch(old->value, NODE_RETURN, old->file), ParseExpr(&tokens, 0xF)));
 
-            else if (!strcmp(old->value, KEYWORD_INPUTCH))
+            else if (!strcmp(old->value, KEYWORD_INPUT))
             {
                 if (tokens->type != TKN_NAME)
                 {

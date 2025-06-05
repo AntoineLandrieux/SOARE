@@ -18,103 +18,107 @@
 
 #include <SOARE/SOARE.h>
 
-namespace App
+/**
+ * @brief Run from file using Terminal argument
+ * @author Antoine LANDRIEUX
+ *
+ * @param argc
+ * @param argv
+ * @return int
+ */
+int RunFromFile(int argc, char *argv[])
 {
-
-    bool CONSOLE = false;
-
-    int RunFromFile(int argc, char *argv[])
+    for (int i = 1; i < argc; i++)
     {
-        for (int i = 1; i < argc; i++)
+        char *filename = argv[i];
+        std::ifstream file(filename);
+
+        if (!file)
         {
-            char *filename = argv[i];
-            std::ifstream file(filename);
-
-            if (!file)
-            {
-                SOARE::LeaveException(SOARE::FileError, filename, SOARE::EmptyDocument());
-                return EXIT_FAILURE;
-            }
-
-            std::stringstream buffer;
-            buffer << file.rdbuf();
-            SOARE::Execute(filename, const_cast<char *>(buffer.str().c_str()));
+            SOARE::LeaveException(SOARE::FileError, filename, SOARE::EmptyDocument());
+            return EXIT_FAILURE;
         }
 
-        return EXIT_SUCCESS;
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        SOARE::Execute(filename, const_cast<char *>(buffer.str().c_str()));
     }
 
-    int Console()
-    {
-        CONSOLE = true;
-        std::string exe = "";
-        std::string file = __SOARE_FILE__;
+    return EXIT_SUCCESS;
+}
 
+/**
+ * @brief Console mode
+ * @author Antoine LANDRIEUX
+ *
+ * @return int
+ */
+int Console()
+{
+    std::string exe = "";
+
+    std::cout
+        << "SOARE v" << SOARE_MAJOR << "." << SOARE_MINOR << "." << SOARE_PATCH
+        << " [" << __PLATFORM__ << " - Antoine LANDRIEUX (MIT License)]\n"
+        << "<https://github.com/AntoineLandrieux/SOARE>\n"
+#ifndef __SOARE_NO_COLORED_OUTPUT
+        // Lite
+        << "\033[2m"
+#endif /* __SOARE_NO_COLORED_OUTPUT */
+        << "Enter '?run' or '?commit' to run code or '?exit' to quit.\n"
+#ifndef __SOARE_NO_COLORED_OUTPUT
+        // Normal
+        << "\033[0m"
+#endif /* __SOARE_NO_COLORED_OUTPUT */
+        << std::endl;
+
+    while (true)
+    {
         std::cout
 #ifndef __SOARE_NO_COLORED_OUTPUT
-            // Blue
-            << "\033[1;34m"
+            // Purple
+            << "\033[35m"
 #endif /* __SOARE_NO_COLORED_OUTPUT */
-            << "SOARE v" << SOARE_MAJOR << "." << SOARE_MINOR << "." << SOARE_PATCH
-            << " Antoine LANDRIEUX (MIT License)\n"
-            << "<https://github.com/AntoineLandrieux/SOARE>\n"
+            << ">>> "
 #ifndef __SOARE_NO_COLORED_OUTPUT
-            // Normal
             << "\033[0m"
 #endif /* __SOARE_NO_COLORED_OUTPUT */
-            << "Enter '?run' or '?commit' to run code or '?exit' to quit.\n"
-            << std::endl;
+            ;
 
-        while (true)
+        std::string user = "";
+        std::getline(std::cin, user);
+        exe.append(user.append("\n"));
+
+        if (user.rfind("?run") != std::string::npos)
         {
-            std::cout
-#ifndef __SOARE_NO_COLORED_OUTPUT
-                // Purple
-                << "\033[0;35m"
-#endif /* __SOARE_NO_COLORED_OUTPUT */
-                << ">>> "
-#ifndef __SOARE_NO_COLORED_OUTPUT
-                << "\033[0m"
-#endif /* __SOARE_NO_COLORED_OUTPUT */
-                ;
-
-            std::string user = "";
-            std::getline(std::cin, user);
-
-            if (user[0] == '?')
-            {
-                if (user == "?run" || user == "?commit")
-                    SOARE::Execute(const_cast<char *>(file.c_str()), const_cast<char *>(exe.c_str()));
-
-                if (user == "?commit")
-                    exe = " ";
-
-                else if (user == "?exit")
-                    return EXIT_SUCCESS;
-
-                else if (user == "?clear")
-                    std::cout << "\033c\033[3J";
-
-                continue;
-            }
-
-            exe.append(user.append("\n"));
+            SOARE::Execute((char *)"input", const_cast<char *>(exe.c_str()));
+            std::cout << std::endl;
         }
 
-        return EXIT_SUCCESS;
+        else if (user.rfind("?commit") != std::string::npos)
+        {
+            SOARE::Execute((char *)"input", const_cast<char *>(exe.c_str()));
+            std::cout << std::endl;
+            exe = " ";
+        }
+
+        else if (user.rfind("?clear") != std::string::npos)
+        {
+            std::cout << "\033c\033[3J";
+        }
+
+        else if (user.rfind("?exit") != std::string::npos)
+        {
+            return EXIT_SUCCESS;
+        }
     }
 
+    return EXIT_SUCCESS;
 }
 
 int main(int argc, char *argv[])
 {
     if (argc > 1)
-        return App::RunFromFile(argc, argv);
-    return App::Console();
-}
-
-static void __attribute__((destructor)) kill(void)
-{
-    if (App::CONSOLE)
-        std::cerr << "\nBye!\n";
+        return RunFromFile(argc, argv);
+    return Console();
 }

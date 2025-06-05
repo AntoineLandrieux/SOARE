@@ -60,8 +60,7 @@ MEM MemLast(MEM memory);
  * @param name
  * @return MEM
  */
-MEM MemPush(MEM __restrict__ memory, char * __restrict__ name, char * __restrict__ value);
-
+MEM MemPush(MEM memory, char *name, char *value);
 
 /**
  * @brief Add a function to an existing memory
@@ -71,7 +70,7 @@ MEM MemPush(MEM __restrict__ memory, char * __restrict__ name, char * __restrict
  * @param body
  * @return MEM
  */
-MEM MemPushf(MEM __restrict__ memory, AST __restrict__ body);
+MEM MemPushf(MEM memory, AST body);
 
 /**
  * @brief Find a variable in the memory
@@ -81,7 +80,7 @@ MEM MemPushf(MEM __restrict__ memory, AST __restrict__ body);
  * @param name
  * @return MEM
  */
-MEM MemGet(MEM __restrict__ memory, char * __restrict__ name);
+MEM MemGet(MEM memory, char *name);
 
 /**
  * @brief Update a variable
@@ -91,7 +90,7 @@ MEM MemGet(MEM __restrict__ memory, char * __restrict__ name);
  * @param name
  * @return MEM
  */
-MEM MemSet(MEM __restrict__ memory, char * __restrict__ value);
+MEM MemSet(MEM memory, char *value);
 
 /**
  * @brief Display all variables
@@ -108,7 +107,7 @@ void MemLog(MEM memory);
  * @param to
  * @param from
  */
-void MemJoin(MEM __restrict__ to, MEM __restrict__ from);
+void MemJoin(MEM to, MEM from);
 
 /**
  * @brief Free the allocated memory

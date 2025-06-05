@@ -32,6 +32,7 @@ typedef enum SoareExceptions
     ObjectIsNotCallable,
     VariableDefinedAsFunction,
     MathError,
+    InvalidEscapeSequence,
     IndexOutOfRange,
     DivideByZero,
     RaiseException
@@ -42,8 +43,9 @@ typedef enum SoareExceptions
  * @brief Error display
  * @author Antoine LANDRIEUX
  *
+ * @return unsigned char
  */
-u8 AsIgnoredException();
+unsigned char AsIgnoredException();
 
 /**
  * @brief Enable/disable error display
@@ -51,7 +53,7 @@ u8 AsIgnoredException();
  *
  * @param ignore
  */
-void IgnoreException(u8 ignore);
+void IgnoreException(unsigned char ignore);
 
 /**
  * @brief Clears errors

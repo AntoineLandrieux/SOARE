@@ -62,7 +62,7 @@ MEM MemLast(MEM memory)
  * @param name
  * @return MEM
  */
-MEM MemPush(MEM __restrict__ memory, char *__restrict__ name, char *__restrict__ value)
+MEM MemPush(MEM memory, char *name, char *value)
 {
     if (!memory)
         return NULL;
@@ -93,9 +93,9 @@ MEM MemPush(MEM __restrict__ memory, char *__restrict__ name, char *__restrict__
  * @param body
  * @return MEM
  */
-MEM MemPushf(MEM __restrict__ memory, AST __restrict__ body)
+MEM MemPushf(MEM memory, AST body)
 {
-    MEM mem = MemPush(memory, body->value, strdup(__SOARE_FUNCTION__));
+    MEM mem = MemPush(memory, body->value, NULL);
     if (mem)
         mem->body = body;
     return mem;
@@ -109,12 +109,12 @@ MEM MemPushf(MEM __restrict__ memory, AST __restrict__ body)
  * @param name
  * @return MEM
  */
-MEM MemGet(MEM __restrict__ memory, char *__restrict__ name)
+MEM MemGet(MEM memory, char *name)
 {
     if (!memory)
         return NULL;
     MEM get = MemGet(memory->next, name);
-    if (!get && memory->value)
+    if (!get && memory->name)
         if (!strcmp(memory->name, name))
             return memory;
     return get;
@@ -128,7 +128,7 @@ MEM MemGet(MEM __restrict__ memory, char *__restrict__ name)
  * @param name
  * @return MEM
  */
-MEM MemSet(MEM __restrict__ memory, char *__restrict__ value)
+MEM MemSet(MEM memory, char *value)
 {
     if (!memory)
         return NULL;
@@ -161,7 +161,7 @@ void MemLog(MEM memory)
  * @param to
  * @param from
  */
-void MemJoin(MEM __restrict__ to, MEM __restrict__ from)
+void MemJoin(MEM to, MEM from)
 {
     if (!to || !from)
         return;

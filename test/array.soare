@@ -1,5 +1,5 @@
 
-loadimport "script/std.soare";
+loadimport "script/std.min.soare";
 
 $msg="Hello World!";
 
@@ -11,12 +11,10 @@ $msg="Hello World!";
     if in("AEIOUYaeiouy"; message[index]) do
       write " is vowel"
     end;
-    write LN;
+    write "\n";
     index = index + 1;
   end;
 end;
 
-__WRITE_END__ = "";
 spell(msg);
-__WRITE_END__ = LN;
-write msg, " -> ", reverse(msg);
+write msg, " -> ", reverse(msg), '\n';

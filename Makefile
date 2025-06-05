@@ -24,7 +24,10 @@ SRC = src
 CORE = core
 INCLUDE = include
 
-CFLAGS = -Wall -Wextra -Wpedantic -Werror
+CFLAGS := -Wall
+CFLAGS += -Wextra
+CFLAGS += -Wpedantic
+CFLAGS += -Werror
 
 ifeq ($(OS), Windows_NT)
 WINDRES = windres
@@ -33,8 +36,10 @@ else
 WINDRES = echo
 endif
 
-# DEBUG = -D __SOARE_DEBUG
-# NO_COLORED_OUTPUT = -D __SOARE_NO_COLORED_OUTPUT
+SOARE_FLAGS := 
+# SOARE_FLAGS += -D __SOARE_DEBUG 
+# SOARE_FLAGS += -D __SOARE_KILLED_MESSAGE 
+# SOARE_FLAGS += -D __SOARE_NO_COLORED_OUTPUT 
 
 default: $(BIN)/$(APP)
 
@@ -46,13 +51,13 @@ $(LIB):
 	mkdir -p $(LIB)
 
 $(LIB)/%.o: $(CORE)/%.c
-	$(CC) -c $< -o $@ -I $(INCLUDE) $(CFLAGS) $(DEBUG) $(NO_COLORED_OUTPUT)
+	$(CC) -c $< -o $@ -I $(INCLUDE) $(CFLAGS) $(SOARE_FLAGS)
 
 $(BIN)/$(APP): $(LIB) $(CORE_OBJS) $(SRC)/Main.cpp
 	mkdir -p $(BIN)
 	$(WINDRES) windows/resources/app.rc -coff $(RES)
 	$(AR) rcs $(LIB)/libsoare$(VERSION_MAJ).a $(CORE_OBJS)
-	$(CPP) $(RES) $(SRC)/Main.cpp -o $(BIN)/$(APP) -I $(INCLUDE) -L$(LIB) -lsoare$(VERSION_MAJ) $(CFLAGS) $(DEBUG) $(NO_COLORED_OUTPUT)
+	$(CPP) $(RES) $(SRC)/Main.cpp -o $(BIN)/$(APP) -I $(INCLUDE) -L$(LIB) -lsoare$(VERSION_MAJ) $(CFLAGS) $(SOARE_FLAGS)
 	rm $(CORE_OBJS) $(RES)
 
 run:

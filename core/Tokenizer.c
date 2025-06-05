@@ -24,9 +24,9 @@
  *
  * @param character
  *
- * @return u8
+ * @return unsigned char
  */
-static u8 chrNum(const char character)
+static inline unsigned char chrNum(const char character)
 {
     return character >= '0' && character <= '9';
 }
@@ -36,9 +36,9 @@ static u8 chrNum(const char character)
  * @author Antoine LANDRIEUX
  *
  * @param character
- * @return u8
+ * @return unsigned char
  */
-static u8 chrAlpha(const char character)
+static inline unsigned char chrAlpha(const char character)
 {
     return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z');
 }
@@ -48,9 +48,9 @@ static u8 chrAlpha(const char character)
  * @author Antoine LANDRIEUX
  *
  * @param character
- * @return u8
+ * @return unsigned char
  */
-static u8 chrAlnum(const char character)
+static inline unsigned char chrAlnum(const char character)
 {
     return chrAlpha(character) || chrNum(character);
 }
@@ -60,9 +60,9 @@ static u8 chrAlnum(const char character)
  * @author Antoine LANDRIEUX
  *
  * @param character
- * @return u8
+ * @return unsigned char
  */
-static u8 chrSpace(const char character)
+static inline unsigned char chrSpace(const char character)
 {
     return character == ' ' || character == '\t' || character == '\r' || character == '\n';
 }
@@ -72,9 +72,9 @@ static u8 chrSpace(const char character)
  * @author Antoine LANDRIEUX
  *
  * @param string
- * @return u8
+ * @return unsigned char
  */
-static u8 chrOperator(const char character)
+static inline unsigned char chrOperator(const char character)
 {
     return strchr("<,+-^*/%>", character) != NULL;
 }
@@ -84,17 +84,20 @@ static u8 chrOperator(const char character)
  * @author Antoine LANDRIEUX
  *
  * @param string
- * @return u8
+ * @return unsigned char
  */
-static u8 strOperator(char *string)
+static inline unsigned char strOperator(char *string)
 {
     return (
+        //
         !strcmp("==", string) ||
         !strcmp("<=", string) ||
         !strcmp(">=", string) ||
         !strcmp("!=", string) ||
         !strcmp("&&", string) ||
-        !strcmp("||", string));
+        !strcmp("||", string)
+        //
+    );
 }
 
 /**
@@ -102,39 +105,132 @@ static u8 strOperator(char *string)
  * @author Antoine LANDRIEUX
  *
  * @param string
- * @return u8
+ * @return unsigned char
  */
-static u8 strKeyword(char *string)
+static inline unsigned char strKeyword(char *string)
 {
     return (
         //
         !strcmp(KEYWORD_DO, string) ||
-        !strcmp(KEYWORD_ELSE, string) ||
-        !strcmp(KEYWORD_END, string) ||
-        !strcmp(KEYWORD_ENUMERATE, string) ||
         !strcmp(KEYWORD_IF, string) ||
-        !strcmp(KEYWORD_IFERROR, string) ||
-        !strcmp(KEYWORD_INPUTCH, string) ||
-        !strcmp(KEYWORD_LOADIMPORT, string) ||
         !strcmp(KEYWORD_OR, string) ||
+        !strcmp(KEYWORD_TRY, string) ||
+        !strcmp(KEYWORD_END, string) ||
+        !strcmp(KEYWORD_ELSE, string) ||
+        !strcmp(KEYWORD_INPUT, string) ||
+        !strcmp(KEYWORD_WRITE, string) ||
+        !strcmp(KEYWORD_WHILE, string) ||
         !strcmp(KEYWORD_RAISE, string) ||
         !strcmp(KEYWORD_RETURN, string) ||
-        !strcmp(KEYWORD_TRY, string) ||
-        !strcmp(KEYWORD_WHILE, string) ||
-        !strcmp(KEYWORD_WRITE, string)
+        !strcmp(KEYWORD_IFERROR, string) ||
+        !strcmp(KEYWORD_ENUMERATE, string) ||
+        !strcmp(KEYWORD_LOADIMPORT, string)
         //
     );
 }
 
 /**
  * @brief Give the type of the string
+ * @author Antoine LANDRIEUX
  *
  * @param string
  * @return token_type
  */
-static token_type Symbol(char *string)
+static inline token_type Symbol(char *string)
 {
     return strKeyword(string) ? TKN_KEYWORD : TKN_NAME;
+}
+
+/**
+ * @brief Translate Escape Sequence
+ * @author Antoine LANDRIEUX
+ *
+ * @param string
+ * @return char*
+ */
+static char *TranslateEscapeSequence(char *string)
+{
+    char *chr = string;
+    char *end = string + strlen(string);
+
+    unsigned int num = 0;
+    volatile int len = 1;
+
+    while (NULL != (chr = strchr(chr, '\\')))
+    {
+        len = 1;
+
+        switch (*(chr + 1))
+        {
+        case 'e':
+            *chr = '\033';
+            break;
+
+        case 'n':
+            *chr = '\n';
+            break;
+
+        case 'f':
+            *chr = '\f';
+            break;
+
+        case 'r':
+            *chr = '\r';
+            break;
+
+        case 'a':
+            *chr = '\a';
+            break;
+
+        case 'v':
+            *chr = '\v';
+            break;
+
+        case 't':
+            *chr = '\t';
+            break;
+
+        case 'b':
+            *chr = '\b';
+            break;
+
+        case 'x':
+            if (!sscanf(chr + 2, "%2x", &num))
+                return LeaveException(InvalidEscapeSequence, chr, EmptyDocument());
+            *chr = (char)num;
+            len = 3;
+            break;
+
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+            if (!sscanf(chr + 1, "%3o", &num))
+                return LeaveException(InvalidEscapeSequence, chr, EmptyDocument());
+            *chr = (char)num;
+            len = 3;
+            break;
+
+        case '`':
+        case '"':
+        case '\'':
+        case '\\':
+            *chr = *(chr + 1);
+            break;
+
+        default:
+            return LeaveException(InvalidEscapeSequence, chr, EmptyDocument());
+        }
+
+        chr++;
+        memmove(chr, chr + len, end - chr + len);
+    }
+
+    return string;
 }
 
 /**
@@ -286,7 +382,7 @@ static char *strcut(const char *string, size_t size)
  * @param ln
  * @param col
  */
-static void updateln(u64 *__restrict__ ln, u64 *__restrict__ col)
+static void updateln(unsigned long long *__restrict__ ln, unsigned long long *__restrict__ col)
 {
     *ln = (*ln) + 1;
     *col = 1;
@@ -308,8 +404,8 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
     Tokens *token = Token(filename, NULL, TKN_EOF);
     Tokens *curr = token;
 
-    u64 col = 0;
-    u64 ln = 0;
+    unsigned long long col = 0;
+    unsigned long long ln = 0;
 
     updateln(&ln, &col);
 
@@ -338,15 +434,18 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
         }
 
         token_type type = TKN_EOF;
-        u64 offset = 1;
+        unsigned long long offset = 1;
 
         curr->file.ln = ln;
         curr->file.col = col;
 
         char operator[3] = {
+            //
             0 [text],
             1 [text],
-            0};
+            0
+            //
+        };
 
         if (strOperator(operator))
         {
@@ -375,7 +474,7 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
 
         else if (chrNum(*text))
         {
-            u8 point = 0;
+            unsigned char point = 0;
             while (chrNum((&*text)[offset]) || ((&*text)[offset] == '.' && !point))
                 offset++;
             type = TKN_NUMBER;
@@ -384,10 +483,16 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
         else if (strchr("\"'`", *text) != NULL)
         {
             offset--;
+            char ignore = 0;
             char quote = *text;
             (volatile char *)text++;
-            while ((&*text)[offset] != quote && (&*text)[offset])
+
+            while ((&*text)[offset] && ((&*text)[offset] != quote || ignore))
+            {
+                ignore = !ignore && (&*text)[offset] == '\\';
                 offset++;
+            }
+
             type = TKN_STRING;
             offset++;
         }
@@ -398,12 +503,12 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
             continue;
         }
 
-        curr->value = type == TKN_STRING ? strcut(&*text, offset - 1) : strcut(&*text, offset);
+        curr->value = type == TKN_STRING ? TranslateEscapeSequence(strcut(&*text, offset - 1)) : strcut(&*text, offset);
         curr->type = type == TKN_EOF ? Symbol(curr->value) : type;
         curr->next = Token(filename, NULL, TKN_EOF);
         curr = curr->next;
 
-        for (u64 i = 0; i < offset; i++)
+        for (unsigned long long i = 0; i < offset; i++)
         {
             col += 1;
             if (*text == '\n')

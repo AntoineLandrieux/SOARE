@@ -80,7 +80,7 @@ end;
   if time < 0 do
     return null;
   end;
-  time = time * 999999;
+  time = time * 550000;
   while time > 0 do
     time = time - 1;
   end;

@@ -31,7 +31,7 @@ namespace SOARE
 /* SOARE minor */
 #define SOARE_MINOR 0
 /* SOARE patch */
-#define SOARE_PATCH 4
+#define SOARE_PATCH 5
 
         /**
          * @brief Structure of a document
@@ -50,14 +50,8 @@ namespace SOARE
 
         } Document;
 
-/* Input file for console mode */
-#define __SOARE_FILE__ "input"
-
-/* Soare function */
-#define __SOARE_FUNCTION__ "\033[0;2m<SOARE::Function>\033[0m"
-
-#include "utils/int.h"
 #include "utils/keywords.h"
+#include "utils/platform.h"
 
 #include "core/error.h"
 #include "core/tokenizer.h"

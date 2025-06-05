@@ -26,13 +26,13 @@
  * @author Antoine LANDRIEUX
  *
  * @param string
- * @return u8
+ * @return unsigned char
  */
-static u8 isNaN(char *string)
+static unsigned char isNaN(char *string)
 {
     if (*string == '+' || *string == '-')
         (volatile char *)string++;
-    for (u8 dot = 1; *string; (volatile char *)string++)
+    for (unsigned char dot = 1; *string; (volatile char *)string++)
         if (*string == '.' && dot)
             dot = 0;
         else if (*string < '0' || *string > '9')
@@ -95,9 +95,9 @@ static char *__float(long double number)
  * @author Antoine LANDRIEUX
  *
  * @param symbol
- * @return u8
+ * @return unsigned char
  */
-static u8 MathPriority(char symbol)
+static unsigned char MathPriority(char symbol)
 {
     if (strchr("/*%^", symbol))
         return 1;
@@ -119,8 +119,10 @@ static AST ParseArray(Tokens **tokens)
 {
     if ((*tokens)->type != TKN_ARRAYL)
         return NULL;
+
     TokenNext(tokens, 1);
     AST value = ParseExpr(tokens, 0xF);
+
     if ((*tokens)->type != TKN_ARRAYR)
         return NULL;
     TokenNext(tokens, 1);
@@ -197,7 +199,7 @@ AST ParseValue(Tokens **tokens)
  * @param priority
  * @return AST
  */
-AST ParseExpr(Tokens **tokens, u8 priority)
+AST ParseExpr(Tokens **tokens, unsigned char priority)
 {
     Node *x = ParseValue(tokens);
     Node *y = NULL;
@@ -208,7 +210,7 @@ AST ParseExpr(Tokens **tokens, u8 priority)
 
     while ((*tokens)->type == TKN_OPERATOR && !ErrorLevel())
     {
-        u8 op = MathPriority(*(*tokens)->value);
+        unsigned char op = MathPriority(*(*tokens)->value);
 
         if (op >= priority)
             break;

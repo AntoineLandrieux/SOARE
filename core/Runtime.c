@@ -16,27 +16,50 @@
  */
 
 #include <SOARE/SOARE.h>
-#ifdef _WIN32
-#include <conio.h>
-#else
-// Why there are no fucking getch predefined ???
-#include <termios.h>
-static struct termios old, current;
-
-char getch(void)
-{
-    tcgetattr(0, &old);
-    current = old;
-    current.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(0, TCSANOW, &current);
-    char ch = getchar();
-    tcsetattr(0, TCSANOW, &old);
-    return ch;
-}
-#endif
 
 MEM MEMORY = NULL;
 static MEM FUNCTION = NULL;
+
+/**
+ * @brief
+ * @author Antoine LANDRIEUX
+ *
+ * @return char*
+ */
+char *input()
+{
+    char *str = NULL;
+    char ch;
+
+    size_t size = 0;
+    size_t capacity = 1;
+
+    if (!(str = (char *)malloc(capacity * sizeof(char))))
+        return __SOARE_OUT_OF_MEMORY();
+
+    while ((ch = getchar()) != '\n' && ch != EOF)
+    {
+        if (size + 1 >= capacity)
+        {
+            capacity *= 2;
+
+            char *temp = realloc(str, capacity * sizeof(char));
+
+            if (!temp)
+            {
+                free(str);
+                return __SOARE_OUT_OF_MEMORY();
+            }
+
+            str = temp;
+        }
+
+        str[size++] = ch;
+    }
+
+    str[size] = 0;
+    return str;
+}
 
 /**
  * @brief From file file
@@ -76,6 +99,7 @@ static AST loadimport(char *filename)
 #endif
 
     free(content);
+    TokensFree(tokens);
     fclose(file);
 
     return ast;
@@ -85,16 +109,9 @@ static void InterpreterVar()
 {
     MEMORY = Mem();
 
-    MemPush(MEMORY, "__SOARE__", strdup("SOARE Antoine LANDRIEUX (MIT LICENSE)"));
+    MemPush(MEMORY, "__SOARE__", strdup("SOARE (MIT LICENSE)"));
     MemPush(MEMORY, "__BUILD__", strdup(__DATE__));
-
-    MemPush(MEMORY, "__WRITE_END__", strdup("\n"));
-
-    MemPush(MEMORY, "BC", strdup("\b"));
-    MemPush(MEMORY, "CR", strdup("\r"));
-    MemPush(MEMORY, "LN", strdup("\n"));
-    MemPush(MEMORY, "TAB", strdup("\t"));
-    MemPush(MEMORY, "CLS", strdup("\033c\033[3J"));
+    MemPush(MEMORY, "__PLATFORM__", strdup(__PLATFORM__));
 }
 
 /**
@@ -154,6 +171,10 @@ char *Runtime(AST tree)
         return NULL;
 
     AST root = tree;
+    AST tmp = NULL;
+    MEM get = NULL;
+    Tokens *tokens = NULL;
+    char *returned = NULL;
 
     if (!MEMORY)
         InterpreterVar();
@@ -164,14 +185,30 @@ char *Runtime(AST tree)
 
     for (AST curr = root->child; curr && !ErrorLevel(); curr = curr->sibling)
     {
-        char *returned = NULL;
-        i64 num = 0;
-        AST tmp = NULL;
-        MEM get = NULL;
+        long long num = 0;
 
         switch (curr->type)
         {
+        case NODE_SHELL:
+
+            returned = Eval(curr->child);
+            system(returned);
+            free(returned);
+            break;
+
+        case NODE_REINTERPRET:
+
+            returned = Eval(curr->child);
+            tokens = Tokenizer("<SOARE::REINTERPRET>", returned);
+            tmp = Parse(tokens);
+            free(Runtime(tmp));
+            TokensFree(tokens);
+            TreeFree(tmp);
+            free(returned);
+            break;
+
         case NODE_FUNCTION:
+
             MemPushf(statement, curr);
             break;
 
@@ -185,12 +222,8 @@ char *Runtime(AST tree)
 
             if ((get = MemGet(MEMORY, curr->value)))
             {
-                if (!(returned = malloc(2)))
-                {
-                    __SOARE_OUT_OF_MEMORY();
+                if (!(returned = input()))
                     break;
-                }
-                returned[0] = (char)getch();
                 MemSet(get, returned);
                 break;
             }
@@ -295,10 +328,10 @@ char *Runtime(AST tree)
 
         case NODE_TRY:
 
-            num = (i64)AsIgnoredException();
+            num = (long long)AsIgnoredException();
             IgnoreException(0x1);
             returned = Runtime(curr->child);
-            IgnoreException((u8)num);
+            IgnoreException((unsigned char)num);
 
             if (ErrorLevel())
             {
@@ -316,7 +349,7 @@ char *Runtime(AST tree)
         case NODE_OUTPUT:
 
             if ((returned = Eval(curr->child)))
-                printf("%s%s", returned, MemGet(MEMORY, "__WRITE_END__")->value);
+                printf("%s", returned);
             break;
 
         case NODE_RETURN:

@@ -17,10 +17,10 @@
 #include <SOARE/SOARE.h>
 
 /* Enable/disable error display */
-static u8 enable = 1;
+static unsigned char enable = 1;
 
 /* Error level */
-static i8 ErrorLvl = 0;
+static char errorlevel = 0;
 
 /* Exceptions */
 static char *Exceptions[] = {
@@ -34,6 +34,7 @@ static char *Exceptions[] = {
     "ObjectIsNotCallable",
     "VariableDefinedAsFunction",
     "MathError",
+    "InvalidEscapeSequence",
     "IndexOutOfRange",
     "DivideByZero",
     "RaiseException"
@@ -44,8 +45,9 @@ static char *Exceptions[] = {
  * @brief Error display
  * @author Antoine LANDRIEUX
  *
+ * @return unsigned char
  */
-u8 AsIgnoredException()
+unsigned char AsIgnoredException()
 {
     return !enable;
 }
@@ -56,7 +58,7 @@ u8 AsIgnoredException()
  *
  * @param ignore
  */
-void IgnoreException(u8 ignore)
+void IgnoreException(unsigned char ignore)
 {
     enable = !ignore;
 }
@@ -68,7 +70,7 @@ void IgnoreException(u8 ignore)
  */
 void ClearException(void)
 {
-    ErrorLvl = 0;
+    errorlevel = 0;
 }
 
 /**
@@ -79,7 +81,7 @@ void ClearException(void)
  */
 char ErrorLevel(void)
 {
-    return ErrorLvl;
+    return errorlevel;
 }
 
 /**
@@ -113,10 +115,10 @@ void *LeaveException(SoareExceptions error, char *string, Document file)
         );
 #ifndef __SOARE_NO_COLORED_OUTPUT
         // Normal
-        fprintf(stderr, "\033[0;39m");
+        fprintf(stderr, "\033[0m");
 #endif /* __SOARE_NO_COLORED_OUTPUT */
     }
     // set error at level 1
-    ErrorLvl = 1;
+    errorlevel = 1;
     return NULL;
 }
