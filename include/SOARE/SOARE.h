@@ -16,6 +16,16 @@
  *
  */
 
+/* SOARE major */
+#define SOARE_MAJOR 1
+/* SOARE minor */
+#define SOARE_MINOR 1
+/* SOARE patch */
+#define SOARE_PATCH 0
+
+/* SOARE max input */
+#define __SOARE_MAX_INPUT__ 255
+
 #ifdef __cplusplus
 /**
  * SOARE namespace
@@ -25,13 +35,6 @@ namespace SOARE
     extern "C"
     {
 #endif /* __cplusplus */
-
-/* SOARE major */
-#define SOARE_MAJOR 1
-/* SOARE minor */
-#define SOARE_MINOR 0
-/* SOARE patch */
-#define SOARE_PATCH 5
 
         /**
          * @brief Structure of a document

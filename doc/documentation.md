@@ -76,6 +76,7 @@ Executes the code written in the console
 Hello!
 >>> ?run
 Hello!
+>>>
 ```
 
 - `?commit`
@@ -87,6 +88,19 @@ Executes the code written in the console once
 >>> ?commit
 Hello!
 >>> ?commit
+
+>>>
+```
+
+- `?cancel`
+
+Cancels the code written in the console
+
+```txt
+>>> write "Hello!";
+>>> ?cancel
+>>> ?commit
+
 >>>
 ```
 
@@ -129,9 +143,9 @@ Many examples in this manual, even those entered at the interactive prompt, incl
 
 ```txt
 ? this is the first comment
-$number = 1; ? and this is the second comment
+let number = 1; ? and this is the second comment
              ? ... and now a third !
-$text = "? This is not a comment because it's inside quotes.";
+let text = "? This is not a comment because it's inside quotes.";
 ```
 
 > [!NOTE]
@@ -159,14 +173,14 @@ write 123.456;
 A variable allows you to store a number or text. A variable is defined by a name and a value.
 
 ```txt
-? $ to create a new variable
-$name = "Antoine"
-$age = 15
+? let to create a new variable
+let name = "Antoine"
+let age = 15
 
-? here the variable age already exists, so no need for the $ sign
+? here the variable age already exists, so no need for the let  sign
 age = age + 1
 
-? the , sign with strings and numbers allows you to concatenate them
+? the ',' sign with strings and numbers allows you to concatenate them
 write "Hello ", name, " ", age, "yo";
 ```
 
@@ -175,11 +189,11 @@ write "Hello ", name, " ", age, "yo";
 We can create a function that writes the Fibonacci series:
 
 ```txt
-@fib(n)
+fn fib(n)
   ? Print a Fibonacci series up to n.
-  $a = 0;
-  $b = 1;
-  $next = b;
+  let a = 0;
+  let b = 1;
+  let next = b;
   
   while a < n do
     write a, '\n';
@@ -194,7 +208,7 @@ end;
 write "The last value is ", fib(100);
 ```
 
-The `@` keyword introduces a function definition. It must be followed by the function name and the list of formal parameters in parentheses and separated by a ;.
+The `fn` keyword introduces a function definition. It must be followed by the function name and the list of formal parameters in parentheses and separated by a ;.
 
 The `return` keyword exits the function, returning a value to the place where the function was called.
 
@@ -207,9 +221,9 @@ The while loop executes as long as the condition (here: a < 10) remains true. In
 ```txt
 ? Fibonacci series:
 ? the sum of two elements defines the next
-$a = 0;
-$b = 1;
-$next = b;
+let a = 0;
+let b = 1;
+let next = b;
 
 while a < 100 do
   write a, '\n';
@@ -229,7 +243,7 @@ try
   loadimport "script/math.soare";
 
   write "Enter a digit:";
-  $x = 0;
+  let x = 0;
   inputch x;
 
   if NaN(x) do
@@ -255,11 +269,11 @@ Strings or numbers are actually arrays of characters:
 ? For len() function
 loadimport "script/std.soare";
 
-$msg="Hello World!";
+let msg="Hello World!";
 
-$index = 0;
+let index = 0;
 ? Returns the number of characters in the string
-$size = len(msg);
+let size = len(msg);
 
 while index < size do
   write msg[index], '\n';
@@ -276,7 +290,7 @@ write msg[0-2], '\n'; ? Write the one before last character of "msg", here "d"
 You can capture user input using `input`
 
 ```txt
-$usr = "";
+let usr = "";
 
 write "Enter your name: ";
 input usr;
@@ -286,8 +300,8 @@ write "Hello ", usr, "!";
 
 ### Shell and Reinterpret
 
-- `$^` -> Run shell command
-- `$<` -> Reinterpret code
+- `$` -> Run shell command
+- `@` -> Reinterpret code
 
 **Run shell command:**
 
@@ -296,22 +310,19 @@ write "Hello ", usr, "!";
 
 ? __PLATFORM__ : Get OS name
 if __PLATFORM__ == "Windows" do
-  $^"cls";
+  $"cls";
 else
-  $^"clear";
+  $"clear";
 end;
 
-$^"echo Terminal cleared"
+$"echo Terminal cleared"
 ```
 
 **Reinterpret code:**
 
 ```txt
-$msg = "Hello";
-
-$<"write \"", msg, "\";";
-
-$msg = "Hello";$<"write \"", msg, "\";";?commit
+let msg = "Hello";
+@"write \"", msg, "\";";
 ```
 
 ### Escape Sequence
@@ -337,6 +348,7 @@ $msg = "Hello";$<"write \"", msg, "\";";?commit
 | name              | value                 |
 |-------------------|-----------------------|
 | \_\_SOARE\_\_     | `SOARE (MIT LICENSE)` |
+| \_\_ERROR\_\_     | *errors*              |
 | \_\_BUILD\_\_     | *build date*          |
 | \_\_PLATFORM\_\_  | *current OS*          |
 

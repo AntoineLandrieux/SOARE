@@ -21,16 +21,14 @@
 ?   - reverse
 ?   - sleep
 
-enumerate
-  false
-  true
-end;
+let false = 0;
+let true  = 1;
+let null  = "";
 
-$ null = "";
+? in
+fn in(parent; source)
 
-? @brief in
-@in(parent; source)
-  $ index = 0;
+  let index = 0;
   
   try
     while 1 do
@@ -45,10 +43,11 @@ $ null = "";
 
 end;
 
-? @brief Returns the number of characters in the string
-@len(string)
-  $ index = 0;
-  $ tmp   = " ";
+? Returns the number of characters in the string
+fn len(string)
+
+  let index = 0;
+  let tmp   = "";
   
   while 1 do
     try
@@ -61,27 +60,34 @@ end;
 
 end;
 
-? @brief Reverse string
-@reverse(string)
-  $ res = string;
-  $ s = len(res);
-  $ n = 0;
+? Reverse string
+fn reverse(string)
+
+  let res = "";
+
+  let s = len(string);
+  let n = 0;
 
   while n < s do
-    res[0-n-1] = string[n];
+    res = res, string[0-1-n];
     n = n + 1;
   end;
 
   return res;
+
 end;
 
-? @brief sleep
-@sleep(time)
+? sleep
+fn sleep(time)
+
   if time < 0 do
     return null;
   end;
+
   time = time * 550000;
+
   while time > 0 do
     time = time - 1;
   end;
+
 end;

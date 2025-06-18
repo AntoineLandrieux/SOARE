@@ -95,19 +95,24 @@ int Console()
             std::cout << std::endl;
         }
 
-        else if (user.rfind("?commit") != std::string::npos)
+        if (user.rfind("?commit") != std::string::npos)
         {
             SOARE::Execute((char *)"input", const_cast<char *>(exe.c_str()));
             std::cout << std::endl;
             exe = " ";
         }
 
-        else if (user.rfind("?clear") != std::string::npos)
+        if (user.rfind("?cancel") != std::string::npos)
+        {
+            exe = " ";
+        }
+
+        if (user.rfind("?clear") != std::string::npos)
         {
             std::cout << "\033c\033[3J";
         }
 
-        else if (user.rfind("?exit") != std::string::npos)
+        if (user.rfind("?exit") != std::string::npos)
         {
             return EXIT_SUCCESS;
         }

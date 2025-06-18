@@ -17,10 +17,6 @@
 
 #include <SOARE/SOARE.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 /**
  * @brief Return 1 if the string is a number
  * @author Antoine LANDRIEUX
@@ -30,7 +26,7 @@
  */
 static unsigned char isNaN(char *string)
 {
-    if (*string == '+' || *string == '-')
+    if (*string == '-')
         (volatile char *)string++;
     for (unsigned char dot = 1; *string; (volatile char *)string++)
         if (*string == '.' && dot)
@@ -120,12 +116,12 @@ static AST ParseArray(Tokens **tokens)
     if ((*tokens)->type != TKN_ARRAYL)
         return NULL;
 
-    TokenNext(tokens, 1);
+    (*tokens) = (*tokens)->next;
     AST value = ParseExpr(tokens, 0xF);
 
     if ((*tokens)->type != TKN_ARRAYR)
         return NULL;
-    TokenNext(tokens, 1);
+    (*tokens) = (*tokens)->next;
     return BranchJoin(Branch("ARRAY", NODE_ARRAY, (*tokens)->file), value);
 }
 
@@ -140,7 +136,7 @@ AST ParseValue(Tokens **tokens)
 {
     Node *value = Branch((*tokens)->value, NODE_ROOT, (*tokens)->file);
     Tokens *old = *tokens;
-    TokenNext(tokens, 1);
+    (*tokens) = (*tokens)->next;
 
     switch (old->type)
     {
@@ -158,7 +154,7 @@ AST ParseValue(Tokens **tokens)
             break;
 
         value->type = NODE_CALL;
-        TokenNext(tokens, 1);
+        (*tokens) = (*tokens)->next;
         AST expr = NULL;
 
         while ((*tokens)->type != TKN_PARENR)
@@ -171,7 +167,7 @@ AST ParseValue(Tokens **tokens)
             BranchJoin(value, expr);
             if ((*tokens)->type != TKN_SEMICOLON)
                 break;
-            TokenNext(tokens, 1);
+            (*tokens) = (*tokens)->next;
         }
 
         if ((*tokens)->type != TKN_PARENR)
@@ -179,7 +175,7 @@ AST ParseValue(Tokens **tokens)
             TreeFree(value);
             return NULL;
         }
-        TokenNext(tokens, 1);
+        (*tokens) = (*tokens)->next;
         break;
 
     default:
@@ -201,6 +197,23 @@ AST ParseValue(Tokens **tokens)
  */
 AST ParseExpr(Tokens **tokens, unsigned char priority)
 {
+
+    /**
+     *
+     * Example:
+     *
+     * Tokens: ["4"]->["+"]->["3"]->["*"]->["2.5"]
+     *
+     * Result:
+     *
+     *    (+)
+     *    / \
+     *  (4) (*)
+     *      / \
+     *    (3) (2.5)
+     *
+     */
+
     Node *x = ParseValue(tokens);
     Node *y = NULL;
     Node *symbol = NULL;
@@ -216,7 +229,7 @@ AST ParseExpr(Tokens **tokens, unsigned char priority)
             break;
 
         symbol = Branch((*tokens)->value, NODE_OPERATOR, (*tokens)->file);
-        TokenNext(tokens, 1);
+        (*tokens) = (*tokens)->next;
         y = ParseExpr(tokens, op);
 
         if (!symbol || !y)

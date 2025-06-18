@@ -112,8 +112,10 @@ static inline unsigned char strKeyword(char *string)
     return (
         //
         !strcmp(KEYWORD_DO, string) ||
+        !strcmp(KEYWORD_FN, string) ||
         !strcmp(KEYWORD_IF, string) ||
         !strcmp(KEYWORD_OR, string) ||
+        !strcmp(KEYWORD_LET, string) ||
         !strcmp(KEYWORD_TRY, string) ||
         !strcmp(KEYWORD_END, string) ||
         !strcmp(KEYWORD_ELSE, string) ||
@@ -123,7 +125,6 @@ static inline unsigned char strKeyword(char *string)
         !strcmp(KEYWORD_RAISE, string) ||
         !strcmp(KEYWORD_RETURN, string) ||
         !strcmp(KEYWORD_IFERROR, string) ||
-        !strcmp(KEYWORD_ENUMERATE, string) ||
         !strcmp(KEYWORD_LOADIMPORT, string)
         //
     );
@@ -142,7 +143,7 @@ static inline token_type Symbol(char *string)
 }
 
 /**
- * @brief Translate Escape Sequence
+ * @brief Translate Escape Sequence <https://github.com/AntoineLandrieux/EscapeSequenceC/>
  * @author Antoine LANDRIEUX
  *
  * @param string
@@ -150,6 +151,9 @@ static inline token_type Symbol(char *string)
  */
 static char *TranslateEscapeSequence(char *string)
 {
+    if (!string)
+        return NULL;
+
     char *chr = string;
     char *end = string + strlen(string);
 
@@ -287,7 +291,7 @@ Tokens *Token(char *__restrict__ filename, char *__restrict__ value, token_type 
  */
 void TokenNext(Tokens **tokens, unsigned int step)
 {
-    for (unsigned int i = 0; i < step; i++)
+    for (unsigned int _ = 0; _ < step; _++)
         *tokens = (*tokens)->next;
 }
 
@@ -344,6 +348,17 @@ void TokensLog(Tokens *token)
     if (!token)
         return;
 
+    /**
+     *
+     * Example:
+     *
+     * [TOKENS] [test.soare:00001:00001, 09, "write"]
+     * [TOKENS] [test.soare:00001:00007, 03, "Hello"]
+     * [TOKENS] [test.soare:00001:00014, 0B, ";"]
+     * [TOKENS] [test.soare:00000:00000, 00, "(null)"]
+     *
+     */
+
     printf(
         "[TOKENS] [%s:%.5lld:%.5lld, %.2X, \"%s\"]\n",
         token->file.file,
@@ -382,7 +397,7 @@ static char *strcut(const char *string, size_t size)
  * @param ln
  * @param col
  */
-static void updateln(unsigned long long *__restrict__ ln, unsigned long long *__restrict__ col)
+static inline void updateln(unsigned long long *__restrict__ ln, unsigned long long *__restrict__ col)
 {
     *ln = (*ln) + 1;
     *col = 1;
@@ -404,30 +419,40 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
     Tokens *token = Token(filename, NULL, TKN_EOF);
     Tokens *curr = token;
 
-    unsigned long long col = 0;
-    unsigned long long ln = 0;
-
+    // Line/Column
+    unsigned long long ln;
+    unsigned long long col;
+    // Let:
+    // ln   = 1
+    // col  = 1
     updateln(&ln, &col);
 
     while (*text)
     {
+        // Check for errors
         if (ErrorLevel())
         {
             TokensFree(token);
             return NULL;
         }
 
+        // Ignore space sequence
         if (chrSpace(*text))
         {
             col++;
+            // Check if there is a new line
             if (*text == '\n')
+                // increment ln
+                // col = 1
                 updateln(&ln, &col);
             (volatile char *)text++;
             continue;
         }
 
+        // Comments
         else if (*text == '?')
         {
+            // Comments end with a new line ('\n')
             while (*text != '\n' && *text)
                 (volatile char *)text++;
             continue;
@@ -439,24 +464,26 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
         curr->file.ln = ln;
         curr->file.col = col;
 
+        // Let text = "<="
         char operator[3] = {
             //
-            0 [text],
-            1 [text],
-            0
+            0 [text], // <
+            1 [text], // =
+            0         // Null character
             //
         };
 
+        // Check if the string (operator) is an operator
         if (strOperator(operator))
         {
             offset += 1;
             type = TKN_OPERATOR;
         }
 
-        else if ('=' == *text)
+        else if (*text == '=')
             type = TKN_ASSIGN;
 
-        else if ('@' == *text || '$' == *text)
+        else if (*text == '@' || *text == '$')
             type = TKN_KEYWORD;
 
         else if (strchr("()", *text))

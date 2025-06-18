@@ -1,4 +1,4 @@
-enumerate false true end;$null="";@in(parent;source)$index=0;try while 1 do if parent[index]==source do return index+1 end;index=index+1;end;iferror return 
-0;end;end;@len(string)$index=0;$tmp=" ";while 1 do try tmp=string[index];iferror return index;end;index=index+1;end;end;@reverse(string)$res=string
-;$s=len(res);$n=0;while n<s do res[0-n-1]=string[n];n=n+1;end;return res;end;@sleep(time)if time<0 do return null;end;time=time*550000;while time
->0 do time=time-1;end;end;
+let false=0;let true=1;let null="";fn in(parent;source)let index=0;try while 1 do if parent[index]==source do return index+1 end;index=index+1;end;iferror
+return 0;end;end;fn len(string)let index=0;let tmp="";while 1 do try tmp=string[index];iferror return index;end;index=index+1;end;end;fn reverse
+(string)let res="";let s=len(string);let n=0;while n<s do res=res,string[0-n-1];n=n+1;end;return res;end;fn sleep(time)if time<0 do return null;end;
+time=time*550000;while time>0 do time=time-1;end;end;

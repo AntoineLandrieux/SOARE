@@ -55,7 +55,7 @@ MEM MemLast(MEM memory)
 }
 
 /**
- * @brief Add a variable to an existing memory
+ * @brief Add a variable to an existing memory (free value if memory is NULL or if MemPush fail)
  * @author Antoine LANDRIEUX
  *
  * @param memory
@@ -65,7 +65,10 @@ MEM MemLast(MEM memory)
 MEM MemPush(MEM memory, char *name, char *value)
 {
     if (!memory)
+    {
+        free(value);
         return NULL;
+    }
 
     MEM mem = MemLast(memory);
     mem->next = (MEM)malloc(sizeof(struct mem));
@@ -121,7 +124,7 @@ MEM MemGet(MEM memory, char *name)
 }
 
 /**
- * @brief Update a variable
+ * @brief Update a variable (free value if memory is NULL)
  * @author Antoine LANDRIEUX
  *
  * @param memory
@@ -131,7 +134,11 @@ MEM MemGet(MEM memory, char *name)
 MEM MemSet(MEM memory, char *value)
 {
     if (!memory)
+    {
+        free(value);
         return NULL;
+    }
+
     free(memory->value);
     memory->value = value;
     return memory;

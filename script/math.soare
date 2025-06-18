@@ -30,22 +30,22 @@
 ?   - sin
 ?   - tan
 
-$ pi  = 3.14159265;
-$ deg = 180 / pi;
-$ rad = pi / 180;
+let pi  = 3.14159265;
+let deg = 180 / pi;
+let rad = pi / 180;
 
-? @brief Useful for math, ex: 5*M(1+2)
-@M(f)
+? Useful for math, ex: 5*M(1+2)
+fn M(f)
   return f;
 end;
 
-? @brief Useful for math, ex: 5*M(1+2)
-@Math(f)
+? Useful for math, ex: 5*M(1+2)
+fn Math(f)
   return f*1;
 end;
 
-? @brief Returns true if a value is Not-a-Number
-@NaN(x)
+? Returns true if a value is Not-a-Number
+fn NaN(x)
   try
     x = x * 1;
   iferror
@@ -55,7 +55,7 @@ end;
 end;
 
 ? Absolute value
-@abs(x)
+fn abs(x)
   if x < 0 do
     return x*M(0-1);
   end;
@@ -63,18 +63,18 @@ end;
 end;
 
 ? Invert the truth value of Boolean expressions
-@not(x)
+fn not(x)
   return x == 0;
 end;
 
-? @brief Floating point to integer conversion
-@floor(float)
+? Floating point to integer conversion
+fn floor(float)
   return float^0;
 end;
 
-? @brief Integer division
-@integer_division(x; y)
-  $ res = 0;
+? Integer division
+fn integer_division(x; y)
+  let res = 0;
   while x >= y do
     x = x - y;
     res = res + 1;
@@ -82,10 +82,10 @@ end;
   return res;
 end;
 
-@round(x)
-  $ sign = x < 0;
-  $ y = abs(x);
-  $ t = floor(y);
+fn round(x)
+  let sign = x < 0;
+  let y = abs(x);
+  let t = floor(y);
 
   if sign do
     sign = 0 - 1;
@@ -100,8 +100,8 @@ end;
   return sign * t;
 end;
 
-? @brief Integer square root
-@integer_sqrt(x)
+? Integer square root
+fn integer_sqrt(x)
   x = round(x);
 
   if x == 0 do
@@ -110,8 +110,8 @@ end;
     raise "Non-Real Number";
   end;
   
-  $ n = x;
-  $ a = 0;
+  let n = x;
+  let a = 0;
 
   while 1 do
     a = integer_division(n + integer_division(x; n); 2)
@@ -122,10 +122,10 @@ end;
   end;
 end;
 
-? @brief Returns the value of x to the power of y
-@pow(x; y)
-  $ res = 1;
-  $ neg = y < 0;
+? Returns the value of x to the power of y
+fn pow(x; y)
+  let res = 1;
+  let neg = y < 0;
   y = floor(abs(y))
 
   while y do
@@ -139,10 +139,10 @@ end;
   return res;
 end;    
 
-? @brief The factorial of a non-negative integer
-@factorial(x)
-  $ res = 1;
-  $ n   = 1;
+? The factorial of a non-negative integer
+fn factorial(x)
+  let res = 1;
+  let n   = 1;
 
   x = floor(x);
   if x < 0 do
@@ -157,20 +157,20 @@ end;
   return res;
 end;
 
-? @brief Convert Degrees to Radians
-@radians(x)
+? Convert Degrees to Radians
+fn radians(x)
   return x * rad;
 end;
 
-? @brief Convert Radians to Degrees
-@degrees(x)
+? Convert Radians to Degrees
+fn degrees(x)
   return x * deg;
 end;
 
-? @brief The sine function
-@sin(x)
-  $ sine = 0;
-  $ n    = 0;
+? The sine function
+fn sin(x)
+  let sine = 0;
+  let n    = 0;
 
   x = radians(x % 180)
 
@@ -182,10 +182,10 @@ end;
   return sine;
 end;
 
-? @brief The cosine function
-@cos(x)
-  $ cosine = 0;
-  $ n      = 0;
+? The cosine function
+fn cos(x)
+  let cosine = 0;
+  let n      = 0;
 
   x = radians(x % 180)
 
@@ -197,7 +197,7 @@ end;
   return cosine;
 end;
 
-? @brief The tangent function
-@tan(x)
+? The tangent function
+fn tan(x)
   return sin(x) / cos(x);
 end;

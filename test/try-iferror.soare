@@ -1,21 +1,24 @@
 
-? "Hello World!"
+? NoError
+write __ERROR__, '\n';
+
+? Hello World
 try
-  write "Hello World!\n";
+  write 'Hello World!\n';
 iferror
-  write "Error ! #1\n";
+  write 'Error ! #1 Exception: ', __ERROR__, '\n';
 end;
 
-? "Error ! #2"
+? Error ! #2 Error value: RaiseException
 try
-  raise "problem";
+  raise 'problem';
 iferror
-  write "Error ! #2\n";
+  write 'Error ! #2 Exception: ', __ERROR__, '\n';
 end;
 
-? "Error ! #3"
+? Error ! #3 Error value: DivideByZero
 try
   write 3/0;
 iferror
-  write "Error ! #3\n";
+  write 'Error ! #3 Exception: ', __ERROR__, '\n';
 end;

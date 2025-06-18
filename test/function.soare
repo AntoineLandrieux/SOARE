@@ -1,7 +1,7 @@
 
-@Fib(n)
+fn Fib(n)
 
-  @Check(x)
+  fn Check(x)
     if x < 1 do
       return "Invalid Input"
     or x == 1 do
@@ -12,7 +12,7 @@
     return 0-1;
   end;
 
-  $value = Check(n);
+  let value = Check(n);
 
   if value < 0 do
     return Fib(n-1) + Fib(n-2);

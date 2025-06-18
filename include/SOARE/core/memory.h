@@ -53,7 +53,7 @@ MEM Mem(void);
 MEM MemLast(MEM memory);
 
 /**
- * @brief Add a variable to an existing memory
+ * @brief Add a variable to an existing memory (free value if memory is NULL or if MemPush fail)
  * @author Antoine LANDRIEUX
  *
  * @param memory
@@ -83,7 +83,7 @@ MEM MemPushf(MEM memory, AST body);
 MEM MemGet(MEM memory, char *name);
 
 /**
- * @brief Update a variable
+ * @brief Update a variable (free value if memory is NULL)
  * @author Antoine LANDRIEUX
  *
  * @param memory

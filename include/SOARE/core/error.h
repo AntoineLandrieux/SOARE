@@ -27,6 +27,7 @@ typedef enum SoareExceptions
     FileError,
     CharacterError,
     SyntaxError,
+    ValueError,
     UnexpectedNear,
     UndefinedReference,
     ObjectIsNotCallable,
@@ -45,7 +46,7 @@ typedef enum SoareExceptions
  *
  * @return unsigned char
  */
-unsigned char AsIgnoredException();
+unsigned char AsIgnoredException(void);
 
 /**
  * @brief Enable/disable error display

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /**
  *  _____  _____  ___  ______ _____
@@ -29,6 +30,7 @@ static char *Exceptions[] = {
     "FileError",
     "CharacterError",
     "SyntaxError",
+    "ValueError",
     "UnexpectedNear",
     "UndefinedReference",
     "ObjectIsNotCallable",
@@ -47,7 +49,7 @@ static char *Exceptions[] = {
  *
  * @return unsigned char
  */
-unsigned char AsIgnoredException()
+unsigned char AsIgnoredException(void)
 {
     return !enable;
 }
@@ -118,7 +120,9 @@ void *LeaveException(SoareExceptions error, char *string, Document file)
         fprintf(stderr, "\033[0m");
 #endif /* __SOARE_NO_COLORED_OUTPUT */
     }
-    // set error at level 1
+    // Set error at level 1
     errorlevel = 1;
+    // Store the error in the variable
+    MemSet(MemGet(MEMORY, "__ERROR__"), strdup(Exceptions[error]));
     return NULL;
 }

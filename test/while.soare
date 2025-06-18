@@ -1,17 +1,17 @@
 
-loadimport "script/std.min.soare";
+loadimport "script/std.min.soare"
 
 write ""
-$times = 0;
+let times = 0;
 
 while times < 5 + 1 do
   
   write "Please wait 5 seconds: [", times, "/", 5, "] ";
 
-  $progressbar = 0;
-  while progressbar < times + 1 do
+  let progress = 0;
+  while progress < times + 1 do
     write "=";
-    progressbar = progressbar + 1;
+    progress = progress + 1;
   end;
 
   sleep(1);
@@ -21,4 +21,4 @@ while times < 5 + 1 do
 
 end;
 
-write "\n\t===== SUCESS =====\n";
+write "\n\t===== SUCCESS =====\n";

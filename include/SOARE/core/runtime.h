@@ -29,15 +29,6 @@ extern MEM MEMORY;
 char *RunFunction(AST tree);
 
 /**
- * @brief Executes code from a tree
- * @author Antoine LANDRIEUX
- *
- * @param tree
- * @return char*
- */
-char *Runtime(AST tree);
-
-/**
  * @brief Execute the code from a string
  * @author Antoine LANDRIEUX
  *

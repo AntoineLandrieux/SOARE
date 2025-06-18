@@ -1,0 +1,29 @@
+
+loadimport "script/std.min.soare"
+loadimport "script/math.min.soare"
+
+fn Main()
+  write "CALCULATOR (SOARE)\n"
+  write "Enter 'exit' to quit\n"
+  
+  let entry = " ";
+
+  while 1 do
+
+    write '\n>>> ';
+    input entry;
+
+    try
+      @"write ", entry;
+
+    iferror
+      if entry == "exit" do
+        return 0;
+      end;
+
+      write "MathError: Invalid expression\nAt ---> ", entry;
+    end;
+  end;
+end;
+
+Main();

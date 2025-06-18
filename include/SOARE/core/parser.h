@@ -33,12 +33,12 @@ typedef enum node_type
     NODE_STRING,
     NODE_IMPORT,
     NODE_CALL,
+    NODE_TYPE,
     NODE_INPUT,
     NODE_FUNCTION,
     NODE_MEMNEW,
     NODE_MEMGET,
     NODE_MEMSET,
-    NODE_ENUMERATE,
     NODE_IFERROR,
     NODE_OPERATOR,
     NODE_CONDITION,
@@ -83,17 +83,6 @@ typedef struct node
  * @return Node*
  */
 Node *Branch(char *value, node_type type, Document file);
-
-/**
- * @brief Find a node
- * @author Antoine LANDRIEUX
- *
- * @param source
- * @param value
- * @param type
- * @return Node*
- */
-Node *BranchFind(AST source, char *value, node_type type);
 
 /**
  * @brief Add a sibling branch

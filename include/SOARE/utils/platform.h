@@ -16,6 +16,8 @@
  *
  */
 
+// See <https://github.com/AntoineLandrieux/PlatformC/>
+
 #if defined(_WIN32)
 #define __PLATFORM__ "Windows" // Windows
 

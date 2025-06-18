@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,44 +22,29 @@ MEM MEMORY = NULL;
 static MEM FUNCTION = NULL;
 
 /**
- * @brief
+ * @brief Executes code from a tree
  * @author Antoine LANDRIEUX
  *
+ * @param tree
  * @return char*
  */
+char *Runtime(AST tree);
+
 char *input()
 {
-    char *str = NULL;
-    char ch;
+    char string[__SOARE_MAX_INPUT__] = {0};
+    fgets(string, sizeof(string), stdin);
 
-    size_t size = 0;
-    size_t capacity = 1;
+    size_t size = strlen(string) - 1;
+    string[size] = 0;
 
-    if (!(str = (char *)malloc(capacity * sizeof(char))))
+    char *result = malloc(size);
+
+    if (!result)
         return __SOARE_OUT_OF_MEMORY();
 
-    while ((ch = getchar()) != '\n' && ch != EOF)
-    {
-        if (size + 1 >= capacity)
-        {
-            capacity *= 2;
-
-            char *temp = realloc(str, capacity * sizeof(char));
-
-            if (!temp)
-            {
-                free(str);
-                return __SOARE_OUT_OF_MEMORY();
-            }
-
-            str = temp;
-        }
-
-        str[size++] = ch;
-    }
-
-    str[size] = 0;
-    return str;
+    strcpy(result, string);
+    return result;
 }
 
 /**
@@ -110,6 +96,7 @@ static void InterpreterVar()
     MEMORY = Mem();
 
     MemPush(MEMORY, "__SOARE__", strdup("SOARE (MIT LICENSE)"));
+    MemPush(MEMORY, "__ERROR__", strdup("NoError"));
     MemPush(MEMORY, "__BUILD__", strdup(__DATE__));
     MemPush(MEMORY, "__PLATFORM__", strdup(__PLATFORM__));
 }
@@ -254,35 +241,12 @@ char *Runtime(AST tree)
                 break;
             }
 
-            num = GetArrayIndex(curr->child, strlen(get->value));
-            returned = Eval(num < 0 ? curr->child : curr->child->sibling);
+            returned = Eval(curr->child);
 
             if (!returned)
                 break;
 
-            if (num >= 0)
-            {
-                get->value[num] = returned[0];
-                free(returned);
-                break;
-            }
-
             MemSet(get, returned);
-            break;
-
-        case NODE_ENUMERATE:
-
-            for (tmp = curr->child; tmp; tmp = tmp->sibling)
-            {
-                if (!(returned = malloc(3)) || num >= 100)
-                {
-                    __SOARE_OUT_OF_MEMORY();
-                    break;
-                }
-                sprintf(returned, "%lld", num);
-                MemPush(statement, tmp->value, returned);
-                num += 1;
-            }
             break;
 
         case NODE_CONDITION:

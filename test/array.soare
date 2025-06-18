@@ -1,18 +1,24 @@
 
-loadimport "script/std.min.soare";
+loadimport "script/std.min.soare"
 
-$msg="Hello World!";
+let msg="Hello World!";
 
-@spell(message)
-  $index = 0;
-  $size = len(message);
+fn spell(message)
+
+  let index = 0;
+  let size = len(message);
+
   while index < size do
+
     write message[index];
+
     if in("AEIOUYaeiouy"; message[index]) do
       write " is vowel"
     end;
+
     write "\n";
     index = index + 1;
+
   end;
 end;
 
