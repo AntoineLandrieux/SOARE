@@ -93,12 +93,13 @@ MEM MemPush(MEM memory, char *name, char *value)
  * @author Antoine LANDRIEUX
  *
  * @param memory
+ * @param name
  * @param body
  * @return MEM
  */
-MEM MemPushf(MEM memory, AST body)
+MEM MemPushf(MEM memory, char *name, AST body)
 {
-    MEM mem = MemPush(memory, body->value, NULL);
+    MEM mem = MemPush(memory, name, NULL);
     if (mem)
         mem->body = body;
     return mem;

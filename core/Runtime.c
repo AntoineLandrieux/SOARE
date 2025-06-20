@@ -123,6 +123,8 @@ char *RunFunction(AST tree)
     AST src = tree->child;
     MEM memf = Mem();
 
+    func = NULL;
+
     while (ptr)
     {
         if (ptr->type == NODE_BODY)
@@ -137,7 +139,16 @@ char *RunFunction(AST tree)
             return LeaveException(UndefinedReference, ptr->value, tree->file);
         }
 
-        MemPush(memf, ptr->value, Eval(src));
+        get = NULL;
+
+        if (src->type == NODE_MEMGET)
+            if ((get = MemGet(MEMORY, src->value)))
+                if ((func = get->body))
+                    get = MemPushf(memf, ptr->value, func);
+
+        if (!get || !func)
+            MemPush(memf, ptr->value, Eval(src));
+
         src = src->sibling;
         ptr = ptr->sibling;
     }
@@ -196,7 +207,7 @@ char *Runtime(AST tree)
 
         case NODE_FUNCTION:
 
-            MemPushf(statement, curr);
+            MemPushf(statement, curr->value, curr);
             break;
 
         case NODE_IMPORT:

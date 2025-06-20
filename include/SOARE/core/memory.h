@@ -67,10 +67,11 @@ MEM MemPush(MEM memory, char *name, char *value);
  * @author Antoine LANDRIEUX
  *
  * @param memory
+ * @param name
  * @param body
  * @return MEM
  */
-MEM MemPushf(MEM memory, AST body);
+MEM MemPushf(MEM memory, char *name, AST body);
 
 /**
  * @brief Find a variable in the memory

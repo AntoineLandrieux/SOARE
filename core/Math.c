@@ -373,7 +373,7 @@ char *Math(AST tree)
             return result;
         }
 
-        if (isNaN(sx))
+        if (isNaN(sx) || isNaN(sy))
         {
             if (!(result = malloc(2)))
                 return __SOARE_OUT_OF_MEMORY();
