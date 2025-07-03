@@ -18,7 +18,6 @@
 
 /**
  * @brief Return the value as a node
- * @author Antoine LANDRIEUX
  *
  * @param tokens
  * @return AST
@@ -27,7 +26,6 @@ AST ParseValue(Tokens **tokens);
 
 /**
  * @brief Build a math tree
- * @author Antoine LANDRIEUX
  *
  * @param tokens
  * @param priority
@@ -37,7 +35,6 @@ AST ParseExpr(Tokens **tokens, unsigned char priority);
 
 /**
  * @brief Get the Array Index object
- * @author Antoine LANDRIEUX
  *
  * @param array
  * @param size
@@ -47,7 +44,6 @@ long long GetArrayIndex(AST array, size_t size);
 
 /**
  * @brief Evaluates the mathematical expression of a tree
- * @author Antoine LANDRIEUX
  *
  * @param tree
  * @return char*

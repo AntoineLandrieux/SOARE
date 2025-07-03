@@ -18,22 +18,51 @@
 
 #include <SOARE/SOARE.h>
 
-MEM MEMORY = NULL;
 static MEM FUNCTION = NULL;
 
 /**
+ * @brief Exit current statement #Runtime(AST)
+ *
+ * @param returns
+ * @return char*
+ */
+static char *ExitStatement(MEM statement, char *returns)
+{
+    MemFree(statement->next);
+    statement->next = NULL;
+    return returns;
+}
+
+/**
+ * @brief Exit current statement an error #Runtime(AST)
+ *
+ * @param error
+ * @param string
+ * @param file
+ * @return void*
+ */
+static void *ExitStatementError(MEM statement, SoareExceptions error, char *string, Document file)
+{
+    return ExitStatement(statement, LeaveException(error, string, file));
+}
+
+/**
  * @brief Executes code from a tree
- * @author Antoine LANDRIEUX
  *
  * @param tree
  * @return char*
  */
-char *Runtime(AST tree);
+static char *Runtime(AST tree);
 
-char *input()
+/**
+ * @brief User input
+ *
+ * @return char*
+ */
+static char *input()
 {
     char string[__SOARE_MAX_INPUT__] = {0};
-    fgets(string, sizeof(string), stdin);
+    soare_input(string);
 
     size_t size = strlen(string) - 1;
     string[size] = 0;
@@ -49,7 +78,6 @@ char *input()
 
 /**
  * @brief From file file
- * @author Antoine LANDRIEUX
  *
  * @param filename
  * @return AST
@@ -79,11 +107,6 @@ static AST loadimport(char *filename)
     Tokens *tokens = Tokenizer(filename, content);
     AST ast = Parse(tokens);
 
-#ifdef __SOARE_DEBUG
-    TokensLog(tokens);
-    TreeLog(ast);
-#endif
-
     free(content);
     TokensFree(tokens);
     fclose(file);
@@ -91,64 +114,88 @@ static AST loadimport(char *filename)
     return ast;
 }
 
-static void InterpreterVar()
+/**
+ * @brief Set Interpreter variables
+ *
+ * @param file
+ */
+static void InterpreterVar(char *file)
 {
     MEMORY = Mem();
 
-    MemPush(MEMORY, "__SOARE__", strdup("SOARE (MIT LICENSE)"));
+    /* SOARE version */
+    MemPush(MEMORY, "__SOARE__", strdup(SOARE_VERSION));
+    /* Current file */
+    MemPush(MEMORY, "__FILE__", strdup(file));
+    /* Path to SOARE executable */
+    MemPush(MEMORY, "__ENVIRONMENT__", strdup(GetEnvironment()));
+    /* Errors */
     MemPush(MEMORY, "__ERROR__", strdup("NoError"));
+    /* Build date */
     MemPush(MEMORY, "__BUILD__", strdup(__DATE__));
+    /* Current OS */
     MemPush(MEMORY, "__PLATFORM__", strdup(__PLATFORM__));
 }
 
 /**
  * @brief Execute a function
- * @author Antoine LANDRIEUX
  *
  * @param tree
  * @return char*
  */
 char *RunFunction(AST tree)
 {
+    // Get the memory
     MEM get = MemGet(MEMORY, tree->value);
-    AST func = NULL;
 
+    // Memory not found
     if (!get)
         return LeaveException(UndefinedReference, tree->value, tree->file);
 
-    if (!(func = get->body))
+    // Memory is not a function
+    if (!get->body)
         return LeaveException(ObjectIsNotCallable, tree->value, tree->file);
 
-    AST ptr = func->child;
+    // Arguments
+    AST ptr = get->body->child;
     AST src = tree->child;
     MEM memf = Mem();
 
-    func = NULL;
+    AST func = NULL;
 
     while (ptr)
     {
+        // Execute statement (no more argument required)
         if (ptr->type == NODE_BODY)
         {
             FUNCTION = memf;
             return Runtime(ptr);
         }
 
+        // Not enough argument
         if (!src)
         {
-            memf = MemFree(memf);
+            MemFree(memf);
+            memf = NULL;
             return LeaveException(UndefinedReference, ptr->value, tree->file);
         }
 
         get = NULL;
 
+        // If it is a reference to a memory
         if (src->type == NODE_MEMGET)
+            // If memory exists
             if ((get = MemGet(MEMORY, src->value)))
+                // If memory is a function
                 if ((func = get->body))
+                    // Add this function in argument
                     get = MemPushf(memf, ptr->value, func);
 
+        // If argument is not a function
         if (!get || !func)
             MemPush(memf, ptr->value, Eval(src));
 
+        // Next argument
         src = src->sibling;
         ptr = ptr->sibling;
     }
@@ -156,14 +203,15 @@ char *RunFunction(AST tree)
     return NULL;
 }
 
+static char broken = 0;
+
 /**
  * @brief Executes code from a tree
- * @author Antoine LANDRIEUX
  *
  * @param tree
  * @return char*
  */
-char *Runtime(AST tree)
+static char *Runtime(AST tree)
 {
     if (!tree)
         return NULL;
@@ -171,11 +219,11 @@ char *Runtime(AST tree)
     AST root = tree;
     AST tmp = NULL;
     MEM get = NULL;
-    Tokens *tokens = NULL;
-    char *returned = NULL;
 
-    if (!MEMORY)
-        InterpreterVar();
+    char *returned = NULL;
+    unsigned char error = 0;
+
+    broken = 0;
 
     MEM statement = MemLast(MEMORY);
     MemJoin(statement, FUNCTION);
@@ -183,10 +231,9 @@ char *Runtime(AST tree)
 
     for (AST curr = root->child; curr && !ErrorLevel(); curr = curr->sibling)
     {
-        long long num = 0;
-
         switch (curr->type)
         {
+        // Execute shell code
         case NODE_SHELL:
 
             returned = Eval(curr->child);
@@ -194,72 +241,58 @@ char *Runtime(AST tree)
             free(returned);
             break;
 
-        case NODE_REINTERPRET:
-
-            returned = Eval(curr->child);
-            tokens = Tokenizer("<SOARE::REINTERPRET>", returned);
-            tmp = Parse(tokens);
-            free(Runtime(tmp));
-            TokensFree(tokens);
-            TreeFree(tmp);
-            free(returned);
-            break;
-
+        // Store function into MEMORY
         case NODE_FUNCTION:
 
             MemPushf(statement, curr->value, curr);
             break;
 
+        // Import SOARE code from an other file
         case NODE_IMPORT:
 
             if ((tmp = loadimport(curr->value)))
                 BranchJuxtapose(curr, tmp->child);
             break;
 
+        // User input
         case NODE_INPUT:
 
             if ((get = MemGet(MEMORY, curr->value)))
             {
                 if (!(returned = input()))
                     break;
+
                 MemSet(get, returned);
                 break;
             }
-            LeaveException(UndefinedReference, curr->value, curr->file);
-            break;
 
+            return ExitStatementError(statement, UndefinedReference, curr->value, curr->file);
+
+        // Call a function
         case NODE_CALL:
 
             free(RunFunction(curr));
             break;
 
+        // Push a new variable into MEMORY
         case NODE_MEMNEW:
 
             MemPush(statement, curr->value, Eval(curr->child));
             break;
 
+        // Set a value to a variable
         case NODE_MEMSET:
 
             if (!(get = MemGet(MEMORY, curr->value)))
-            {
-                LeaveException(UndefinedReference, curr->value, curr->file);
-                break;
-            }
+                return ExitStatementError(statement, UndefinedReference, curr->value, curr->file);
 
             if (get->body)
-            {
-                LeaveException(VariableDefinedAsFunction, curr->value, curr->file);
-                break;
-            }
+                return ExitStatementError(statement, VariableDefinedAsFunction, curr->value, curr->file);
 
-            returned = Eval(curr->child);
-
-            if (!returned)
-                break;
-
-            MemSet(get, returned);
+            MemSet(get, Eval(curr->child));
             break;
 
+        // Condition statement (if)
         case NODE_CONDITION:
 
             returned = Eval(curr->child);
@@ -270,105 +303,136 @@ char *Runtime(AST tree)
                 if (strcmp(returned, "0"))
                 {
                     free(returned);
-                    if ((returned = Runtime(tmp->sibling)))
-                    {
-                        statement->next = MemFree(statement->next);
-                        return returned;
-                    }
+
+                    if ((returned = Runtime(tmp->sibling)) || broken)
+                        return ExitStatement(statement, returned);
+
                     break;
                 }
 
                 free(returned);
+
                 if (!(tmp = tmp->sibling->sibling))
                     break;
+
                 returned = Eval(tmp);
             }
             break;
 
+        // Repetition statement (while)
         case NODE_REPETITION:
 
             while ((returned = Eval(curr->child)))
             {
-                if (!strcmp(returned, "0") || ErrorLevel())
+                if (!strcmp(returned, "0") || ErrorLevel() || broken)
                     break;
+
                 free(returned);
+
                 if ((returned = Runtime(curr->child->sibling)))
-                {
-                    statement->next = MemFree(statement->next);
-                    return returned;
-                }
+                    return ExitStatement(statement, returned);
             }
+
             free(returned);
             break;
 
+        // try/iferror statement
         case NODE_TRY:
 
-            num = (long long)AsIgnoredException();
-            IgnoreException(0x1);
+            error = AsIgnoredException();
+            IgnoreException(1);
             returned = Runtime(curr->child);
-            IgnoreException((unsigned char)num);
+            IgnoreException(error);
 
-            if (ErrorLevel())
+            if (ErrorLevel() && !broken)
             {
                 free(returned);
                 ClearException();
                 returned = Runtime(curr->child->sibling);
             }
 
-            if (!returned)
+            if (!returned && !broken)
                 break;
 
-            statement->next = MemFree(statement->next);
-            return returned;
+            return ExitStatement(statement, returned);
 
+        // Print
         case NODE_OUTPUT:
 
             if ((returned = Eval(curr->child)))
-                printf("%s", returned);
+            {
+                soare_write(__soare_stdout, "%s", returned);
+                free(returned);
+            }
             break;
 
+        // Break loop
+        case NODE_BREAK:
+
+            broken = 1;
+            return ExitStatement(statement, NULL);
+
+        // Return
         case NODE_RETURN:
 
-            returned = Eval(curr->child);
-            statement->next = MemFree(statement->next);
-            return returned;
+            return ExitStatement(statement, Eval(curr->child));
 
+        // Leave new exception
         case NODE_RAISE:
 
-            statement->next = MemFree(statement->next);
-            return LeaveException(RaiseException, curr->value, curr->file);
+            return ExitStatementError(statement, RaiseException, curr->value, curr->file);
 
         default:
+
             break;
         }
     }
 
-    statement->next = MemFree(statement->next);
-    return NULL;
+    // Quit
+    return ExitStatement(statement, NULL);
 }
 
 /**
  * @brief Execute the code from a string
- * @author Antoine LANDRIEUX
  *
  * @param rawcode
  */
 int Execute(char *__restrict__ file, char *__restrict__ rawcode)
 {
+    if (!MEMORY)
+        // Set default vars..
+        InterpreterVar(file);
+
+    // Clear interpreter exception
     ClearException();
+
+    // Interpretation step 1: Tokenizer
     Tokens *tokens = Tokenizer(file, rawcode);
+    // Interpretation step 2: Parser
     AST ast = Parse(tokens);
 
 #ifdef __SOARE_DEBUG
+    // DEBUG: print tokens and trees
     TokensLog(tokens);
     TreeLog(ast);
 #endif
 
+    // Free tokens
+    TokensFree(tokens);
+
+    // Interpretation step 3: Runtime
     free(Runtime(ast));
 
-    MEMORY = MemFree(MEMORY);
-    TokensFree(tokens);
+    // Free AST
     TreeFree(ast);
+    // Free MEMORY
+    MemFree(MEMORY);
 
+    // Set MEMORY to NULL
+    MEMORY = NULL;
+
+    // Return error level
+    // 0: EXIT_SUCCESS
+    // 1: EXIT_FAILURE
     return (int)ErrorLevel();
 }

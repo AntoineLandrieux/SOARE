@@ -11,3 +11,7 @@
 ## Documentation
 
 - [VIEW DOC](documentation.md)
+
+## Recommended stuff
+
+- [VIEW RECOMMENDED STUFF](../README.md#️-recommended-tools)

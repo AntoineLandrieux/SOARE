@@ -18,7 +18,6 @@
 
 /**
  * @brief List the different types of nodes
- * @author Antoine LANDRIEUX
  */
 typedef enum node_type
 {
@@ -29,8 +28,7 @@ typedef enum node_type
     NODE_RAISE,
     NODE_ARRAY,
     NODE_OUTPUT,
-    NODE_NUMBER,
-    NODE_STRING,
+    NODE_VALUE,
     NODE_IMPORT,
     NODE_CALL,
     NODE_TYPE,
@@ -43,7 +41,7 @@ typedef enum node_type
     NODE_OPERATOR,
     NODE_CONDITION,
     NODE_REPETITION,
-    NODE_REINTERPRET,
+    NODE_BREAK,
     NODE_SHELL,
     NODE_RETURN
 
@@ -51,7 +49,6 @@ typedef enum node_type
 
 /**
  * @brief Structure of a node
- * @author Antoine LANDRIEUX
  */
 typedef struct node
 {
@@ -75,7 +72,6 @@ typedef struct node
 
 /**
  * @brief Create a new node
- * @author Antoine LANDRIEUX
  *
  * @param value
  * @param type
@@ -86,7 +82,6 @@ Node *Branch(char *value, node_type type, Document file);
 
 /**
  * @brief Add a sibling branch
- * @author Antoine LANDRIEUX
  *
  * @param source
  * @param element
@@ -96,7 +91,6 @@ AST BranchJuxtapose(Node *source, AST element);
 
 /**
  * @brief Join 2 branches
- * @author Antoine LANDRIEUX
  *
  * @param parent
  * @param child
@@ -106,7 +100,6 @@ AST BranchJoin(Node *parent, Node *child);
 
 /**
  * @brief Frees the memory allocated by a tree
- * @author Antoine LANDRIEUX
  *
  * @param tree
  */
@@ -114,7 +107,6 @@ void TreeFree(AST tree);
 
 /**
  * @brief Display a tree
- * @author Antoine LANDRIEUX
  *
  * @param tree
  */
@@ -122,7 +114,6 @@ void TreeLog(AST tree);
 
 /**
  * @brief Turns a sequence of tokens into a tree (AST)
- * @author Antoine LANDRIEUX
  *
  * @param tokens
  * @return AST

@@ -18,8 +18,55 @@
 #include <SOARE/SOARE.h>
 
 /**
+ *  Example of AST (Abstract Syntax Tree) :
+ *
+ *
+ *          (node A)
+ *          /
+ *      [child]
+ *        /
+ *    (node B)-[sibling]-(node C)-[sibling]-(node D)
+ *
+ * Vocabulary:
+ *
+ * - NULL : Non-existent node
+ *
+ *  ---
+ *
+ * - parent : Direct parent of the node
+ *
+ * Example :
+ *
+ *  (node A) is the parent of (node B)
+ *  (node A) is the parent of (node C)
+ *  (node A) is the parent of (node D)
+ *  NULL is the parent of (node A)
+ *
+ *  ---
+ *
+ * - child : Direct child of the node
+ *
+ * Example :
+ *
+ *  (node B) is the child of (node A)
+ *  (node A) is the child of NULL
+ *  (node C) is the child of NULL
+ *  (node D) is the child of NULL
+ *
+ *  - sibling : Direct sibling of the node
+ *
+ * Example :
+ *
+ *  NULL is the sibling of (node A)
+ *  NULL is the sibling of (node B)
+ *  (node B) is the sibling of (node C)
+ *  (node C) is the sibling of (node D)
+ *  NULL is the sibling of (node D)
+ *
+ */
+
+/**
  * @brief Create a new node
- * @author Antoine LANDRIEUX
  *
  * @param value
  * @param type
@@ -45,7 +92,6 @@ Node *Branch(char *value, node_type type, Document file)
 
 /**
  * @brief Add a sibling branch
- * @author Antoine LANDRIEUX
  *
  * @param source
  * @param element
@@ -64,8 +110,8 @@ AST BranchJuxtapose(Node *source, AST element)
      *  source:
      *
      *    (a)
-     *    / \
-     *  (b) (c)
+     *    /
+     *  (b)-(c)
      *
      * element:
      *
@@ -76,8 +122,8 @@ AST BranchJuxtapose(Node *source, AST element)
      * returns:
      *
      *     (a)-(d)
-     *    / |   | \
-     * (b) (c) (e) (f)
+     *    /     \
+     *  (b)-(c) (e)-(f)
      *
      */
 
@@ -97,7 +143,6 @@ AST BranchJuxtapose(Node *source, AST element)
 
 /**
  * @brief Join 2 branches
- * @author Antoine LANDRIEUX
  *
  * @param parent
  * @param child
@@ -116,22 +161,22 @@ AST BranchJoin(Node *parent, Node *child)
      *  parent:
      *
      *    (a)
-     *    / \
-     *  (b) (c)
+     *    /
+     *  (b)-(c)
      *
      * child:
      *
      *    (d)
-     *    / \
-     *  (e) (f)
+     *    /
+     *  (e)-(f)
      *
      * returns:
      *
      *     (a)
-     *    / | \
-     * (b) (c) (d)
-     *         / \
-     *       (e) (f)
+     *    /
+     * (b)-(c)-(d)
+     *         /
+     *       (e)-(f)
      *
      */
 
@@ -158,7 +203,6 @@ AST BranchJoin(Node *parent, Node *child)
 
 /**
  * @brief Frees the memory allocated by a tree
- * @author Antoine LANDRIEUX
  *
  * @param tree
  */
@@ -175,7 +219,6 @@ void TreeFree(AST tree)
 
 /**
  * @brief Display a tree
- * @author Antoine LANDRIEUX
  *
  * @param tree
  */
@@ -194,17 +237,19 @@ void TreeLog(AST tree)
      *
      */
 
-    printf("[BRANCH] ");
+    soare_write(__soare_stdout, "[BRANCH] ");
 
     if (tree->parent)
-        printf(
+        soare_write(
+            __soare_stdout,
             "[%s:%.5lld:%.5lld, %.2X, \"%s\"]\t",
             tree->parent->file.file,
             tree->parent->file.ln,
             tree->parent->file.col,
             tree->parent->type,
             tree->parent->value);
-    printf(
+    soare_write(
+        __soare_stdout,
         "[%s:%.5lld:%.5lld, %.2X, \"%s\"]\n",
         tree->file.file,
         tree->file.ln,
@@ -217,7 +262,6 @@ void TreeLog(AST tree)
 
 /**
  * @brief Turns a sequence of tokens into a tree (AST)
- * @author Antoine LANDRIEUX
  *
  * @param tokens
  * @return AST
@@ -242,7 +286,7 @@ AST Parse(Tokens *tokens)
 
         case TKN_KEYWORD:
 
-            if (*(old->value) == '$' || *(old->value) == '@')
+            if (*(old->value) == '$')
             {
                 AST content = ParseExpr(&tokens, 0xF);
 
@@ -255,9 +299,9 @@ AST Parse(Tokens *tokens)
                 /**
                  *
                  *      \
-                 *      (SHELL/REINTERPRET)
-                 *              |
-                 *            (code)
+                 *      (SHELL)
+                 *         |
+                 *       (code)
                  *
                  */
 
@@ -266,7 +310,7 @@ AST Parse(Tokens *tokens)
                     curr,
                     BranchJoin(
                         //
-                        Branch(old->value, *(old->value) == '$' ? NODE_SHELL : NODE_REINTERPRET, old->file),
+                        Branch(old->value, NODE_SHELL, old->file),
                         content
                         //
                         )
@@ -274,7 +318,7 @@ AST Parse(Tokens *tokens)
                 );
             }
 
-            if (!strcmp(old->value, KEYWORD_FN))
+            else if (!strcmp(old->value, KEYWORD_FN))
             {
                 if (!TokensFollowPattern(tokens, 2, TKN_NAME, TKN_PARENL))
                 {
@@ -286,8 +330,8 @@ AST Parse(Tokens *tokens)
                  *
                  *       \
                  *       (function)
-                 *      /    |     \
-                 *  (arg1) (arg2) (body)
+                 *      /
+                 *  (arg1)-(arg2)-(body)
                  *                   \...
                  *
                  */
@@ -321,6 +365,17 @@ AST Parse(Tokens *tokens)
                 BranchJoin(function, body);
                 tokens = tokens->next;
                 curr = body;
+            }
+
+            else if (!strcmp(old->value, KEYWORD_BREAK))
+            {
+                /**
+                 *
+                 *     \
+                 *     (break)
+                 *
+                 */
+                BranchJoin(curr, Branch(old->value, NODE_BREAK, old->file));
             }
 
             else if (!strcmp(old->value, KEYWORD_LET))
@@ -444,9 +499,9 @@ AST Parse(Tokens *tokens)
 
                 /**
                  *
-                 *      /    \
-                 *  (try)    (iferror)
-                 *    |...       |...
+                 *      /
+                 *  (try)-(iferror)
+                 *    |...    |...
                  *
                  */
 
@@ -473,11 +528,11 @@ AST Parse(Tokens *tokens)
 
                 /**
                  *
-                 *               |
+                 *
                  *           (while/if)
-                 *             /    \
-                 *   (condition)    (body)
-                 * .../                  \...
+                 *           /
+                 *   (condition)-(body)
+                 * .../             \...
                  *
                  */
 
@@ -516,12 +571,11 @@ AST Parse(Tokens *tokens)
 
                 /**
                  *
-                 *                  _______|______
-                 *                 /              \
-                 *             (if)                (or)
-                 *             /  \                /  \
-                 *   (condition)  (body) (condition)  (body)
-                 *        |...       |...    |...       |...
+                 *                /
+                 *             (if)---------------(or)
+                 *             /                  /
+                 *   (condition)--(body) (condition)--(body)
+                 *        |...       |...     |...       |...
                  *
                  */
 
@@ -544,18 +598,17 @@ AST Parse(Tokens *tokens)
 
                 /**
                  *
-                 *                  ____|___
-                 *                 /        \
-                 *             (if)        (else)
-                 *             /  \          |
-                 *   (condition)  (body)   (body)
-                 *        |...       |...    |...
+                 *                /
+                 *             (if)--------(else)
+                 *             /            /
+                 *   (condition)--(body)  (1)--(body)
+                 *                   |...        |...
                  *
                  */
 
                 AST body = Branch("BODY", NODE_BODY, old->file);
 
-                BranchJoin(curr->parent, Branch("1", NODE_NUMBER, old->file));
+                BranchJoin(curr->parent, Branch("1", NODE_VALUE, old->file));
                 BranchJoin(curr->parent, body);
 
                 curr = body;
@@ -651,8 +704,8 @@ AST Parse(Tokens *tokens)
              *
              *      \
              *    (function name)
-             *      /    |    \
-             *  (arg1) (arg2) (arg...)
+             *      /
+             *  (arg1)-(arg2)-(arg...)
              *
              */
 

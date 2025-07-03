@@ -17,15 +17,17 @@
 
 #include <SOARE/SOARE.h>
 
+// Memory used by the interpreter
+MEM MEMORY = NULL;
+
 /**
  * @brief Create a new empty memory
- * @author Antoine LANDRIEUX
  *
  * @return MEM
  */
 MEM Mem(void)
 {
-    MEM memory = (MEM)malloc(sizeof(struct mem));
+    MEM memory = (mem*)malloc(sizeof(struct mem));
 
     if (!memory)
         return __SOARE_OUT_OF_MEMORY();
@@ -40,7 +42,6 @@ MEM Mem(void)
 
 /**
  * @brief Give the last variable in the memory
- * @author Antoine LANDRIEUX
  *
  * @param memory
  * @return MEM
@@ -56,13 +57,12 @@ MEM MemLast(MEM memory)
 
 /**
  * @brief Add a variable to an existing memory (free value if memory is NULL or if MemPush fail)
- * @author Antoine LANDRIEUX
  *
  * @param memory
  * @param name
  * @return MEM
  */
-MEM MemPush(MEM memory, char *name, char *value)
+MEM MemPush(mem *memory, char *name, char *value)
 {
     if (!memory)
     {
@@ -90,7 +90,6 @@ MEM MemPush(MEM memory, char *name, char *value)
 
 /**
  * @brief Add a function to an existing memory
- * @author Antoine LANDRIEUX
  *
  * @param memory
  * @param name
@@ -107,7 +106,6 @@ MEM MemPushf(MEM memory, char *name, AST body)
 
 /**
  * @brief Find a variable in the memory
- * @author Antoine LANDRIEUX
  *
  * @param memory
  * @param name
@@ -126,7 +124,6 @@ MEM MemGet(MEM memory, char *name)
 
 /**
  * @brief Update a variable (free value if memory is NULL)
- * @author Antoine LANDRIEUX
  *
  * @param memory
  * @param name
@@ -147,7 +144,6 @@ MEM MemSet(MEM memory, char *value)
 
 /**
  * @brief Display all variables
- * @author Antoine LANDRIEUX
  *
  * @param memory
  */
@@ -155,8 +151,9 @@ void MemLog(MEM memory)
 {
     if (!memory)
         return;
-    printf(
-        "[MEMORY] [%s\t%s]\n",
+    soare_write(
+        __soare_stdout,
+        "[MEMORY] [%s,\t%s]\n",
         memory->name,
         memory->value);
     MemLog(memory->next);
@@ -164,7 +161,6 @@ void MemLog(MEM memory)
 
 /**
  * @brief Join 2 memories
- * @author Antoine LANDRIEUX
  *
  * @param to
  * @param from
@@ -178,18 +174,20 @@ void MemJoin(MEM to, MEM from)
 
 /**
  * @brief Free the allocated memory
- * @author Antoine LANDRIEUX
  *
  * @param memory
- * @return void* (always returns NULL)
  */
-void *MemFree(MEM memory)
+void MemFree(MEM memory)
 {
     if (!memory)
-        return NULL;
+        return;
 
     MemFree(memory->next);
     free(memory->value);
     free(memory);
-    return NULL;
+}
+
+static void __attribute__((destructor)) kill(void)
+{
+    MemFree(MEMORY);
 }

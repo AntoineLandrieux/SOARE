@@ -20,7 +20,6 @@
 
 /**
  * @brief Run from file using Terminal argument
- * @author Antoine LANDRIEUX
  *
  * @param argc
  * @param argv
@@ -28,6 +27,8 @@
  */
 int RunFromFile(int argc, char *argv[])
 {
+    int errorlevel = EXIT_SUCCESS;
+
     for (int i = 1; i < argc; i++)
     {
         char *filename = argv[i];
@@ -41,15 +42,16 @@ int RunFromFile(int argc, char *argv[])
 
         std::stringstream buffer;
         buffer << file.rdbuf();
-        SOARE::Execute(filename, const_cast<char *>(buffer.str().c_str()));
+
+        int _error = SOARE::Execute(filename, const_cast<char *>(buffer.str().c_str()));
+        errorlevel = _error || errorlevel;
     }
 
-    return EXIT_SUCCESS;
+    return errorlevel;
 }
 
 /**
  * @brief Console mode
- * @author Antoine LANDRIEUX
  *
  * @return int
  */
@@ -58,31 +60,40 @@ int Console()
     std::string exe = "";
 
     std::cout
-        << "SOARE v" << SOARE_MAJOR << "." << SOARE_MINOR << "." << SOARE_PATCH
-        << " [" << __PLATFORM__ << " - Antoine LANDRIEUX (MIT License)]\n"
+
+        << "SOARE " << SOARE_VERSION << " [" << __PLATFORM__ << " - Antoine LANDRIEUX (MIT License)]\n"
         << "<https://github.com/AntoineLandrieux/SOARE>\n"
-#ifndef __SOARE_NO_COLORED_OUTPUT
+
+#ifdef __SOARE_COLORED_OUTPUT
         // Lite
         << "\033[2m"
-#endif /* __SOARE_NO_COLORED_OUTPUT */
+#endif /* __SOARE_COLORED_OUTPUT */
+
         << "Enter '?run' or '?commit' to run code or '?exit' to quit.\n"
-#ifndef __SOARE_NO_COLORED_OUTPUT
+
+#ifdef __SOARE_COLORED_OUTPUT
         // Normal
         << "\033[0m"
-#endif /* __SOARE_NO_COLORED_OUTPUT */
+#endif /* __SOARE_COLORED_OUTPUT */
+
         << std::endl;
 
     while (true)
     {
+
         std::cout
-#ifndef __SOARE_NO_COLORED_OUTPUT
+
+#ifdef __SOARE_COLORED_OUTPUT
             // Purple
             << "\033[35m"
-#endif /* __SOARE_NO_COLORED_OUTPUT */
+#endif /* __SOARE_COLORED_OUTPUT */
+
             << ">>> "
-#ifndef __SOARE_NO_COLORED_OUTPUT
+
+#ifdef __SOARE_COLORED_OUTPUT
             << "\033[0m"
-#endif /* __SOARE_NO_COLORED_OUTPUT */
+#endif /* __SOARE_COLORED_OUTPUT */
+
             ;
 
         std::string user = "";
@@ -123,6 +134,7 @@ int Console()
 
 int main(int argc, char *argv[])
 {
+    SOARE::SetEnvironment(argv[0]);
     if (argc > 1)
         return RunFromFile(argc, argv);
     return Console();

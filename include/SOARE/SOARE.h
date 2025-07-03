@@ -21,10 +21,34 @@
 /* SOARE minor */
 #define SOARE_MINOR 1
 /* SOARE patch */
-#define SOARE_PATCH 0
+#define SOARE_PATCH 1
+
+/**
+ * SOARE version
+ * 
+ * R: release
+ * A: alpha
+ * B: beta
+ * S: snapshot
+ * T: testing
+ * 
+ */
+#define SOARE_VERSION "Rv1.1.1"
 
 /* SOARE max input */
 #define __SOARE_MAX_INPUT__ 255
+
+/* Standard input */
+#define __soare_stdin stdin
+/* Standard output */
+#define __soare_stdout stdout
+/* Standard output (error) */
+#define __soare_stderr stderr
+
+/* Output */
+#define soare_write fprintf
+/* Input */
+#define soare_input(__buffer) fgets(__buffer, __SOARE_MAX_INPUT__, __soare_stdin);
 
 #ifdef __cplusplus
 /**
@@ -38,7 +62,6 @@ namespace SOARE
 
         /**
          * @brief Structure of a document
-         * @author Antoine LANDRIEUX
          */
         typedef struct Document
         {

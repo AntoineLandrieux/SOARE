@@ -1,7 +1,7 @@
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 
 /**
  *  _____  _____  ___  ______ _____
@@ -18,9 +18,31 @@
 
 #include <SOARE/SOARE.h>
 
+/* Environment */
+static char *Environment = "/";
+
+/**
+ * @brief Set the Environment object
+ *
+ * @param path
+ */
+void SetEnvironment(char *path)
+{
+    Environment = path;
+}
+
+/**
+ * @brief Get the Environment object
+ *
+ * @return char*
+ */
+char *GetEnvironment(void)
+{
+    return Environment;
+}
+
 /**
  * @brief Check if a character is a number
- * @author Antoine LANDRIEUX
  *
  * @param character
  *
@@ -33,7 +55,6 @@ static inline unsigned char chrNum(const char character)
 
 /**
  * @brief Check if the character is a letter
- * @author Antoine LANDRIEUX
  *
  * @param character
  * @return unsigned char
@@ -45,7 +66,6 @@ static inline unsigned char chrAlpha(const char character)
 
 /**
  * @brief Check if the character is a letter or a number
- * @author Antoine LANDRIEUX
  *
  * @param character
  * @return unsigned char
@@ -57,7 +77,6 @@ static inline unsigned char chrAlnum(const char character)
 
 /**
  * @brief Check if the character is a space
- * @author Antoine LANDRIEUX
  *
  * @param character
  * @return unsigned char
@@ -69,7 +88,6 @@ static inline unsigned char chrSpace(const char character)
 
 /**
  * @brief Check if the character is an operator
- * @author Antoine LANDRIEUX
  *
  * @param string
  * @return unsigned char
@@ -81,7 +99,6 @@ static inline unsigned char chrOperator(const char character)
 
 /**
  * @brief Check if the string is an operator
- * @author Antoine LANDRIEUX
  *
  * @param string
  * @return unsigned char
@@ -94,6 +111,7 @@ static inline unsigned char strOperator(char *string)
         !strcmp("<=", string) ||
         !strcmp(">=", string) ||
         !strcmp("!=", string) ||
+        !strcmp("~=", string) || // Same as !=
         !strcmp("&&", string) ||
         !strcmp("||", string)
         //
@@ -102,7 +120,6 @@ static inline unsigned char strOperator(char *string)
 
 /**
  * @brief Check if the string is a keyword
- * @author Antoine LANDRIEUX
  *
  * @param string
  * @return unsigned char
@@ -123,6 +140,7 @@ static inline unsigned char strKeyword(char *string)
         !strcmp(KEYWORD_WRITE, string) ||
         !strcmp(KEYWORD_WHILE, string) ||
         !strcmp(KEYWORD_RAISE, string) ||
+        !strcmp(KEYWORD_BREAK, string) ||
         !strcmp(KEYWORD_RETURN, string) ||
         !strcmp(KEYWORD_IFERROR, string) ||
         !strcmp(KEYWORD_LOADIMPORT, string)
@@ -132,7 +150,6 @@ static inline unsigned char strKeyword(char *string)
 
 /**
  * @brief Give the type of the string
- * @author Antoine LANDRIEUX
  *
  * @param string
  * @return token_type
@@ -144,7 +161,6 @@ static inline token_type Symbol(char *string)
 
 /**
  * @brief Translate Escape Sequence <https://github.com/AntoineLandrieux/EscapeSequenceC/>
- * @author Antoine LANDRIEUX
  *
  * @param string
  * @return char*
@@ -239,7 +255,6 @@ static char *TranslateEscapeSequence(char *string)
 
 /**
  * @brief Return an empty document
- * @author Antoine LANDRIEUX
  *
  * @return Document
  */
@@ -256,7 +271,6 @@ Document EmptyDocument(void)
 
 /**
  * @brief Create a new token
- * @author Antoine LANDRIEUX
  *
  * @param filename
  * @param value
@@ -284,7 +298,6 @@ Tokens *Token(char *__restrict__ filename, char *__restrict__ value, token_type 
 
 /**
  * @brief Move on to the next token
- * @author Antoine LANDRIEUX
  *
  * @param tokens
  * @param step
@@ -297,7 +310,6 @@ void TokenNext(Tokens **tokens, unsigned int step)
 
 /**
  * @brief Check if a sequence of tokens corresponds with a sequence of token types
- * @author Antoine LANDRIEUX
  *
  * @param tokens
  * @param iteration
@@ -323,7 +335,6 @@ unsigned char TokensFollowPattern(Tokens *tokens, unsigned int iteration, ...)
 
 /**
  * @brief Free the memory allocated by the tokens
- * @author Antoine LANDRIEUX
  *
  * @param token
  */
@@ -339,7 +350,6 @@ void TokensFree(Tokens *token)
 
 /**
  * @brief Display the tokens
- * @author Antoine LANDRIEUX
  *
  * @param token
  */
@@ -359,7 +369,8 @@ void TokensLog(Tokens *token)
      *
      */
 
-    printf(
+    soare_write(
+        __soare_stdout,
         "[TOKENS] [%s:%.5lld:%.5lld, %.2X, \"%s\"]\n",
         token->file.file,
         token->file.ln,
@@ -371,7 +382,6 @@ void TokensLog(Tokens *token)
 
 /**
  * @brief Cut a string
- * @author Antoine LANDRIEUX
  *
  * @param string
  * @param size
@@ -381,18 +391,21 @@ static char *strcut(const char *string, size_t size)
 {
     if (strlen(string) < size)
         size = strlen(string);
+
     char *result = (char *)malloc(size + 1);
+
     if (!result)
         return __SOARE_OUT_OF_MEMORY();
+
     for (size_t ptr = 0; ptr < size; ptr++)
         result[ptr] = string[ptr];
+
     result[size] = 0;
     return result;
 }
 
 /**
  * @brief Add +1 to ln and set col to 0
- * @author Antoine LANDRIEUX
  *
  * @param ln
  * @param col
@@ -405,7 +418,6 @@ static inline void updateln(unsigned long long *__restrict__ ln, unsigned long l
 
 /**
  * @brief Transform a string into a sequence of tokens
- * @author Antoine LANDRIEUX
  *
  * @param filename
  * @param text
@@ -420,8 +432,8 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
     Tokens *curr = token;
 
     // Line/Column
-    unsigned long long ln;
-    unsigned long long col;
+    unsigned long long ln = 0;
+    unsigned long long col = 0;
     // Let:
     // ln   = 1
     // col  = 1
@@ -445,7 +457,7 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
                 // increment ln
                 // col = 1
                 updateln(&ln, &col);
-            (volatile char *)text++;
+            text++;
             continue;
         }
 
@@ -454,7 +466,7 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
         {
             // Comments end with a new line ('\n')
             while (*text != '\n' && *text)
-                (volatile char *)text++;
+                text++;
             continue;
         }
 
@@ -480,25 +492,32 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
             type = TKN_OPERATOR;
         }
 
+        // Assign
         else if (*text == '=')
             type = TKN_ASSIGN;
 
-        else if (*text == '@' || *text == '$')
+        // Shell
+        else if (*text == '$')
             type = TKN_KEYWORD;
 
+        // Parentheses
         else if (strchr("()", *text))
             type = *text == '(' ? TKN_PARENL : TKN_PARENR;
 
+        // Array
         else if (strchr("[]", *text))
             type = *text == '[' ? TKN_ARRAYL : TKN_ARRAYR;
 
+        // Semicolon or operator
         else if (chrOperator(*text) || *text == ';')
             type = *text == ';' ? TKN_SEMICOLON : TKN_OPERATOR;
 
+        // Name
         else if (chrAlpha(*text) || *text == '_')
             while (chrAlnum((&*text)[offset]) || (&*text)[offset] == '_')
                 offset++;
 
+        // Number (int, float)
         else if (chrNum(*text))
         {
             unsigned char point = 0;
@@ -507,12 +526,13 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
             type = TKN_NUMBER;
         }
 
+        // String `str`|'str'|"str"
         else if (strchr("\"'`", *text) != NULL)
         {
             offset--;
             char ignore = 0;
             char quote = *text;
-            (volatile char *)text++;
+            text++;
 
             while ((&*text)[offset] && ((&*text)[offset] != quote || ignore))
             {
@@ -524,26 +544,30 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
             offset++;
         }
 
+        // Error
         else
         {
             LeaveException(CharacterError, &*text, curr->file);
             continue;
         }
 
+        // Add token
         curr->value = type == TKN_STRING ? TranslateEscapeSequence(strcut(&*text, offset - 1)) : strcut(&*text, offset);
         curr->type = type == TKN_EOF ? Symbol(curr->value) : type;
         curr->next = Token(filename, NULL, TKN_EOF);
         curr = curr->next;
 
+        // Update text pointer
         for (unsigned long long i = 0; i < offset; i++)
         {
             col += 1;
             if (*text == '\n')
                 updateln(&ln, &col);
-            (volatile char *)text++;
+            text++;
         }
         col += type == TKN_STRING;
     }
 
+    // Return token
     return token;
 }

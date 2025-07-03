@@ -21,7 +21,7 @@
   - [Loops and conditional structures](#loops-and-conditional-structures)
   - [Arrays](#arrays)
   - [User inputs](#user-inputs)
-  - [Shell and Reinterpret](#shell-and-reinterpret)
+  - [Shell](#shell)
   - [Escape Sequence](#escape-sequence)
   - [Predefined variables](#predefined-variables)
 
@@ -70,7 +70,7 @@ make
 
 Executes the code written in the console
 
-```txt
+```soare
 >>> write "Hello!"
 >>> ?run
 Hello!
@@ -83,7 +83,7 @@ Hello!
 
 Executes the code written in the console once
 
-```txt
+```soare
 >>> write "Hello!";
 >>> ?commit
 Hello!
@@ -96,7 +96,7 @@ Hello!
 
 Cancels the code written in the console
 
-```txt
+```soare
 >>> write "Hello!";
 >>> ?cancel
 >>> ?commit
@@ -108,7 +108,7 @@ Cancels the code written in the console
 
 Clears the console content
 
-```txt
+```soare
 >>>
 ```
 
@@ -116,7 +116,7 @@ Clears the console content
 
 Closes the interpreter
 
-```txt
+```soare
 >>>?exit
 
 Bye!
@@ -141,7 +141,7 @@ Many examples in this manual, even those entered at the interactive prompt, incl
 
 **Some examples** :
 
-```txt
+```soare
 ? this is the first comment
 let number = 1; ? and this is the second comment
              ? ... and now a third !
@@ -159,7 +159,7 @@ SOARE can manipulate text (represented by a string) as well as numbers. This inc
 
 To display text, we use the write keyword:
 
-```txt
+```soare
 write "Hello World!\n"; ? (1) A newline character or \n is a control character for Line feed
 write 123.456;
 ```
@@ -172,7 +172,7 @@ write 123.456;
 
 A variable allows you to store a number or text. A variable is defined by a name and a value.
 
-```txt
+```soare
 ? let to create a new variable
 let name = "Antoine"
 let age = 15
@@ -188,7 +188,7 @@ write "Hello ", name, " ", age, "yo";
 
 We can create a function that writes the Fibonacci series:
 
-```txt
+```soare
 fn fib(n)
   ? Print a Fibonacci series up to n.
   let a = 0;
@@ -218,7 +218,7 @@ The `return` keyword exits the function, returning a value to the place where th
 
 The while loop executes as long as the condition (here: a < 10) remains true. In SOARE, as in C, any non-zero integer value is true; zero is false. The test used in the example is a simple comparison. The standard comparison operators are written the same way as in C: < (less than), > (greater than), == (equal to), <= (less than or equal to), >= (greater than or equal to), and != (not equal to).
 
-```txt
+```soare
 ? Fibonacci series:
 ? the sum of two elements defines the next
 let a = 0;
@@ -233,11 +233,46 @@ while a < 100 do
 end;
 ```
 
+**break** :
+
+You can break a loop using `break`
+
+```soare
+let i = 0;
+
+while 1 do
+
+  if i > 10 do
+    break;
+  end;
+
+  write i, '\n';
+  i = i + 1;
+
+end;
+```
+
+**Result**:
+
+```txt
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+```
+
 **if** et **iferror** :
 
 The most well-known type of statement is perhaps the if statement. For example:
 
-```txt
+```soare
 try
   ? Include standard functions
   loadimport "script/math.soare";
@@ -265,7 +300,7 @@ end;
 
 Strings or numbers are actually arrays of characters:
 
-```txt
+```soare
 ? For len() function
 loadimport "script/std.soare";
 
@@ -289,7 +324,7 @@ write msg[0-2], '\n'; ? Write the one before last character of "msg", here "d"
 
 You can capture user input using `input`
 
-```txt
+```soare
 let usr = "";
 
 write "Enter your name: ";
@@ -298,14 +333,13 @@ input usr;
 write "Hello ", usr, "!";
 ```
 
-### Shell and Reinterpret
+### Shell
 
 - `$` -> Run shell command
-- `@` -> Reinterpret code
 
 **Run shell command:**
 
-```txt
+```soare
 ? Clear terminal
 
 ? __PLATFORM__ : Get OS name
@@ -316,13 +350,6 @@ else
 end;
 
 $"echo Terminal cleared"
-```
-
-**Reinterpret code:**
-
-```txt
-let msg = "Hello";
-@"write \"", msg, "\";";
 ```
 
 ### Escape Sequence
@@ -345,11 +372,13 @@ let msg = "Hello";
 
 ### Predefined Variables
 
-| name              | value                 |
-|-------------------|-----------------------|
-| \_\_SOARE\_\_     | `SOARE (MIT LICENSE)` |
-| \_\_ERROR\_\_     | *errors*              |
-| \_\_BUILD\_\_     | *build date*          |
-| \_\_PLATFORM\_\_  | *current OS*          |
+| name                  | value                      |
+|-----------------------|----------------------------|
+| \_\_SOARE\_\_         | *SOARE version*            |
+| \_\_FILE\_\_          | *current file*             |
+| \_\_ENVIRONMENT\_\_   | *path to SOARE executable* |
+| \_\_ERROR\_\_         | *errors*                   |
+| \_\_BUILD\_\_         | *build date*               |
+| \_\_PLATFORM\_\_      | *current OS*               |
 
-> SOARE Antoine LANDRIEUX <https://github.com/AntoineLandrieux/SOARE> (MIT LICENSE)
+> SOARE Antoine LANDRIEUX <https://github.com/AntoineLandrieux/SOARE> (MIT LICENSE) ❤️

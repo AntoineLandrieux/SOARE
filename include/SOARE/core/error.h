@@ -18,7 +18,6 @@
 
 /**
  * @brief List the different types of errors
- * @author Antoine LANDRIEUX
  */
 typedef enum SoareExceptions
 {
@@ -42,7 +41,6 @@ typedef enum SoareExceptions
 
 /**
  * @brief Error display
- * @author Antoine LANDRIEUX
  *
  * @return unsigned char
  */
@@ -50,7 +48,6 @@ unsigned char AsIgnoredException(void);
 
 /**
  * @brief Enable/disable error display
- * @author Antoine LANDRIEUX
  *
  * @param ignore
  */
@@ -58,14 +55,12 @@ void IgnoreException(unsigned char ignore);
 
 /**
  * @brief Clears errors
- * @author Antoine LANDRIEUX
  *
  */
 void ClearException(void);
 
 /**
  * @brief Returns the error level
- * @author Antoine LANDRIEUX
  *
  * @return char
  */
@@ -73,7 +68,6 @@ char ErrorLevel(void);
 
 /**
  * @brief Create a new error, and display it
- * @author Antoine LANDRIEUX
  *
  * @param error
  * @param string
@@ -82,6 +76,7 @@ char ErrorLevel(void);
  */
 void *LeaveException(SoareExceptions error, char *string, Document file);
 
+/* Alias when memory allocation failed. Out of memory */
 #define __SOARE_OUT_OF_MEMORY() LeaveException(InterpreterError, "OUT OF MEMORY", EmptyDocument())
 
 #endif /* __SOARE_ERROR_H__ */

@@ -21,7 +21,7 @@
 static unsigned char enable = 1;
 
 /* Error level */
-static char errorlevel = 0;
+static char errorlevel = EXIT_SUCCESS;
 
 /* Exceptions */
 static char *Exceptions[] = {
@@ -45,7 +45,6 @@ static char *Exceptions[] = {
 
 /**
  * @brief Error display
- * @author Antoine LANDRIEUX
  *
  * @return unsigned char
  */
@@ -56,7 +55,6 @@ unsigned char AsIgnoredException(void)
 
 /**
  * @brief Enable/disable error display
- * @author Antoine LANDRIEUX
  *
  * @param ignore
  */
@@ -67,17 +65,15 @@ void IgnoreException(unsigned char ignore)
 
 /**
  * @brief Clears errors
- * @author Antoine LANDRIEUX
  *
  */
 void ClearException(void)
 {
-    errorlevel = 0;
+    errorlevel = EXIT_SUCCESS;
 }
 
 /**
  * @brief Returns the error level
- * @author Antoine LANDRIEUX
  *
  * @return char
  */
@@ -88,7 +84,6 @@ char ErrorLevel(void)
 
 /**
  * @brief Create a new error, and display it
- * @author Antoine LANDRIEUX
  *
  * @param error
  * @param string
@@ -100,13 +95,14 @@ void *LeaveException(SoareExceptions error, char *string, Document file)
     // If the errors are disabled, nothing is displayed
     if (enable)
     {
-#ifndef __SOARE_NO_COLORED_OUTPUT
+#ifdef __SOARE_COLORED_OUTPUT
         // Red
-        fprintf(stderr, "\033[31m");
-#endif /* __SOARE_NO_COLORED_OUTPUT */
-        fprintf(
+        soare_write(__soare_stderr, "\033[31m");
+#endif /* __SOARE_COLORED_OUTPUT */
+
+        soare_write(
             //
-            stderr,
+            __soare_stderr,
             "Except: %s\n\t\"%.13s\"\n\t ^~~~\n\tAt file %s:%lld:%lld\n",
             Exceptions[error],
             string,
@@ -115,14 +111,18 @@ void *LeaveException(SoareExceptions error, char *string, Document file)
             file.col
             //
         );
-#ifndef __SOARE_NO_COLORED_OUTPUT
+
+#ifdef __SOARE_COLORED_OUTPUT
         // Normal
-        fprintf(stderr, "\033[0m");
-#endif /* __SOARE_NO_COLORED_OUTPUT */
+        soare_write(__soare_stderr, "\033[0m");
+#endif /* __SOARE_COLORED_OUTPUT */
     }
-    // Set error at level 1
-    errorlevel = 1;
-    // Store the error in the variable
+
+    // Set error at level EXIT_FAILURE (1)
+    errorlevel = EXIT_FAILURE;
+
+    // Store the error in the `__ERROR__` variable
     MemSet(MemGet(MEMORY, "__ERROR__"), strdup(Exceptions[error]));
+
     return NULL;
 }

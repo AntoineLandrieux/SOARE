@@ -26,8 +26,8 @@ INCLUDE = include
 
 CFLAGS := -Wall
 CFLAGS += -Wextra
-CFLAGS += -Wpedantic
-CFLAGS += -Werror
+CFLAGS += -Wno-unused-result
+CFLAGS += -Wno-implicit-fallthrough
 
 ifeq ($(OS), Windows_NT)
 WINDRES = windres
@@ -36,9 +36,9 @@ else
 WINDRES = echo
 endif
 
-SOARE_FLAGS := 
+SOARE_FLAGS :=
+SOARE_FLAGS += -D __SOARE_COLORED_OUTPUT
 # SOARE_FLAGS += -D __SOARE_DEBUG 
-# SOARE_FLAGS += -D __SOARE_NO_COLORED_OUTPUT 
 
 default: $(BIN)/$(APP)
 

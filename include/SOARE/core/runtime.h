@@ -16,12 +16,8 @@
  *
  */
 
-// Memory used by the interpreter
-extern MEM MEMORY;
-
 /**
  * @brief Execute a function
- * @author Antoine LANDRIEUX
  *
  * @param tree
  * @return char*
@@ -30,7 +26,6 @@ char *RunFunction(AST tree);
 
 /**
  * @brief Execute the code from a string
- * @author Antoine LANDRIEUX
  *
  * @param rawcode
  */
