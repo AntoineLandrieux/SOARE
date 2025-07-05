@@ -8,7 +8,7 @@ SOARE is distributed under the [MIT License](LICENSE).
 ## 📖 Documentation
 
 > [!IMPORTANT]  
-> See [SOARE Documentation](doc/documentation.md) and [SOARE Changelog](CHANGELOG.md)
+> See [SOARE Documentation](doc/documentation.md) and [SOARE Changelog](CHANGELOG)
 
 ## 🧑‍💻 INTERPRETER
 
