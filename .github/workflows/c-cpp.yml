@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,3 +19,9 @@ jobs:
 
     - name: Build project
       run: make
+
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: soare-binary-linux
+        path: bin/soare
