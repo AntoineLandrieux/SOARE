@@ -21,7 +21,7 @@ jobs:
         7z x w64devkit.zip -ow64devkit
 
     - name: Build with Makefile
-      run: ./w64devkit/make.exe
+      run: ./w64devkit/bin/make.exe
 
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
