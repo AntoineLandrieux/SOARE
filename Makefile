@@ -16,7 +16,6 @@ VERSION_MAJ = 1
 
 AR = ar
 CC = gcc
-CPP = g++
 
 BIN = bin
 LIB = lib
@@ -52,11 +51,11 @@ $(LIB):
 $(LIB)/%.o: $(CORE)/%.c
 	$(CC) -c $< -o $@ -I $(INCLUDE) $(CFLAGS) $(SOARE_FLAGS)
 
-$(BIN)/$(APP): $(LIB) $(CORE_OBJS) $(SRC)/Main.cpp
+$(BIN)/$(APP): $(LIB) $(CORE_OBJS) $(SRC)/Main.c
 	mkdir -p $(BIN)
 	$(WINDRES) windows/resources/app.rc -coff $(RES)
 	$(AR) rcs $(LIB)/libsoare$(VERSION_MAJ).a $(CORE_OBJS)
-	$(CPP) $(RES) $(SRC)/Main.cpp -o $(BIN)/$(APP) -I $(INCLUDE) -L$(LIB) -lsoare$(VERSION_MAJ) $(CFLAGS) $(SOARE_FLAGS)
+	$(CC) $(RES) $(SRC)/Main.c -o $(BIN)/$(APP) -I $(INCLUDE) -L$(LIB) -lsoare$(VERSION_MAJ) $(CFLAGS) $(SOARE_FLAGS)
 	rm $(CORE_OBJS) $(RES)
 
 run:
