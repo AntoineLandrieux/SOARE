@@ -1,0 +1,30 @@
+
+loadimport "script/std.soare"
+loadimport "script/math.soare"
+
+let msg = input("Enter a msg: ");
+let key = "xxx";
+
+while 1 do
+
+    key = input("Enter a key: ");
+
+    if NaN(key) do
+        werr("[ERROR] Invalid key: "; key ; '\n');
+    else
+        break;
+    end;
+
+end;
+
+let i = 0;
+let l = len(msg);
+
+while i < l do
+
+    write(chr(ord(msg[i]) ^ key));
+    i = i + 1;
+
+end;
+
+write('\n');

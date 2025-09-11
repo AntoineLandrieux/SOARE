@@ -55,28 +55,6 @@ static void *ExitStatementError(MEM statement, SoareExceptions error, char *stri
 static char *Runtime(AST tree);
 
 /**
- * @brief User input
- *
- * @return char*
- */
-static char *input()
-{
-    char string[__SOARE_MAX_INPUT__] = {0};
-    soare_input(string);
-
-    size_t size = strlen(string) - 1;
-    string[size] = 0;
-
-    char *result = malloc(size);
-
-    if (!result)
-        return __SOARE_OUT_OF_MEMORY();
-
-    strcpy(result, string);
-    return result;
-}
-
-/**
  * @brief From file file
  *
  * @param filename
@@ -115,29 +93,6 @@ static AST loadimport(char *filename)
 }
 
 /**
- * @brief Set Interpreter variables
- *
- * @param file
- */
-static void InterpreterVar(char *file)
-{
-    MEMORY = Mem();
-
-    /* SOARE version */
-    MemPush(MEMORY, "__SOARE__", strdup(SOARE_VERSION));
-    /* Current file */
-    MemPush(MEMORY, "__FILE__", strdup(file));
-    /* Path to SOARE executable */
-    MemPush(MEMORY, "__ENVIRONMENT__", strdup(GetEnvironment()));
-    /* Errors */
-    MemPush(MEMORY, "__ERROR__", strdup("NoError"));
-    /* Build date */
-    MemPush(MEMORY, "__BUILD__", strdup(__DATE__));
-    /* Current OS */
-    MemPush(MEMORY, "__PLATFORM__", strdup(__PLATFORM__));
-}
-
-/**
  * @brief Execute a function
  *
  * @param tree
@@ -150,7 +105,15 @@ char *RunFunction(AST tree)
 
     // Memory not found
     if (!get)
+    {
+        // Predefined functions
+        soare_function soare_fn = soare_getfunction(tree->value);
+
+        if (soare_fn.name)
+            return soare_fn.exec(tree->child);
+
         return LeaveException(UndefinedReference, tree->value, tree->file);
+    }
 
     // Memory is not a function
     if (!get->body)
@@ -233,14 +196,6 @@ static char *Runtime(AST tree)
     {
         switch (curr->type)
         {
-        // Execute shell code
-        case NODE_SHELL:
-
-            returned = Eval(curr->child);
-            system(returned);
-            free(returned);
-            break;
-
         // Store function into MEMORY
         case NODE_FUNCTION:
 
@@ -253,20 +208,6 @@ static char *Runtime(AST tree)
             if ((tmp = loadimport(curr->value)))
                 BranchJuxtapose(curr, tmp->child);
             break;
-
-        // User input
-        case NODE_INPUT:
-
-            if ((get = MemGet(MEMORY, curr->value)))
-            {
-                if (!(returned = input()))
-                    break;
-
-                MemSet(get, returned);
-                break;
-            }
-
-            return ExitStatementError(statement, UndefinedReference, curr->value, curr->file);
 
         // Call a function
         case NODE_CALL:
@@ -356,16 +297,6 @@ static char *Runtime(AST tree)
 
             return ExitStatement(statement, returned);
 
-        // Print
-        case NODE_OUTPUT:
-
-            if ((returned = Eval(curr->child)))
-            {
-                soare_write(__soare_stdout, "%s", returned);
-                free(returned);
-            }
-            break;
-
         // Break loop
         case NODE_BREAK:
 
@@ -381,6 +312,17 @@ static char *Runtime(AST tree)
         case NODE_RAISE:
 
             return ExitStatementError(statement, RaiseException, curr->value, curr->file);
+
+        // Custom keyword
+        case NODE_CUSTOM_KEYWORD:
+
+            printf("d");
+            soare_keyword keyword = soare_getkeyword(curr->value);
+
+            if (keyword.name)
+                keyword.exec();
+
+            break;
 
         default:
 
@@ -401,7 +343,7 @@ int Execute(char *__restrict__ file, char *__restrict__ rawcode)
 {
     if (!MEMORY)
         // Set default vars..
-        InterpreterVar(file);
+        MEMORY = Mem();
 
     // Clear interpreter exception
     ClearException();

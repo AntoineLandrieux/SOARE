@@ -10,17 +10,17 @@ fn spell(message)
 
   while index < size do
 
-    write message[index];
+    write(message[index]);
 
     if in("AEIOUYaeiouy"; message[index]) do
-      write " is vowel"
+      write(" is vowel")
     end;
 
-    write "\n";
+    write('\n');
     index = index + 1;
 
   end;
 end;
 
 spell(msg);
-write msg, " -> ", reverse(msg), '\n';
+write(msg; " -> "; reverse(msg); '\n');

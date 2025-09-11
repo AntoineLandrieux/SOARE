@@ -27,7 +27,7 @@ MEM MEMORY = NULL;
  */
 MEM Mem(void)
 {
-    MEM memory = (mem*)malloc(sizeof(struct mem));
+    MEM memory = (mem *)malloc(sizeof(struct mem));
 
     if (!memory)
         return __SOARE_OUT_OF_MEMORY();
@@ -142,6 +142,8 @@ MEM MemSet(MEM memory, char *value)
     return memory;
 }
 
+#ifdef __SOARE_DEBUG
+
 /**
  * @brief Display all variables
  *
@@ -158,6 +160,8 @@ void MemLog(MEM memory)
         memory->value);
     MemLog(memory->next);
 }
+
+#endif /* __SOARE_DEBUG */
 
 /**
  * @brief Join 2 memories

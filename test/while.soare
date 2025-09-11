@@ -1,29 +1,26 @@
 
 loadimport "script/std.min.soare"
 
-write ""
 let times = 0;
 
 while 1 do
+
+  write("Please wait 5 seconds: ["; times; '/'; 5; "] ");
+
+  let progress = 0;
+
+  while progress < times do
+    write('=');
+    progress = progress + 1;
+  end;
 
   if times == 5 do
     break;
   end;
 
-  write "Please wait 5 seconds: [", times, "/", 5, "] ";
-
-  let progress = 0;
-
-  while progress < times + 1 do
-    write "=";
-    progress = progress + 1;
-  end;
-
   sleep(1);
   times = times + 1;
 
-  write "\r";
+  write('\r');
 
 end;
-
-write "\n\t===== SUCCESS =====\n";

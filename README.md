@@ -7,14 +7,19 @@ SOARE is distributed under the [MIT License](LICENSE).
 
 ## 📖 Documentation
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > See [SOARE Documentation](doc/documentation.md) and [SOARE Changelog](CHANGELOG)
 
 ## 🧑‍💻 INTERPRETER
 
 ```txt
+
 ? This is your first SOARE code !
-write "Hello World!";
+write("Hello World!");
+
+? SOARE information
+soareinfo();
+
 ```
 
 ## 🛠️ Recommended tools

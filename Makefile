@@ -12,7 +12,7 @@
 #
 
 APP = soare
-VERSION_MAJ = 1
+VERSION_MAJOR = 1
 
 AR = ar
 CC = gcc
@@ -26,6 +26,7 @@ INCLUDE = include
 CFLAGS := -Wall
 CFLAGS += -Wextra
 CFLAGS += -Wno-unused-result
+CFLAGS += -Wno-unused-parameter
 CFLAGS += -Wno-implicit-fallthrough
 
 ifeq ($(OS), Windows_NT)
@@ -41,7 +42,7 @@ SOARE_FLAGS += -D __SOARE_COLORED_OUTPUT
 
 default: $(BIN)/$(APP)
 
-$(LIB)/libsoare$(VERSION_MAJ).a: $(CORE_OBJS)
+$(LIB)/libsoare$(VERSION_MAJOR).a: $(CORE_OBJS)
 
 CORE_OBJS := $(patsubst $(CORE)/%.c, $(LIB)/%.o, $(wildcard $(CORE)/*.c))
 
@@ -54,8 +55,8 @@ $(LIB)/%.o: $(CORE)/%.c
 $(BIN)/$(APP): $(LIB) $(CORE_OBJS) $(SRC)/Main.c
 	mkdir -p $(BIN)
 	$(WINDRES) windows/resources/app.rc -coff $(RES)
-	$(AR) rcs $(LIB)/libsoare$(VERSION_MAJ).a $(CORE_OBJS)
-	$(CC) $(RES) $(SRC)/Main.c -o $(BIN)/$(APP) -I $(INCLUDE) -L$(LIB) -lsoare$(VERSION_MAJ) $(CFLAGS) $(SOARE_FLAGS)
+	$(AR) rcs $(LIB)/libsoare$(VERSION_MAJOR).a $(CORE_OBJS)
+	$(CC) $(RES) $(SRC)/*.c -o $(BIN)/$(APP) -I $(INCLUDE) -L$(LIB) -lsoare$(VERSION_MAJOR) $(CFLAGS) $(SOARE_FLAGS)
 	rm $(CORE_OBJS) $(RES)
 
 run:

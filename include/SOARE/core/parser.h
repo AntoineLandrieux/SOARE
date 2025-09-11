@@ -27,12 +27,10 @@ typedef enum node_type
     NODE_BODY,
     NODE_RAISE,
     NODE_ARRAY,
-    NODE_OUTPUT,
     NODE_VALUE,
     NODE_IMPORT,
     NODE_CALL,
     NODE_TYPE,
-    NODE_INPUT,
     NODE_FUNCTION,
     NODE_MEMNEW,
     NODE_MEMGET,
@@ -42,8 +40,8 @@ typedef enum node_type
     NODE_CONDITION,
     NODE_REPETITION,
     NODE_BREAK,
-    NODE_SHELL,
-    NODE_RETURN
+    NODE_RETURN,
+    NODE_CUSTOM_KEYWORD
 
 } node_type;
 
@@ -105,12 +103,16 @@ AST BranchJoin(Node *parent, Node *child);
  */
 void TreeFree(AST tree);
 
+#ifdef __SOARE_DEBUG
+
 /**
  * @brief Display a tree
  *
  * @param tree
  */
 void TreeLog(AST tree);
+
+#endif /* __SOARE_DEBUG */
 
 /**
  * @brief Turns a sequence of tokens into a tree (AST)

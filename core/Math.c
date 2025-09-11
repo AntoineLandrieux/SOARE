@@ -107,7 +107,7 @@ static void zeros(char *string)
  */
 static char *__int(int number)
 {
-    // Convert long double to string
+    // Convert int to string
     char string[100] = {0};
     sprintf(string, "%d", number);
 

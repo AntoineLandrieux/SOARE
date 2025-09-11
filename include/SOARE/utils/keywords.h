@@ -27,7 +27,6 @@
 #define KEYWORD_FN          "fn"
 #define KEYWORD_IF          "if"
 #define KEYWORD_IFERROR     "iferror"
-#define KEYWORD_INPUT       "input"
 #define KEYWORD_LET         "let"
 #define KEYWORD_LOADIMPORT  "loadimport"
 #define KEYWORD_OR          "or"
@@ -35,6 +34,5 @@
 #define KEYWORD_RETURN      "return"
 #define KEYWORD_TRY         "try"
 #define KEYWORD_WHILE       "while"
-#define KEYWORD_WRITE       "write"
 
 #endif /* __SOARE_KEYWORDS_H__ */

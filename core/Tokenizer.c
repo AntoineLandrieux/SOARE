@@ -136,14 +136,14 @@ static inline unsigned char strKeyword(char *string)
         !strcmp(KEYWORD_TRY, string) ||
         !strcmp(KEYWORD_END, string) ||
         !strcmp(KEYWORD_ELSE, string) ||
-        !strcmp(KEYWORD_INPUT, string) ||
-        !strcmp(KEYWORD_WRITE, string) ||
         !strcmp(KEYWORD_WHILE, string) ||
         !strcmp(KEYWORD_RAISE, string) ||
         !strcmp(KEYWORD_BREAK, string) ||
         !strcmp(KEYWORD_RETURN, string) ||
         !strcmp(KEYWORD_IFERROR, string) ||
-        !strcmp(KEYWORD_LOADIMPORT, string)
+        !strcmp(KEYWORD_LOADIMPORT, string) ||
+        // Custom keyword
+        soare_iskeyword(string)
         //
     );
 }
@@ -348,6 +348,8 @@ void TokensFree(Tokens *token)
     free(token);
 }
 
+#ifdef __SOARE_DEBUG
+
 /**
  * @brief Display the tokens
  *
@@ -379,6 +381,8 @@ void TokensLog(Tokens *token)
         token->value);
     TokensLog(token->next);
 }
+
+#endif
 
 /**
  * @brief Cut a string
@@ -495,10 +499,6 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
         // Assign
         else if (*text == '=')
             type = TKN_ASSIGN;
-
-        // Shell
-        else if (*text == '$')
-            type = TKN_KEYWORD;
 
         // Parentheses
         else if (strchr("()", *text))

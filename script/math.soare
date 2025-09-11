@@ -30,7 +30,7 @@
 ?   - sin
 ?   - tan
 
-let pi  = 3.14159265;
+let pi = 3.14159265;
 let deg = 180 / pi;
 let rad = pi / 180;
 
@@ -109,7 +109,7 @@ fn integer_sqrt(x)
   or x < 0 do
     raise "Non-Real Number";
   end;
-  
+
   let n = x;
   let a = 0;
 
@@ -126,23 +126,25 @@ end;
 fn pow(x; y)
   let res = 1;
   let neg = y < 0;
+
   y = floor(abs(y))
 
   while y do
     res = res * x;
     y = y - 1;
   end;
-  
+
   if neg do
     res = 1 / res;
   end;
+
   return res;
-end;    
+end;
 
 ? The factorial of a non-negative integer
 fn factorial(x)
   let res = 1;
-  let n   = 1;
+  let n = 1;
 
   x = floor(x);
   if x < 0 do
@@ -153,7 +155,7 @@ fn factorial(x)
     res = res * n;
     n = n + 1;
   end;
-    
+
   return res;
 end;
 
@@ -170,7 +172,7 @@ end;
 ? The sine function
 fn sin(x)
   let sine = 0;
-  let n    = 0;
+  let n = 0;
 
   x = radians(x % 180)
 
@@ -178,14 +180,14 @@ fn sin(x)
     sine = sine + pow(0-1; n) * pow(x; 2 * n + 1) / factorial(2 * n + 1);
     n = n + 1;
   end;
-    
+
   return sine;
 end;
 
 ? The cosine function
 fn cos(x)
   let cosine = 0;
-  let n      = 0;
+  let n = 0;
 
   x = radians(x % 180)
 
@@ -193,7 +195,7 @@ fn cos(x)
     cosine = cosine + pow(0-1; n) * pow(x; 2 * n) / factorial(2 * n);
     n = n + 1;
   end;
-    
+
   return cosine;
 end;
 

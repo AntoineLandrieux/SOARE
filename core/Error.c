@@ -103,7 +103,7 @@ void *LeaveException(SoareExceptions error, char *string, Document file)
         soare_write(
             //
             __soare_stderr,
-            "Except: %s\n\t\"%.13s\"\n\t ^~~~\n\tAt file %s:%lld:%lld\n",
+            "\aExcept: %s\n\t\"%.13s\"\n\t ^~~~\n\tAt file %s:%lld:%lld\n",
             Exceptions[error],
             string,
             file.file,
@@ -120,9 +120,5 @@ void *LeaveException(SoareExceptions error, char *string, Document file)
 
     // Set error at level EXIT_FAILURE (1)
     errorlevel = EXIT_FAILURE;
-
-    // Store the error in the `__ERROR__` variable
-    MemSet(MemGet(MEMORY, "__ERROR__"), strdup(Exceptions[error]));
-
     return NULL;
 }

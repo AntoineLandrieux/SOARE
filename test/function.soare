@@ -22,4 +22,4 @@ fn Fib(n)
 
 end;
 
-write Fib(10), '\n'; ? 34
+write(Fib(10); '\n'); ? 34

@@ -22,14 +22,15 @@
 ?   - sleep
 
 let false = 0;
-let true  = 1;
-let null  = "";
+let true = 1;
+
+let null = "";
 
 ? in
 fn in(parent; source)
 
   let index = 0;
-  
+
   try
     while 1 do
       if parent[index] == source do
@@ -47,8 +48,8 @@ end;
 fn len(string)
 
   let index = 0;
-  let tmp   = "";
-  
+  let tmp = "";
+
   while 1 do
     try
       tmp = string[index];
@@ -78,16 +79,13 @@ fn reverse(string)
 end;
 
 ? sleep
-fn sleep(time)
+fn sleep(t)
 
-  if time < 0 do
-    return null;
-  end;
+  let curr = time();
+  let next = curr + t;
 
-  time = time * 550000;
-
-  while time > 0 do
-    time = time - 1;
+  while curr > next do
+    curr = time();
   end;
 
 end;

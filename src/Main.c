@@ -5,6 +5,8 @@
 
 #include <SOARE/SOARE.h>
 
+#include "predefined.h"
+
 uint8_t CONSOLE = 0;
 
 static FILE *file = NULL;
@@ -188,6 +190,7 @@ int Console()
 int main(int argc, char *argv[])
 {
     SetEnvironment(argv[0]);
+    predefined_functions();
     if (argc > 1)
         return RunFromFile(argc, argv);
     return Console();

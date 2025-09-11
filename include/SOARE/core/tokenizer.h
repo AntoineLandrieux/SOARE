@@ -112,12 +112,16 @@ unsigned char TokensFollowPattern(Tokens *tokens, unsigned int iteration, ...);
  */
 void TokensFree(Tokens *token);
 
+#ifdef __SOARE_DEBUG
+
 /**
  * @brief Display the tokens
  *
  * @param token
  */
 void TokensLog(Tokens *token);
+
+#endif /* __SOARE_DEBUG */
 
 /**
  * @brief Transform a string into a sequence of tokens

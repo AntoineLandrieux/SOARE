@@ -10,6 +10,7 @@
   - [Installing SOARE](#installing-soare)
   - [Compiling the Interpreter](#compiling-the-interpreter)
   - [Interpreter Commands](#interpreter-commands)
+  - [Add Interpreter keywords/functions in C/C++](#add-interpreter-keywordsfunctions-in-cc)
   - [Loading a File](#loading-a-file)
 
 - [SOARE](#soare)
@@ -23,7 +24,6 @@
   - [User inputs](#user-inputs)
   - [Shell](#shell)
   - [Escape Sequence](#escape-sequence)
-  - [Predefined variables](#predefined-variables)
 
 ---
 
@@ -52,16 +52,39 @@ bin/soare
 
 ### Compiling the Interpreter
 
-**Dependencies** :
+**Tools recommended for Windows**:
+
+- [w64devkit](https://github.com/skeeto/w64devkit)
+
+**Tools recommended for Linux**:
 
 - `ar`
 - `g++`
 - `gcc`
 - `make`
-- `windres` (for Windows only)
+
+```sh
+# Ubuntu/Debian
+sudo apt update && sudo apt upgrade -y
+sudo apt install binutils build-essential make -y
+```
+
+**Compilation**:
 
 ```sh
 make
+```
+
+**Run executable**:
+
+```sh
+# Windows/Linux
+make run
+
+# Windows
+.\bin\soare.exe
+# Linux
+./bin/soare
 ```
 
 ### Interpreter Commands
@@ -71,7 +94,7 @@ make
 Executes the code written in the console
 
 ```soare
->>> write "Hello!"
+>>> write("Hello!");
 >>> ?run
 Hello!
 >>> ?run
@@ -84,7 +107,7 @@ Hello!
 Executes the code written in the console once
 
 ```soare
->>> write "Hello!";
+>>> write("Hello!");
 >>> ?commit
 Hello!
 >>> ?commit
@@ -97,7 +120,7 @@ Hello!
 Cancels the code written in the console
 
 ```soare
->>> write "Hello!";
+>>> write("Hello!");
 >>> ?cancel
 >>> ?commit
 
@@ -123,6 +146,110 @@ Bye!
 
 ```
 
+### Add Interpreter keywords/functions in C/C++
+
+> [!IMPORTANT]
+> **See [core/Custom.c](../core/Custom.c)**
+>
+
+#### Functions
+
+**Example**: Custom Function - Add Numbers with Variable Arguments
+
+This example demonstrates how to implement a custom function that adds together an unknown number of integer arguments.
+
+- Function Name:
+  - char *int_add(soare_arguments_list args)
+- Arguments:
+  - args: A linked list of arguments passed to the function. Use soare_getarg(args, i) to retrieve the i-th argument as a string.
+- Return Value:
+  - Returns NULL (no value returned to SOARE).
+  - If you want to return a value, allocate memory for the result string before returning.
+
+**Implementation Steps**:
+
+1. Initialize result accumulator.
+2. Loop through arguments using soare_getarg.
+3. Convert each argument from string to integer.
+4. Add to result.
+5. Print the result.
+6. Return NULL (or a string if needed).
+
+- Memory Management:
+  - If returning a string, always allocate memory for it.
+  - Example:
+
+```c
+char *ret = malloc(6 * sizeof(char));
+if (!ret)
+    return NULL;
+strcpy(ret, "value");
+return ret;
+```
+
+**Code**:
+
+```c
+char *int_add(soare_arguments_list args)
+{
+    // Accumulator for the sum
+    int result = 0;
+    // Pointer to current argument string
+    char *x = NULL;
+
+    // Loop through all arguments
+    for (int i = 0; 1; i++)
+    {
+        // Retrieve the i-th argument
+        x = soare_getarg(args, i);
+        if (!x)
+            // Exit loop if no more arguments
+            break;
+
+        // Convert argument to integer and add to result
+        result += atoi(x);
+    }
+
+    // Output the result to the console
+    printf("%d", result);
+
+    // Return NULL (no value returned to SOARE)
+    // If you need to return a value, allocate memory as shown above
+    return NULL;
+}
+```
+
+**Implement this function**: `soare_addfunction(<function name>, <function>)`
+
+```c
+soare_addfunction("int_add", int_add);
+```
+
+#### Keywords
+
+**Example**: Custom Keyword - Clear screen
+
+This example demonstrates how to implement a custom keyword.
+
+- Function Name:
+  - Example: `void clear(void)`
+
+**Code**:
+
+```c
+void clear(void)
+{
+    // ANSI escape code to clear the screen
+    printf("\033c\033[3J");
+}
+```
+
+**Implement this keyword**: `soare_addkeyword(<keyword name>, <function>)`
+
+```c
+soare_addkeyword("clear", clear);
+```
+
 ### Loading a File
 
 To load a file, you can use the command:
@@ -144,7 +271,7 @@ Many examples in this manual, even those entered at the interactive prompt, incl
 ```soare
 ? this is the first comment
 let number = 1; ? and this is the second comment
-             ? ... and now a third !
+                ? ... and now a third !
 let text = "? This is not a comment because it's inside quotes.";
 ```
 
@@ -157,11 +284,17 @@ let text = "? This is not a comment because it's inside quotes.";
 
 SOARE can manipulate text (represented by a string) as well as numbers. This includes characters like "!", words like "rabbit", names like "Paris", sentences like "I support you.", etc. "Yay!". They can be enclosed in single quotes ('...') or double quotes ("...") with the same result.
 
-To display text, we use the write keyword:
+To display text, we use the `write` keyword:
 
 ```soare
-write "Hello World!\n"; ? (1) A newline character or \n is a control character for Line feed
-write 123.456;
+write("Hello World!\n"); ? (1) A newline character or \n is a control character for Line feed
+write(123.456);
+```
+
+To display errors, we use the `werr` keyword:
+
+```soare
+werr("Error: my error !");
 ```
 
 >
@@ -181,7 +314,10 @@ let age = 15
 age = age + 1
 
 ? the ',' sign with strings and numbers allows you to concatenate them
-write "Hello ", name, " ", age, "yo";
+let hello_name = "Hello ", name;
+
+? the write function support multiple-arguments with ';'
+write(hello_name; " "; age; "yo");
 ```
 
 ### Defining Functions
@@ -194,18 +330,18 @@ fn fib(n)
   let a = 0;
   let b = 1;
   let next = b;
-  
+
   while a < n do
-    write a, '\n';
+    write(a; '\n');
     a = b;
     b = next;
     next = a + b;
   end;
-  
+
   return a;
 end;
 
-write "The last value is ", fib(100);
+write("The last value is "; fib(100));
 ```
 
 The `fn` keyword introduces a function definition. It must be followed by the function name and the list of formal parameters in parentheses and separated by a ;.
@@ -226,7 +362,7 @@ let b = 1;
 let next = b;
 
 while a < 100 do
-  write a, '\n';
+  write(a; '\n');
   a = b;
   b = next;
   next = a + b;
@@ -246,7 +382,7 @@ while 1 do
     break;
   end;
 
-  write i, '\n';
+  write(i; '\n');
   i = i + 1;
 
 end;
@@ -274,25 +410,23 @@ The most well-known type of statement is perhaps the if statement. For example:
 
 ```soare
 try
-  ? Include standard functions
+  ? Include standard functions like NaN (Not a Number)
   loadimport "script/math.soare";
 
-  write "Enter a digit:";
-  let x = 0;
-  inputch x;
+  let x = input("Enter a digit: ");
 
   if NaN(x) do
-    write "\nNot a number"
+    write("\nNot a number");
   or x < 0 do
-    write "\nNegative";
+    write("\nNegative");
   or x == 0 do
-    write "\nZero";
+    write("\nZero");
   else
-    write "\nPositive";
+    write("\nPositive");
   end;
 
 iferror
-  write "std.soare not found!"
+  write("std.soare not found!")
 end;
 ```
 
@@ -311,13 +445,13 @@ let index = 0;
 let size = len(msg);
 
 while index < size do
-  write msg[index], '\n';
+  write(msg[index]; '\n');
   index = index + 1;
 end;
 
 ? Negative number can be used to start with the end
-write msg[0-1], '\n'; ? Write the last character of "msg", here "!"
-write msg[0-2], '\n'; ? Write the one before last character of "msg", here "d"
+write(msg[0-1]; '\n'); ? Write the last character of "msg", here "!"
+write(msg[0-2]; '\n'); ? Write the one before last character of "msg", here "d"
 ```
 
 ### User Inputs
@@ -325,31 +459,18 @@ write msg[0-2], '\n'; ? Write the one before last character of "msg", here "d"
 You can capture user input using `input`
 
 ```soare
-let usr = "";
-
-write "Enter your name: ";
-input usr;
-
-write "Hello ", usr, "!";
+let usr = input("Enter your name: ");
+write("Hello "; usr; "!");
 ```
 
 ### Shell
 
-- `$` -> Run shell command
+- `system` -> Run shell command
 
 **Run shell command:**
 
 ```soare
-? Clear terminal
-
-? __PLATFORM__ : Get OS name
-if __PLATFORM__ == "Windows" do
-  $"cls";
-else
-  $"clear";
-end;
-
-$"echo Terminal cleared"
+system("echo hello");
 ```
 
 ### Escape Sequence
@@ -370,15 +491,18 @@ $"echo Terminal cleared"
 | \\ooo           | Octal Number       | It is used to represent an octal number.                                               |
 | \\xhh           | Hexadecimal Number | It represents the hexadecimal number.                                                  |
 
-### Predefined Variables
+### Predefined Functions
 
-| name                  | value                      |
-|-----------------------|----------------------------|
-| \_\_SOARE\_\_         | *SOARE version*            |
-| \_\_FILE\_\_          | *current file*             |
-| \_\_ENVIRONMENT\_\_   | *path to SOARE executable* |
-| \_\_ERROR\_\_         | *errors*                   |
-| \_\_BUILD\_\_         | *build date*               |
-| \_\_PLATFORM\_\_      | *current OS*               |
+| name                  | function                        |
+|-----------------------|---------------------------------|
+| soareinfo()           | Show SOARE info                 |
+| time()                | Show current timestamp          |
+| random()              | Generate random number [0; 100] |
+| system(...)           | Execute shell command           |
+| input(...)            | User input, print text          |
+| write(...)            | Print text                      |
+| wer(...)              | Print error                     |
+| ord(char)             | Get ASCII number from char      |
+| chr(number)           | Get char from ASCII number      |
 
 > SOARE Antoine LANDRIEUX <https://github.com/AntoineLandrieux/SOARE> (MIT LICENSE) ❤️

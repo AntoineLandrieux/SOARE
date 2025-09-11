@@ -1,24 +1,21 @@
 
-? NoError
-write __ERROR__, '\n';
-
 ? Hello World
 try
-  write 'Hello World!\n';
+  write('Hello World!\n');
 iferror
-  write 'Error ! #1 Exception: ', __ERROR__, '\n';
+  werr('Error ! (issue)\n');
 end;
 
 ? Error ! #2 Error value: RaiseException
 try
   raise 'problem';
 iferror
-  write 'Error ! #2 Exception: ', __ERROR__, '\n';
+  werr('Error ! (normal)\n');
 end;
 
 ? Error ! #3 Error value: DivideByZero
 try
-  write 3/0;
+  write(3/0);
 iferror
-  write 'Error ! #3 Exception: ', __ERROR__, '\n';
+  werr('Error ! (normal)\n');
 end;
