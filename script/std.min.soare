@@ -1,4 +1,4 @@
 let false=0;let true=1;let null="";fn in(parent;source)let index=0;try while 1 do if parent[index]==source do return index+1 end;index=index+1;end;iferror 
 return 0;end;end;fn len(string)let index=0;let tmp="";while 1 do try tmp=string[index];iferror return index;end;index=index+1;end;end;fn reverse
 (string)let res="";let s=len(string);let n=0;while n<s do res=res,string[0-1-n];n=n+1;end;return res;end;fn sleep(t)let curr=time();let next=curr+t;while 
-curr>next do curr=time();end;end;
+curr<next do curr=time();end;end;

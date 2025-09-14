@@ -5,10 +5,9 @@ SOARE is distributed under the [MIT License](LICENSE).
 
 ---
 
-## 📖 Documentation
+![IMAGE](resources/github/interpreter.png)
 
-> [!IMPORTANT]
-> See [SOARE Documentation](doc/documentation.md) and [SOARE Changelog](CHANGELOG)
+[**➡️ See more pictures**](resources/github/README.md)
 
 ## 🧑‍💻 INTERPRETER
 
@@ -21,6 +20,11 @@ write("Hello World!");
 soareinfo();
 
 ```
+
+## 📖 Documentation
+
+> [!IMPORTANT]
+> See [SOARE Documentation](doc/documentation.md) and [SOARE Changelog](CHANGELOG)
 
 ## 🛠️ Recommended tools
 

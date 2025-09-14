@@ -18,29 +18,6 @@
 
 #include <SOARE/SOARE.h>
 
-/* Environment */
-static char *Environment = "/";
-
-/**
- * @brief Set the Environment object
- *
- * @param path
- */
-void SetEnvironment(char *path)
-{
-    Environment = path;
-}
-
-/**
- * @brief Get the Environment object
- *
- * @return char*
- */
-char *GetEnvironment(void)
-{
-    return Environment;
-}
-
 /**
  * @brief Check if a character is a number
  *

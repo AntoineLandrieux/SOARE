@@ -21,7 +21,7 @@
 /* SOARE minor */
 #define SOARE_MINOR 2
 /* SOARE patch */
-#define SOARE_PATCH 0
+#define SOARE_PATCH 1
 
 /**
  * SOARE version
@@ -33,7 +33,7 @@
  * T: testing
  *
  */
-#define SOARE_VERSION "Rv1.2.0"
+#define SOARE_VERSION "Rv1.2.1"
 
 /* SOARE max input */
 #define __SOARE_MAX_INPUT__ 255
@@ -48,7 +48,7 @@
 /* Output */
 #define soare_write fprintf
 /* Input */
-#define soare_input(__buffer) fgets(__buffer, __SOARE_MAX_INPUT__, __soare_stdin);
+#define soare_input(__buffer) fgets(__buffer, __SOARE_MAX_INPUT__, __soare_stdin)
 
 #ifdef __cplusplus
 /**

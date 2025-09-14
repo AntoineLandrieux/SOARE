@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <time.h>
@@ -7,6 +8,19 @@
 #include <SOARE/SOARE.h>
 
 #include "predefined.h"
+
+/**
+ * @brief Convert byte to string
+ *
+ * @param byte
+ * @return char*
+ */
+static inline char *__byte_to_string(uint8_t byte)
+{
+    char result[4] = {0, 0, 0, 0};
+    snprintf(result, 4, "%d", byte);
+    return strdup(result);
+}
 
 /**
  * @brief Get current timestamp
@@ -17,7 +31,7 @@
 char *__soare_timestamp(soare_arguments_list args)
 {
     char timestamp[20];
-    snprintf(timestamp, sizeof(timestamp), "%lld", time(NULL));
+    snprintf(timestamp, sizeof(timestamp), "%lld", (long long int)time(NULL));
     return strdup(timestamp);
 }
 
@@ -180,13 +194,7 @@ char *__soare_soareinfo(soare_arguments_list args)
 char *__soare_random(soare_arguments_list args)
 {
     srand((unsigned int)time(NULL));
-
-    int random = rand() % 100;
-    char result[4] = {0};
-
-    snprintf(result, 4, "%d", random);
-
-    return strdup(result);
+    return __byte_to_string((uint8_t)(rand() % 100));
 }
 
 /**
@@ -223,12 +231,7 @@ char *__soare_ord(soare_arguments_list args)
     if (!value)
         return NULL;
 
-    char result[4] = {0, 0, 0, 0};
-
-    snprintf(result, 4, "%d", (unsigned char)value[0]);
-    free(value);
-
-    return strdup(result);
+    return __byte_to_string((uint8_t)value[0]);
 }
 
 /**

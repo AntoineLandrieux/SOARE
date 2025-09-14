@@ -1,5 +1,5 @@
 
-loadimport "script/std.min.soare"
+loadimport "script/std.soare"
 
 let times = 0;
 

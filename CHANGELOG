@@ -3,11 +3,10 @@ SOARE Changelog
 
 ---
 
-- v1.0.0
+- v1.0.0+
 
 First SOARE release
 
-- v1.2.0
+- v1.2.0+
 
-First SOARE release
-
+Implement external/custom functions and keywords

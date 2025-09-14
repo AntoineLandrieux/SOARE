@@ -84,7 +84,7 @@ fn sleep(t)
   let curr = time();
   let next = curr + t;
 
-  while curr > next do
+  while curr < next do
     curr = time();
   end;
 

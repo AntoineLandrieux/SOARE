@@ -58,9 +58,8 @@ bin/soare
 
 **Tools recommended for Linux**:
 
-- `ar`
-- `g++`
-- `gcc`
+- `binutils`
+- `build-essential`
 - `make`
 
 ```sh
@@ -89,61 +88,83 @@ make run
 
 ### Interpreter Commands
 
-- `?run`
-
 Executes the code written in the console
 
-```soare
+```txt
 >>> write("Hello!");
->>> ?run
 Hello!
->>> ?run
-Hello!
+>>> 
+```
+
+**Editor**:
+
+- `?editor`
+
+Editor mode for multi-line input
+
+```txt
+>>> ?editor
+... let msg = "hello";
+... write(msg);
+```
+
+- `?run`
+
+Execute the editor content
+
+```txt
+>>> ?editor
+... let msg = "hello";
+... write(msg);
+... ?run
+hello
 >>>
 ```
 
 - `?commit`
 
-Executes the code written in the console once
+Execute the editor content (same as `?run`)
 
-```soare
->>> write("Hello!");
->>> ?commit
-Hello!
->>> ?commit
-
+```txt
+>>> ?editor
+... let msg = "hello";
+... write(msg);
+... ?commit
+hello
 >>>
 ```
 
 - `?cancel`
 
-Cancels the code written in the console
+Cancels the code written in the editor mode
 
-```soare
->>> write("Hello!");
->>> ?cancel
->>> ?commit
-
->>>
-```
-
-- `?clear`
-
-Clears the console content
-
-```soare
->>>
+```txt
+>>> ?editor
+... let msg = "hello";
+... write(msg);
+... ?cancel
+>>> 
 ```
 
 - `?exit`
 
-Closes the interpreter
+Closes the interpreter/editor mode
 
 ```soare
 >>>?exit
 
 Bye!
 
+```
+
+Closes the editor mode
+
+```txt
+>>> ?editor
+... let msg = "hello";
+... write(msg);
+... ?exit
+>>> 
 ```
 
 ### Add Interpreter keywords/functions in C/C++
@@ -181,8 +202,10 @@ This example demonstrates how to implement a custom function that adds together 
 
 ```c
 char *ret = malloc(6 * sizeof(char));
+
 if (!ret)
-    return NULL;
+  return NULL;
+
 strcpy(ret, "value");
 return ret;
 ```
@@ -192,30 +215,30 @@ return ret;
 ```c
 char *int_add(soare_arguments_list args)
 {
-    // Accumulator for the sum
-    int result = 0;
-    // Pointer to current argument string
-    char *x = NULL;
+  // Accumulator for the sum
+  int result = 0;
+  // Pointer to current argument string
+  char *x = NULL;
 
-    // Loop through all arguments
-    for (int i = 0; 1; i++)
-    {
-        // Retrieve the i-th argument
-        x = soare_getarg(args, i);
-        if (!x)
-            // Exit loop if no more arguments
-            break;
+  // Loop through all arguments
+  for (int i = 0; 1; i++)
+  {
+    // Retrieve the i-th argument
+    x = soare_getarg(args, i);
+    if (!x)
+      // Exit loop if no more arguments
+      break;
 
-        // Convert argument to integer and add to result
-        result += atoi(x);
-    }
+    // Convert argument to integer and add to result
+    result += atoi(x);
+  }
 
-    // Output the result to the console
-    printf("%d", result);
+  // Output the result to the console
+  printf("%d", result);
 
-    // Return NULL (no value returned to SOARE)
-    // If you need to return a value, allocate memory as shown above
-    return NULL;
+  // Return NULL (no value returned to SOARE)
+  // If you need to return a value, allocate memory as shown above
+  return NULL;
 }
 ```
 
@@ -239,8 +262,8 @@ This example demonstrates how to implement a custom keyword.
 ```c
 void clear(void)
 {
-    // ANSI escape code to clear the screen
-    printf("\033c\033[3J");
+  // ANSI escape code to clear the screen
+  printf("\033c\033[3J");
 }
 ```
 
@@ -465,9 +488,7 @@ write("Hello "; usr; "!");
 
 ### Shell
 
-- `system` -> Run shell command
-
-**Run shell command:**
+- `system()` **Run shell command:**
 
 ```soare
 system("echo hello");

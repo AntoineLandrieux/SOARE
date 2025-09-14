@@ -64,47 +64,70 @@ int RunFromFile(int argc, char *argv[])
     return errorlevel;
 }
 
-/**
- * @brief Parse preprocessor
- *
- * @param user
- * @param buf
- * @param buf_size
- * @return size_t
- */
-static size_t ParsePreprocessor(char *user, size_t buf_size)
+static inline void Editor()
 {
-    if (strstr(user, "?run"))
+    size_t buffer_size = 1;
+
+    if (!(buffer = (char *)malloc(buffer_size)))
     {
-        Execute("input", buffer);
+        __SOARE_OUT_OF_MEMORY();
+        return;
     }
 
-    if (strstr(user, "?commit"))
+    buffer[0] = 0;
+
+    printf(
+        //
+        " EDITOR MODE\n"
+        " - Enter '?run' or '?commit' to execute\n"
+        " - Enter '?cancel' or '?exit' to quit editor mode\n\n"
+        //
+    );
+
+    while (1)
     {
-        Execute("input", buffer);
-        free(buffer);
-        buf_size = 0;
-        buffer = NULL;
+        printf(
+#ifdef __SOARE_COLORED_OUTPUT
+            "\033[2m"
+#endif
+            "... "
+#ifdef __SOARE_COLORED_OUTPUT
+            "\033[0m"
+#endif
+        );
+
+        char user[__SOARE_MAX_INPUT__];
+
+        if (!soare_input(user))
+            break;
+
+        if (strstr(user, "?cancel") || strstr(user, "?exit"))
+            break;
+
+        if (strstr(user, "?run") || strstr(user, "?commit"))
+        {
+            Execute("<input>", buffer);
+            break;
+        }
+
+        size_t user_len = strlen(user);
+        buffer_size += user_len + 2;
+
+        char *new_buffer = (char *)realloc(buffer, buffer_size);
+
+        if (!new_buffer)
+        {
+            __SOARE_OUT_OF_MEMORY();
+            break;
+        }
+
+        buffer = new_buffer;
+        strcat(buffer, user);
+        strcat(buffer, "\n");
     }
 
-    if (strstr(user, "?cancel"))
-    {
-        free(buffer);
-        buf_size = 0;
-        buffer = NULL;
-    }
-
-    if (strstr(user, "?clear"))
-    {
-        printf("\033c\033[3J");
-    }
-
-    if (strstr(user, "?exit"))
-    {
-        exit(EXIT_SUCCESS);
-    }
-
-    return buf_size;
+    free(buffer);
+    buffer = NULL;
 }
 
 /**
@@ -116,8 +139,6 @@ int Console()
 {
     CONSOLE = 1;
 
-    size_t buf_size = 0;
-
     printf(
         //
         "SOARE %s [%s - Antoine LANDRIEUX (MIT License)]\n"
@@ -125,7 +146,7 @@ int Console()
 #ifdef __SOARE_COLORED_OUTPUT
         "\033[2m"
 #endif
-        "Enter '?run' or '?commit' to run code or '?exit' to quit."
+        "Enter '?editor' to enter editor mode or '?exit' to quit."
 #ifdef __SOARE_COLORED_OUTPUT
         "\033[0m"
 #endif
@@ -148,33 +169,16 @@ int Console()
 
         char user[__SOARE_MAX_INPUT__];
 
-        if (!fgets(user, sizeof(user), stdin))
+        if (!soare_input(user) || strstr(user, "?exit"))
             break;
 
-        size_t user_len = strlen(user);
-
-        if (user_len > 0 && user[user_len - 1] == '\n')
-            user[user_len - 1] = 0;
-
-        // Append user input to buffer
-        size_t new_size = buf_size + user_len + 2;
-        char *new_buf = (char *)realloc(buffer, new_size);
-
-        if (!new_buf)
+        if (strstr(user, "?editor"))
         {
-            __SOARE_OUT_OF_MEMORY();
-            return EXIT_FAILURE;
+            Editor();
+            continue;
         }
 
-        buffer = new_buf;
-
-        if (buf_size == 0)
-            buffer[0] = 0;
-
-        strcat(buffer, user);
-        strcat(buffer, "\n");
-
-        buf_size = ParsePreprocessor(user, strlen(buffer));
+        Execute("<input>", user);
     }
 
     return EXIT_SUCCESS;
@@ -189,7 +193,6 @@ int Console()
  */
 int main(int argc, char *argv[])
 {
-    SetEnvironment(argv[0]);
     predefined_functions();
     if (argc > 1)
         return RunFromFile(argc, argv);

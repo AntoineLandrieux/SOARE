@@ -57,20 +57,6 @@ typedef struct Tokens
 } Tokens;
 
 /**
- * @brief Set the Environment object
- *
- * @param path
- */
-void SetEnvironment(char *path);
-
-/**
- * @brief Get the Environment object
- *
- * @return char*
- */
-char *GetEnvironment(void);
-
-/**
  * @brief Return an empty document
  *
  * @return Document
