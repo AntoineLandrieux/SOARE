@@ -34,22 +34,30 @@ let pi = 3.14159265;
 let deg = 180 / pi;
 let rad = pi / 180;
 
-? Useful for math, ex: 5*M(1+2)
+? Useful for priority, ex: 5*M(1+2)
 fn M(f)
   return f;
 end;
 
-? Useful for math, ex: 5*M(1+2)
+? Useful for math, ex: 5*Math(1+2)
 fn Math(f)
-  return f*1;
+  return f * 1;
 end;
 
 ? Returns true if a value is Not-a-Number
 fn NaN(x)
-  try
-    x = x * 1;
-  iferror
-    return 1;
+  let i = 0;
+  while 1 do
+    try
+      let num = ord(x[i]);
+      if num >= 48 && num <= 57 do
+        i = i + 1;
+      else
+        return 1;
+      end;
+    iferror
+      break;
+    end;
   end;
   return 0;
 end;
@@ -127,7 +135,7 @@ fn pow(x; y)
   let res = 1;
   let neg = y < 0;
 
-  y = floor(abs(y))
+  y = floor(abs(y));
 
   while y do
     res = res * x;
@@ -189,7 +197,7 @@ fn cos(x)
   let cosine = 0;
   let n = 0;
 
-  x = radians(x % 180)
+  x = radians(x % 180);
 
   while n < 10 do
     cosine = cosine + pow(0-1; n) * pow(x; 2 * n) / factorial(2 * n);

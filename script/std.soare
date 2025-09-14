@@ -28,20 +28,17 @@ let null = "";
 
 ? in
 fn in(parent; source)
-
   let index = 0;
-
   try
     while 1 do
       if parent[index] == source do
-        return index+1
+        return index + 1
       end;
-      index = index+1;
+      index = index + 1;
     end;
   iferror
     return 0;
   end;
-
 end;
 
 ? Returns the number of characters in the string

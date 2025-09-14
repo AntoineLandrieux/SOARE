@@ -22,7 +22,6 @@
   - [Loops and conditional structures](#loops-and-conditional-structures)
   - [Arrays](#arrays)
   - [User inputs](#user-inputs)
-  - [Shell](#shell)
   - [Escape Sequence](#escape-sequence)
 
 ---
@@ -486,14 +485,6 @@ let usr = input("Enter your name: ");
 write("Hello "; usr; "!");
 ```
 
-### Shell
-
-- `system()` **Run shell command:**
-
-```soare
-system("echo hello");
-```
-
 ### Escape Sequence
 
 | Escape Sequence | Name               | Description                                                                            |
@@ -514,7 +505,7 @@ system("echo hello");
 
 ### Predefined Functions
 
-| name                  | function                        |
+| Function              | Description                     |
 |-----------------------|---------------------------------|
 | soareinfo()           | Show SOARE info                 |
 | time()                | Show current timestamp          |

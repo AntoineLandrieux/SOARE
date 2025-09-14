@@ -1,6 +1,6 @@
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 /**
@@ -112,6 +112,7 @@ char *RunFunction(AST tree)
         if (soare_fn.name)
             return soare_fn.exec(tree->child);
 
+        // Function is not defined
         return LeaveException(UndefinedReference, tree->value, tree->file);
     }
 
@@ -166,10 +167,10 @@ char *RunFunction(AST tree)
     return NULL;
 }
 
-static char broken = 0;
+static uint8_t broken = 0;
 
 /**
- * @brief Executes code from a tree
+ * @brief Interprets an AST node tree
  *
  * @param tree
  * @return char*
@@ -179,158 +180,155 @@ static char *Runtime(AST tree)
     if (!tree)
         return NULL;
 
-    AST root = tree;
-    AST tmp = NULL;
-    MEM get = NULL;
-
-    char *returned = NULL;
-    unsigned char error = 0;
-
-    broken = 0;
-
     MEM statement = MemLast(MEMORY);
+
     MemJoin(statement, FUNCTION);
     FUNCTION = NULL;
 
-    for (AST curr = root->child; curr && !ErrorLevel(); curr = curr->sibling)
+    broken = 0;
+
+    for (AST curr = tree->child; curr && !ErrorLevel(); curr = curr->sibling)
     {
         switch (curr->type)
         {
-        // Store function into MEMORY
         case NODE_FUNCTION:
-
+            // Store function definition in current scope
             MemPushf(statement, curr->value, curr);
             break;
 
-        // Import SOARE code from an other file
-        case NODE_IMPORT:
-
-            if ((tmp = loadimport(curr->value)))
-                BranchJuxtapose(curr, tmp->child);
-            break;
-
-        // Call a function
         case NODE_CALL:
-
+            // Execute function call and free result
             free(RunFunction(curr));
             break;
 
-        // Push a new variable into MEMORY
-        case NODE_MEMNEW:
+        case NODE_BREAK:
+            // Break out of loop
+            broken = 1;
+            return ExitStatement(statement, NULL);
 
+        case NODE_RETURN:
+            // Return from function
+            return ExitStatement(statement, Eval(curr->child));
+
+        case NODE_RAISE:
+            // Raise an exception
+            return ExitStatementError(statement, RaiseException, curr->value, curr->file);
+
+        case NODE_IMPORT:
+        {
+            // Import external file and merge its AST
+            AST tmp = loadimport(curr->value);
+            if (tmp)
+                BranchJuxtapose(curr, tmp->child);
+        }
+        break;
+
+        case NODE_MEMNEW:
+            // Create new variable in current scope
             MemPush(statement, curr->value, Eval(curr->child));
             break;
 
-        // Set a value to a variable
         case NODE_MEMSET:
+        {
+            // Set variable value in current scope
+            MEM get = MemGet(MEMORY, curr->value);
 
-            if (!(get = MemGet(MEMORY, curr->value)))
+            if (!get)
                 return ExitStatementError(statement, UndefinedReference, curr->value, curr->file);
 
             if (get->body)
                 return ExitStatementError(statement, VariableDefinedAsFunction, curr->value, curr->file);
 
             MemSet(get, Eval(curr->child));
-            break;
+        }
+        break;
 
-        // Condition statement (if)
+        case NODE_CUSTOM_KEYWORD:
+        {
+            // Execute custom keyword handler
+            soare_keyword keyword = soare_getkeyword(curr->value);
+            if (keyword.name)
+                keyword.exec();
+        }
+        break;
+
         case NODE_CONDITION:
+        {
+            // Evaluate condition chain (if/or/else)
+            AST tmp = curr->child;
+            char *condition = Eval(tmp);
 
-            returned = Eval(curr->child);
-            tmp = curr->child;
-
-            while (returned)
+            while (condition)
             {
-                if (strcmp(returned, "0"))
+                if (strcmp(condition, "0"))
                 {
-                    free(returned);
+                    free(condition);
 
-                    if ((returned = Runtime(tmp->sibling)) || broken)
-                        return ExitStatement(statement, returned);
+                    char *value = Runtime(tmp->sibling);
 
+                    if (value || broken)
+                        return ExitStatement(statement, value);
                     break;
                 }
 
-                free(returned);
+                free(condition);
 
-                if (!(tmp = tmp->sibling->sibling))
+                if (!tmp->sibling)
                     break;
 
-                returned = Eval(tmp);
+                tmp = tmp->sibling->sibling;
+                condition = Eval(tmp);
             }
-            break;
+        }
+        break;
 
-        // Repetition statement (while)
         case NODE_REPETITION:
+        {
+            // Loop while condition is true (!= "0")
+            char *condition = Eval(curr->child);
 
-            while ((returned = Eval(curr->child)))
+            while (condition && strcmp(condition, "0") && !ErrorLevel() && !broken)
             {
-                if (!strcmp(returned, "0") || ErrorLevel() || broken)
-                    break;
+                free(condition);
 
-                free(returned);
+                char *value = Runtime(curr->child->sibling);
 
-                if ((returned = Runtime(curr->child->sibling)))
-                    return ExitStatement(statement, returned);
+                if (value)
+                    return ExitStatement(statement, value);
+
+                condition = Eval(curr->child);
             }
 
-            free(returned);
-            break;
+            free(condition);
+        }
+        break;
 
-        // try/iferror statement
         case NODE_TRY:
-
-            error = AsIgnoredException();
+        {
+            // try/iferror block
+            unsigned char previous = AsIgnoredException();
             IgnoreException(1);
-            returned = Runtime(curr->child);
-            IgnoreException(error);
+            char *value = Runtime(curr->child);
+            IgnoreException(previous);
 
             if (ErrorLevel() && !broken)
             {
-                free(returned);
+                free(value);
                 ClearException();
-                returned = Runtime(curr->child->sibling);
+                value = Runtime(curr->child->sibling);
             }
 
-            if (!returned && !broken)
-                break;
-
-            return ExitStatement(statement, returned);
-
-        // Break loop
-        case NODE_BREAK:
-
-            broken = 1;
-            return ExitStatement(statement, NULL);
-
-        // Return
-        case NODE_RETURN:
-
-            return ExitStatement(statement, Eval(curr->child));
-
-        // Leave new exception
-        case NODE_RAISE:
-
-            return ExitStatementError(statement, RaiseException, curr->value, curr->file);
-
-        // Custom keyword
-        case NODE_CUSTOM_KEYWORD:
-
-            printf("d");
-            soare_keyword keyword = soare_getkeyword(curr->value);
-
-            if (keyword.name)
-                keyword.exec();
-
-            break;
+            if (value || broken)
+                return ExitStatement(statement, value);
+        }
+        break;
 
         default:
-
             break;
         }
     }
 
-    // Quit
+    // Free scope and return
     return ExitStatement(statement, NULL);
 }
 
