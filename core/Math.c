@@ -356,17 +356,19 @@ static char *Array(char *value, AST array)
  */
 char *Math(AST tree)
 {
-    long double dx, dy;
-    char *sx, *sy;
-    char *result = NULL;
-
-    MEM get = NULL;
-
     switch (tree->type)
     {
-    case NODE_MEMGET:
+    case NODE_VALUE:
 
-        get = MemGet(MEMORY, tree->value);
+        return strdup(tree->value);
+
+    case NODE_CALL:
+
+        return RunFunction(tree);
+
+    case NODE_MEMGET:
+    {
+        MEM get = MemGet(MEMORY, tree->value);
 
         if (!get)
             return LeaveException(UndefinedReference, tree->value, tree->file);
@@ -375,19 +377,12 @@ char *Math(AST tree)
             return LeaveException(VariableDefinedAsFunction, tree->value, tree->file);
 
         return strdup(get->value);
-
-    case NODE_CALL:
-
-        return RunFunction(tree);
-
-    case NODE_VALUE:
-
-        return strdup(tree->value);
+    }
 
     case NODE_OPERATOR:
-
-        sx = Eval(tree->child);
-        sy = Eval(tree->child->sibling);
+    {
+        char *sx = Eval(tree->child);
+        char *sy = Eval(tree->child->sibling);
 
         if (!sx || !sy)
         {
@@ -395,6 +390,8 @@ char *Math(AST tree)
             free(sy);
             return NULL;
         }
+
+        char *result = NULL;
 
         switch (*(tree->value))
         {
@@ -424,8 +421,9 @@ char *Math(AST tree)
             break;
         }
 
-        dx = strtold(sx, &result);
-        dy = strtold(sy, &result);
+        long double dx = strtold(sx, &result);
+        long double dy = strtold(sy, &result);
+
         free(sx);
         free(sy);
 
@@ -434,11 +432,13 @@ char *Math(AST tree)
 
         switch (*(tree->value))
         {
+        // < or <=
         case '<':
-            return __boolean(dx < dy || (dx == dy && tree->value[1] == '='));
+            return __boolean(dx < dy || (tree->value[1] == '=' && dx == dy));
 
+        // > or >=
         case '>':
-            return __boolean(dx > dy || (dx == dy && tree->value[1] == '='));
+            return __boolean(dx > dy || (tree->value[1] == '=' && dx == dy));
 
         case '&':
             return __boolean(dx && dy);
@@ -467,6 +467,7 @@ char *Math(AST tree)
         default:
             return LeaveException(MathError, tree->value, tree->file);
         }
+    }
 
     default:
         return LeaveException(MathError, tree->value, tree->file);

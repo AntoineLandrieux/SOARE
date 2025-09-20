@@ -340,7 +340,6 @@ static char *Runtime(AST tree)
 int Execute(char *__restrict__ file, char *__restrict__ rawcode)
 {
     if (!MEMORY)
-        // Set default vars..
         MEMORY = Mem();
 
     // Clear interpreter exception
