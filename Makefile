@@ -28,6 +28,7 @@ CFLAGS += -Wextra
 CFLAGS += -Wno-unused-result
 CFLAGS += -Wno-unused-parameter
 CFLAGS += -Wno-implicit-fallthrough
+CFLAGS += -O2
 
 ifeq ($(OS), Windows_NT)
 

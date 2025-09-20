@@ -12,22 +12,33 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Install w64devkit
-      run: |
-        curl -L -o w64devkit.zip https://github.com/skeeto/w64devkit/releases/download/v1.23.0/w64devkit-1.23.0.zip
-        7z x w64devkit.zip -ow64devkit
+      - name: Install MSYS2
+        run: choco install msys2 -y
 
-    - name: Build with Makefile
-      run: ./w64devkit/w64devkit/bin/make.exe
+      - name: Update pacman and install build tools
+        shell: bash
+        run: |
+          pacman -Sy --noconfirm
+          pacman -S --noconfirm \
+            mingw-w64-x86_64-gcc \
+            mingw-w64-x86_64-make \
+            mingw-w64-x86_64-binutils \
+            mingw-w64-x86_64-windres
 
-    - name: Upload binary artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: soare-binary-windows
-        path: bin/soare.exe
+      - name: Build SOARE
+        shell: bash
+        run: |
+          export PATH="/mingw64/bin:$PATH"
+          make
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: soare-binary-windows
+          path: bin/soare.exe
 
   build-linux:
     runs-on: ubuntu-latest
