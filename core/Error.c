@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 /**
  *  _____  _____  ___  ______ _____
@@ -97,7 +96,7 @@ void *LeaveException(SoareExceptions error, char *string, Document file)
     {
 #ifdef __SOARE_COLORED_OUTPUT
         // Red
-        soare_write(__soare_stderr, "\033[31m");
+        soare_write(__soare_stderr, "\033[91m");
 #endif /* __SOARE_COLORED_OUTPUT */
 
         soare_write(

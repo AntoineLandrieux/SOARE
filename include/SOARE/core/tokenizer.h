@@ -74,14 +74,6 @@ Document EmptyDocument(void);
 Tokens *Token(char *__restrict__ filename, char *__restrict__ value, token_type type);
 
 /**
- * @brief Move on to the next token
- *
- * @param tokens
- * @param step
- */
-void TokenNext(Tokens **tokens, unsigned int step);
-
-/**
  * @brief Check if a sequence of tokens corresponds with a sequence of token types
  *
  * @param tokens

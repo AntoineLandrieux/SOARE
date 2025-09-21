@@ -70,6 +70,27 @@ char *__soare_system(soare_arguments_list args)
 }
 
 /**
+ * @brief Evaluate SOARE code.
+ *
+ * Takes a single string argument containing SOARE code, executes it,
+ *
+ * @param args List of string arguments (code to evaluate)
+ * @return char* Result of evaluation
+ */
+char *__soare_eval(soare_arguments_list args)
+{
+    char *code = soare_getarg(args, 0);
+
+    if (!code)
+        return NULL;
+
+    char *value = Execute("<eval>", code);
+    free(code);
+
+    return value;
+}
+
+/**
  * @brief Writes all arguments to the specified stream.
  *
  * Iterates through the argument list and prints each to the given FILE stream.
@@ -245,6 +266,7 @@ void predefined_functions(void)
 
     soare_addfunction("soareinfo", __soare_soareinfo);
     soare_addfunction("system", __soare_system);
+    soare_addfunction("eval", __soare_eval);
     soare_addfunction("time", __soare_timestamp);
 
     /* Number / String */

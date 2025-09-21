@@ -288,7 +288,7 @@ AST ParseExpr(Tokens **tokens, unsigned char priority)
  * @param size
  * @return long long
  */
-long long GetArrayIndex(AST array, size_t size)
+static long long GetArrayIndex(AST array, size_t size)
 {
     while (array)
         if (array->type != NODE_ARRAY)
@@ -354,7 +354,7 @@ static char *Array(char *value, AST array)
  * @param tree
  * @return char*
  */
-char *Math(AST tree)
+static char *Math(AST tree)
 {
     switch (tree->type)
     {

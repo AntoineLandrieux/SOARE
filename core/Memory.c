@@ -153,28 +153,28 @@ void MemLog(MEM memory)
 {
     if (!memory)
         return;
+
+    /**
+     *
+     * Example:
+     *
+     * [MEMORY] [message,   "Hello World!"]
+     * [MEMORY] [number,    "42"]
+     *
+     */
+
     soare_write(
+        //
         __soare_stdout,
-        "[MEMORY] [%s,\t%s]\n",
+        "[MEMORY] [%s,\t\"%s\"]\n",
         memory->name,
-        memory->value);
+        memory->value
+        //
+    );
     MemLog(memory->next);
 }
 
 #endif /* __SOARE_DEBUG */
-
-/**
- * @brief Join 2 memories
- *
- * @param to
- * @param from
- */
-void MemJoin(MEM to, MEM from)
-{
-    if (!to || !from)
-        return;
-    MemLast(to)->next = from;
-}
 
 /**
  * @brief Free the allocated memory
@@ -189,9 +189,4 @@ void MemFree(MEM memory)
     MemFree(memory->next);
     free(memory->value);
     free(memory);
-}
-
-static void __attribute__((destructor)) kill(void)
-{
-    MemFree(MEMORY);
 }

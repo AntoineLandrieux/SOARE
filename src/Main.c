@@ -23,9 +23,7 @@ int RunFromFile(int argc, char *argv[])
 {
     CONSOLE = 0;
 
-    int errorlevel = EXIT_SUCCESS;
-
-    for (int i = 1; i < argc && !errorlevel; i++)
+    for (int i = 1; i < argc; i++)
     {
         char *filename = argv[i];
         file = fopen(filename, "r");
@@ -55,15 +53,52 @@ int RunFromFile(int argc, char *argv[])
         fclose(file);
         file = NULL;
 
-        errorlevel = Execute(filename, buffer);
+        soare_init();
+        free(Execute(filename, buffer));
+        soare_kill();
 
         free(buffer);
         buffer = NULL;
     }
 
-    return errorlevel;
+    return EXIT_SUCCESS;
 }
 
+/**
+ * @brief Run from user input
+ *
+ * @param user
+ */
+static void RunInput(char *user)
+{
+    soare_init();
+
+    char *value = Execute("<input>", user);
+
+    if (value)
+    {
+        printf(
+#ifdef __SOARE_COLORED_OUTPUT
+            "\033[32m"
+#endif
+            "\n%s"
+#ifdef __SOARE_COLORED_OUTPUT
+            "\033[0m"
+#endif
+            ,
+            value
+            //
+        );
+        free(value);
+    }
+
+    soare_kill();
+}
+
+/**
+ * @brief Editor mode
+ *
+ */
 static inline void Editor()
 {
     size_t buffer_size = 1;
@@ -77,10 +112,16 @@ static inline void Editor()
     buffer[0] = 0;
 
     printf(
-        //
-        " EDITOR MODE\n"
-        " - Enter '?run' or '?commit' to execute\n"
-        " - Enter '?cancel' or '?exit' to quit editor mode\n\n"
+    //
+#ifdef __SOARE_COLORED_OUTPUT
+        "\033[2m"
+#endif
+        "\n EDITOR MODE\n"
+        " - Enter '?run' to execute\n"
+        " - Enter '?cancel' to quit editor mode\n\n"
+#ifdef __SOARE_COLORED_OUTPUT
+        "\033[0m"
+#endif
         //
     );
 
@@ -101,15 +142,6 @@ static inline void Editor()
         if (!soare_input(user))
             break;
 
-        if (strstr(user, "?cancel") || strstr(user, "?exit"))
-            break;
-
-        if (strstr(user, "?run") || strstr(user, "?commit"))
-        {
-            Execute("<input>", buffer);
-            break;
-        }
-
         size_t user_len = strlen(user);
         buffer_size += user_len + 2;
 
@@ -124,6 +156,15 @@ static inline void Editor()
         buffer = new_buffer;
         strcat(buffer, user);
         strcat(buffer, "\n");
+
+        if (strstr(user, "?cancel") || strstr(user, "?exit"))
+            break;
+
+        if (strstr(user, "?run"))
+        {
+            RunInput(buffer);
+            break;
+        }
     }
 
     free(buffer);
@@ -169,16 +210,16 @@ int Console()
 
         char user[__SOARE_MAX_INPUT__];
 
-        if (!soare_input(user) || strstr(user, "?exit"))
+        if (!soare_input(user))
+            break;
+
+        RunInput(user);
+
+        if (strstr(user, "?exit"))
             break;
 
         if (strstr(user, "?editor"))
-        {
             Editor();
-            continue;
-        }
-
-        Execute("<input>", user);
     }
 
     return EXIT_SUCCESS;
@@ -199,6 +240,8 @@ int main(int argc, char *argv[])
     return Console();
 }
 
+#ifdef __GNUC__
+
 /**
  * @brief Free buffer and close file if needed
  *
@@ -213,3 +256,5 @@ static void __attribute__((destructor)) kill()
     if (CONSOLE)
         fprintf(stderr, "\n\n - Bye !\n\n");
 }
+
+#endif /* __GNUC__ */

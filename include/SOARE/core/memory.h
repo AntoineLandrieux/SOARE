@@ -101,14 +101,6 @@ void MemLog(MEM memory);
 #endif
 
 /**
- * @brief Join 2 memories
- *
- * @param to
- * @param from
- */
-void MemJoin(MEM to, MEM from);
-
-/**
  * @brief Free the allocated memory
  *
  * @param memory

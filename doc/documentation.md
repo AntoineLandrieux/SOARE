@@ -12,6 +12,7 @@
   - [Interpreter Commands](#interpreter-commands)
   - [Add Interpreter keywords/functions in C/C++](#add-interpreter-keywordsfunctions-in-cc)
   - [Loading a File](#loading-a-file)
+  - [Create your own interpreter]
 
 - [SOARE](#soare)
 
@@ -23,6 +24,7 @@
   - [Arrays](#arrays)
   - [User inputs](#user-inputs)
   - [Escape Sequence](#escape-sequence)
+  - [Predefined Functions](#predefined-functions)
 
 ---
 
@@ -120,19 +122,6 @@ hello
 >>>
 ```
 
-- `?commit`
-
-Execute the editor content (same as `?run`)
-
-```txt
->>> ?editor
-... let msg = "hello";
-... write(msg);
-... ?commit
-hello
->>>
-```
-
 - `?cancel`
 
 Cancels the code written in the editor mode
@@ -147,23 +136,13 @@ Cancels the code written in the editor mode
 
 - `?exit`
 
-Closes the interpreter/editor mode
+Closes the interpreter mode
 
 ```soare
 >>>?exit
 
 Bye!
 
-```
-
-Closes the editor mode
-
-```txt
->>> ?editor
-... let msg = "hello";
-... write(msg);
-... ?exit
->>> 
 ```
 
 ### Add Interpreter keywords/functions in C/C++
@@ -278,6 +257,45 @@ To load a file, you can use the command:
 
 ```sh
 soare "filename.soare"
+```
+
+### Create your own interpreter
+
+> [!IMPORTANT]
+> Functions like write, input or system are [predefined functions](#predefined-functions)
+>
+> You should copy [`src/Predefined.c`](../src/Predefined.c) to create your own interpreter with these functions
+>
+
+**Minimal code:**
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <SOARE/SOARE.h>
+
+int main(void)
+{
+  // Initialize SOARE
+  soare_init();
+
+  // Predefined functions in SOARE
+  // write, input, system...
+  // See `src/Predefined.c`
+  //predefined_functions();
+
+  // Execute(filename, code)
+  char *value = Execute("<input>", "return 'Hello World!';")
+  
+  // Print returned value and free it
+  printf("%s", value);
+  free(value);
+  
+  // Kill SOARE
+  soare_kill();
+  return 0;
+}
 ```
 
 ---
@@ -505,16 +523,17 @@ write("Hello "; usr; "!");
 
 ### Predefined Functions
 
-| Function              | Description                     |
-|-----------------------|---------------------------------|
-| soareinfo()           | Show SOARE info                 |
-| time()                | Show current timestamp          |
-| random()              | Generate random number [0; 100] |
-| system(...)           | Execute shell command           |
-| input(...)            | User input, print text          |
-| write(...)            | Print text                      |
-| wer(...)              | Print error                     |
-| ord(char)             | Get ASCII number from char      |
-| chr(number)           | Get char from ASCII number      |
+| Function              | Description                         |
+|-----------------------|-------------------------------------|
+| soareinfo()           | Show SOARE info                     |
+| time()                | Show current timestamp              |
+| random()              | Generate random number [0; 100]     |
+| system(...)           | Execute shell command               |
+| eval(code)            | Execute SOARE code and return value |
+| input(...)            | User input, print text              |
+| write(...)            | Print text                          |
+| wer(...)              | Print error                         |
+| ord(char)             | Get ASCII number from char          |
+| chr(number)           | Get char from ASCII number          |
 
 > SOARE Antoine LANDRIEUX <https://github.com/AntoineLandrieux/SOARE> (MIT LICENSE) ❤️

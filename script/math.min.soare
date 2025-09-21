@@ -1,8 +1,8 @@
-let pi=3.14159265;let deg=180/pi;let rad=pi/180;fn M(f)return f;end;fn Math(f)return f*1;end;fn NaN(x)let i=0;while 1 do try let num=ord(x[i]);if num>
-=48&&num<=57 do i=i+1;else return 1;end;iferror break;end;end;return 0;end;fn abs(x)if x<0 do return x*M(0-1);end;return Math(x);end;fn not(x)return 
+let pi=3.14159265;let deg=180/pi;let rad=pi/180;fn M(f)return f;end;fn Math(f)return f*1;end;fn NaN(x)let i=0;while 1 do try let num=ord(x[i]);if num>=
+48&&num<=57 do i=i+1;else return 1;end;iferror break;end;end;return 0;end;fn abs(x)if x<0 do return x*M(0-1);end;return Math(x);end;fn not(x)return 
 x==0;end;fn floor(float)return float^0;end;fn integer_division(x;y)let res=0;while x>=y do x=x-y;res=res+1;end;return res;end;fn round(x)let sign=x<0
-;let y=abs(x);let t=floor(y);if sign do sign=0-1;else sign=1;end;if y-t>=0.5 do return sign*M(t+1);end;return sign*t;end;fn integer_sqrt(x)x=round(x)
-;if x==0 do return 0;or x<0 do raise "Non-Real Number";end;let n=x;let a=0;while 1 do a=integer_division(n+integer_division(x;n);2)if a==n do return 
+;let y=abs(x);let t=floor(y);if sign do sign=0-1;else sign=1;end;if y-t>=0.5 do return sign*M(t+1);end;return sign*t;end;fn integer_sqrt(x)x=round(x);
+if x==0 do return 0;or x<0 do raise "Non-Real Number";end;let n=x;let a=0;while 1 do a=integer_division(n+integer_division(x;n);2)if a==n do return 
 n;end;n=a;end;end;fn pow(x;y)let res=1;let neg=y<0;y=floor(abs(y));while y do res=res*x;y=y-1;end;if neg do res=1/res;end;return res;end;fn factorial
 (x)let res=1;let n=1;x=floor(x);if x<0 do raise "Undefined";end;while n<x+1 do res=res*n;n=n+1;end;return res;end;fn radians(x)return x*rad;end;fn degrees
 (x)return x*deg;end;fn sin(x)let sine=0;let n=0;x=radians(x%180)while n<10 do sine=sine+pow(0-1;n)*pow(x;2*n+1)/factorial(2*n+1);n=n+1;end;return 

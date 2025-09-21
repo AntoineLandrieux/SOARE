@@ -17,6 +17,18 @@
  */
 
 /**
+ * @brief Initialize SOARE interpreter
+ * 
+ */
+void soare_init(void);
+
+/**
+ * @brief Kill SOARE interpreter
+ * 
+ */
+void soare_kill(void);
+
+/**
  * @brief Execute a function
  *
  * @param tree
@@ -25,10 +37,12 @@
 char *RunFunction(AST tree);
 
 /**
- * @brief Execute the code from a string
+ * @brief Execute SOARE code
  *
+ * @param file
  * @param rawcode
+ * @return char *
  */
-int Execute(char *__restrict__ file, char *__restrict__ rawcode);
+char *Execute(char *__restrict__ file, char *__restrict__ rawcode);
 
 #endif /* __SOARE_RUNTIME_H__ */

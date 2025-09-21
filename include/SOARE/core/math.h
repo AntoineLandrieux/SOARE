@@ -34,15 +34,6 @@ AST ParseValue(Tokens **tokens);
 AST ParseExpr(Tokens **tokens, unsigned char priority);
 
 /**
- * @brief Get the Array Index object
- *
- * @param array
- * @param size
- * @return long long
- */
-long long GetArrayIndex(AST array, size_t size);
-
-/**
  * @brief Evaluates the mathematical expression of a tree
  *
  * @param tree

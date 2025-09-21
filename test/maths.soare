@@ -13,7 +13,7 @@ write(1>3;     '\n') ?  0
 try
   write(4/0);
 iferror
-  write("Can't devide by 0"; '\n');
+  write("Can't divide by 0"; '\n');
 end;
 
 write(floor(pi); '\n'); ? 3

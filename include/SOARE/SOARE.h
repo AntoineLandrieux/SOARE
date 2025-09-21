@@ -21,7 +21,7 @@
 /* SOARE minor */
 #define SOARE_MINOR 2
 /* SOARE patch */
-#define SOARE_PATCH 1
+#define SOARE_PATCH 2
 
 /**
  * SOARE version
@@ -33,7 +33,7 @@
  * T: testing
  *
  */
-#define SOARE_VERSION "Rv1.2.1"
+#define SOARE_VERSION "Rv1.2.2"
 
 /* SOARE max input */
 #define __SOARE_MAX_INPUT__ 255

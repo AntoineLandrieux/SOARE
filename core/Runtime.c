@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 
 /**
@@ -167,7 +166,7 @@ char *RunFunction(AST tree)
     return NULL;
 }
 
-static uint8_t broken = 0;
+static unsigned char broken = 0;
 
 /**
  * @brief Interprets an AST node tree
@@ -181,8 +180,7 @@ static char *Runtime(AST tree)
         return NULL;
 
     MEM statement = MemLast(MEMORY);
-
-    MemJoin(statement, FUNCTION);
+    statement->next = FUNCTION;
     FUNCTION = NULL;
 
     broken = 0;
@@ -333,15 +331,34 @@ static char *Runtime(AST tree)
 }
 
 /**
- * @brief Execute the code from a string
+ * @brief Initialize SOARE interpreter
  *
- * @param rawcode
  */
-int Execute(char *__restrict__ file, char *__restrict__ rawcode)
+void soare_init(void)
 {
     if (!MEMORY)
         MEMORY = Mem();
+}
 
+/**
+ * @brief Kill SOARE interpreter
+ *
+ */
+void soare_kill(void)
+{
+    MemFree(MEMORY);
+    MEMORY = NULL;
+}
+
+/**
+ * @brief Execute SOARE code
+ *
+ * @param file
+ * @param rawcode
+ * @return char *
+ */
+char *Execute(char *__restrict__ file, char *__restrict__ rawcode)
+{
     // Clear interpreter exception
     ClearException();
 
@@ -360,18 +377,19 @@ int Execute(char *__restrict__ file, char *__restrict__ rawcode)
     TokensFree(tokens);
 
     // Interpretation step 3: Runtime
-    free(Runtime(ast));
+    char *value = Runtime(ast);
 
     // Free AST
     TreeFree(ast);
-    // Free MEMORY
-    MemFree(MEMORY);
 
-    // Set MEMORY to NULL
-    MEMORY = NULL;
-
-    // Return error level
-    // 0: EXIT_SUCCESS
-    // 1: EXIT_FAILURE
-    return (int)ErrorLevel();
+    return value;
 }
+
+#ifdef __GNUC__
+
+static void __attribute__((destructor)) kill(void)
+{
+    soare_kill();
+}
+
+#endif /* __GNUC__ */
