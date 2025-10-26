@@ -2,20 +2,20 @@
 ? Hello World
 try
   write('Hello World!\n');
-iferror
-  werr('Error ! (issue)\n');
+iferror as err
+  werr('Error ! (issue): '; err; '\n');
 end;
 
 ? Error ! #2 Error value: RaiseException
 try
   raise 'problem';
-iferror
-  werr('Error ! (normal)\n');
+iferror as err
+  werr('Error ! (normal): '; err; '\n');
 end;
 
 ? Error ! #3 Error value: DivideByZero
 try
   write(3/0);
-iferror
-  werr('Error ! (normal)\n');
+iferror as err
+  werr('Error ! (normal): '; err; '\n');
 end;

@@ -439,6 +439,19 @@ AST Parse(Tokens *tokens)
                 Node *iferror = Branch(NULL, NODE_IFERROR, old->file);
                 BranchJoin(curr->parent, iferror);
                 curr = iferror;
+
+                // iferror as <varname>
+                if (!strcmp(tokens->value, KEYWORD_AS) && tokens->type == TKN_KEYWORD)
+                {
+                    tokens = tokens->next;
+
+                    if (tokens->type != TKN_NAME)
+                        return LeaveException(SyntaxError, old->value, old->file);
+
+                    BranchJoin(curr, Branch(tokens->value, NODE_STRERROR, old->file));
+
+                    tokens = tokens->next;
+                }
             }
 
             else if (!strcmp(old->value, KEYWORD_IF) || !strcmp(old->value, KEYWORD_WHILE))

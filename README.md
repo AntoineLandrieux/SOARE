@@ -24,7 +24,8 @@ soareinfo();
 ## 📖 Documentation
 
 > [!IMPORTANT]
-> See [SOARE Documentation](doc/documentation.md) and [SOARE Changelog](CHANGELOG)
+> See [SOARE Documentation](doc/documentation.md) and [SOARE Changelog](CHANGELOG.md)
+>
 
 ## 🛠️ Recommended tools
 
@@ -50,6 +51,11 @@ soareinfo();
 
 The SOARE source code is located in the Git repository at [github.com/AntoineLandrieux/SOARE](https://github.com/AntoineLandrieux/SOARE/).
 Contributions are most welcome by forking the repository and sending a pull request.
+
+> [!IMPORTANT]
+>
+> Please read the [Code of Conduct](CODE_OF_CONDUCT.md) and [contribution guidelines](CONTRIBUTING.md)
+>
 
 ## 📜 Credit
 

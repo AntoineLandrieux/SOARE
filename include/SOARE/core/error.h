@@ -60,6 +60,13 @@ void IgnoreException(unsigned char ignore);
 void ClearException(void);
 
 /**
+ * @brief Get last error
+ *
+ * @return char*
+ */
+char *GetError(void);
+
+/**
  * @brief Returns the error level
  *
  * @return char

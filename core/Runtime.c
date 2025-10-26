@@ -212,6 +212,11 @@ static char *Runtime(AST tree)
             // Raise an exception
             return ExitStatementError(statement, RaiseException, curr->value, curr->file);
 
+        case NODE_STRERROR:
+            // Store error
+            MemPush(statement, curr->value, strdup(GetError()));
+            break;
+
         case NODE_IMPORT:
         {
             // Import external file and merge its AST

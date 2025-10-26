@@ -41,6 +41,7 @@ typedef enum node_type
     NODE_REPETITION,
     NODE_BREAK,
     NODE_RETURN,
+    NODE_STRERROR,
     NODE_CUSTOM_KEYWORD
 
 } node_type;

@@ -22,6 +22,9 @@ static unsigned char enable = 1;
 /* Error level */
 static char errorlevel = EXIT_SUCCESS;
 
+/* Last Error */
+static char *lasterror = "NoError";
+
 /* Exceptions */
 static char *Exceptions[] = {
 
@@ -72,6 +75,16 @@ void ClearException(void)
 }
 
 /**
+ * @brief Get last error
+ *
+ * @return char*
+ */
+char *GetError(void)
+{
+    return lasterror;
+}
+
+/**
  * @brief Returns the error level
  *
  * @return char
@@ -91,6 +104,11 @@ char ErrorLevel(void)
  */
 void *LeaveException(SoareExceptions error, char *string, Document file)
 {
+    // Set lasterror
+    lasterror = Exceptions[error];
+    // Set error at level EXIT_FAILURE (1)
+    errorlevel = EXIT_FAILURE;
+
     // If the errors are disabled, nothing is displayed
     if (enable)
     {
@@ -103,7 +121,7 @@ void *LeaveException(SoareExceptions error, char *string, Document file)
             //
             __soare_stderr,
             "\aExcept: %s\n\t\"%.13s\"\n\t ^~~~\n\tAt file %s:%lld:%lld\n",
-            Exceptions[error],
+            lasterror,
             string,
             file.file,
             file.ln,
@@ -117,7 +135,5 @@ void *LeaveException(SoareExceptions error, char *string, Document file)
 #endif /* __SOARE_COLORED_OUTPUT */
     }
 
-    // Set error at level EXIT_FAILURE (1)
-    errorlevel = EXIT_FAILURE;
     return NULL;
 }

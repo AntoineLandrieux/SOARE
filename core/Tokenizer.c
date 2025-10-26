@@ -108,6 +108,7 @@ static inline unsigned char strKeyword(char *string)
 {
     return (
         //
+        !strcmp(KEYWORD_AS, string) ||
         !strcmp(KEYWORD_DO, string) ||
         !strcmp(KEYWORD_FN, string) ||
         !strcmp(KEYWORD_IF, string) ||
@@ -340,7 +341,7 @@ void TokensLog(Tokens *token)
      * [TOKENS] [test.soare:00001:00001, 09, "write"]
      * [TOKENS] [test.soare:00001:00007, 03, "Hello"]
      * [TOKENS] [test.soare:00001:00014, 0B, ";"]
-     * [TOKENS] [test.soare:00000:00000, 00, "(null)"]
+     * [TOKENS] [test.soare:00000:00000, 00, "EOF"]
      *
      */
 
@@ -555,6 +556,7 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
         col += type == TKN_STRING;
     }
 
+    curr->value = strdup("EOF");
     // Return token
     return token;
 }

@@ -47,6 +47,11 @@ end;
 ? Returns true if a value is Not-a-Number
 fn NaN(x)
   let i = 0;
+  try
+    if x[0] == '-' || x[0] == '+' do
+      i = 1;
+    end;
+  end;
   while 1 do
     try
       let num = ord(x[i]);

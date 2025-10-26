@@ -12,7 +12,7 @@
   - [Interpreter Commands](#interpreter-commands)
   - [Add Interpreter keywords/functions in C/C++](#add-interpreter-keywordsfunctions-in-cc)
   - [Loading a File](#loading-a-file)
-  - [Create your own interpreter]
+  - [Create your own interpreter](#create-your-own-interpreter)
 
 - [SOARE](#soare)
 
@@ -381,7 +381,7 @@ fn fib(n)
   return a;
 end;
 
-write("The last value is "; fib(100));
+write("The last value is ", fib(100));
 ```
 
 The `fn` keyword introduces a function definition. It must be followed by the function name and the list of formal parameters in parentheses and separated by a ;.
@@ -453,20 +453,21 @@ try
   ? Include standard functions like NaN (Not a Number)
   loadimport "script/math.soare";
 
-  let x = input("Enter a digit: ");
+  let x = input("Enter a number: ");
 
   if NaN(x) do
-    write("\nNot a number");
+    write("Not a number\n");
+  or x > 0 do
+    write("Positive\n");
   or x < 0 do
-    write("\nNegative");
-  or x == 0 do
-    write("\nZero");
+    write("Negative\n");
   else
-    write("\nPositive");
+    write("Zero\n");
   end;
 
-iferror
-  write("std.soare not found!")
+? Store the name of the error in the variable "error"
+iferror as error
+  werr("Error: "; error)
 end;
 ```
 
@@ -496,7 +497,7 @@ write(msg[0-2]; '\n'); ? Write the one before last character of "msg", here "d"
 
 ### User Inputs
 
-You can capture user input using `input`
+You can capture user input using `input()`
 
 ```soare
 let usr = input("Enter your name: ");
