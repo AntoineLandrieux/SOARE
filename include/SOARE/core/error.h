@@ -29,6 +29,7 @@ typedef enum SoareExceptions
     ValueError,
     UnexpectedNear,
     UndefinedReference,
+    MissingArgument,
     ObjectIsNotCallable,
     VariableDefinedAsFunction,
     MathError,
@@ -40,38 +41,38 @@ typedef enum SoareExceptions
 } SoareExceptions;
 
 /**
- * @brief Error display
+ * @brief Get last error
  *
- * @return unsigned char
+ * @return char*
  */
-unsigned char AsIgnoredException(void);
+char *soare_get_exception(void);
+
+/**
+ * @brief Clears errors
+ *
+ */
+void soare_clear_exception(void);
 
 /**
  * @brief Enable/disable error display
  *
  * @param ignore
  */
-void IgnoreException(unsigned char ignore);
+void soare_ignore_exception(bBool ignore);
 
 /**
- * @brief Clears errors
+ * @brief Error display
  *
+ * @return unsigned char
  */
-void ClearException(void);
-
-/**
- * @brief Get last error
- *
- * @return char*
- */
-char *GetError(void);
+bBool soare_as_ignored_exception(void);
 
 /**
  * @brief Returns the error level
  *
- * @return char
+ * @return int
  */
-char ErrorLevel(void);
+int soare_errorlevel(void);
 
 /**
  * @brief Create a new error, and display it
@@ -81,7 +82,7 @@ char ErrorLevel(void);
  * @param file
  * @return void* (always returns NULL)
  */
-void *LeaveException(SoareExceptions error, char *string, Document file);
+void *LeaveException(SoareExceptions error, const char *string, Document file);
 
 /* Alias when memory allocation failed. Out of memory */
 #define __SOARE_OUT_OF_MEMORY() LeaveException(InterpreterError, "OUT OF MEMORY", EmptyDocument())

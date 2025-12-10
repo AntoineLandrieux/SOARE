@@ -16,13 +16,6 @@
  *
  */
 
-/* SOARE major */
-#define SOARE_MAJOR 1
-/* SOARE minor */
-#define SOARE_MINOR 2
-/* SOARE patch */
-#define SOARE_PATCH 3
-
 /**
  * SOARE version
  *
@@ -33,7 +26,7 @@
  * T: testing
  *
  */
-#define SOARE_VERSION "Rv1.2.3"
+#define SOARE_VERSION "Rv1.3.0"
 
 /* SOARE max input */
 #define __SOARE_MAX_INPUT__ 255
@@ -59,6 +52,18 @@ namespace SOARE
     extern "C"
     {
 #endif /* __cplusplus */
+
+        /**
+         * @brief Boolean
+         *
+         */
+        typedef enum bBoolean
+        {
+
+            bFalse,
+            bTrue
+
+        } bBool;
 
         /**
          * @brief Structure of a document

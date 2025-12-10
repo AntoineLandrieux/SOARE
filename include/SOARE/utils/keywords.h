@@ -22,7 +22,6 @@
 
 #define KEYWORD_AS          "as"
 #define KEYWORD_BREAK       "break"
-#define KEYWORD_DO          "do"
 #define KEYWORD_ELSE        "else"
 #define KEYWORD_END         "end"
 #define KEYWORD_FN          "fn"

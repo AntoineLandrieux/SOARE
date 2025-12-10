@@ -10,52 +10,43 @@
 ? Antoine LANDRIEUX (MIT License) <math.soare>
 ? <https://github.com/AntoineLandrieux/SOARE/>
 ?
-? Included Variables:
+? Included Constants:
 ?   - pi
 ?   - deg
 ?   - rad
+?   - neg
 ?
 ? Included Functions:
-?   - M
-?   - Math
 ?   - NaN
 ?   - abs
 ?   - not
 ?   - floor
 ?   - integer_division
-?   - integer_sqrt
 ?   - pow
 ?   - factorial
 ?   - cos
 ?   - sin
 ?   - tan
 
-let pi = 3.14159265;
+let pi  = 3.14159265;
 let deg = 180 / pi;
 let rad = pi / 180;
+let neg = 0 - 1;
 
-? Useful for priority, ex: 5*M(1+2)
-fn M(f)
-  return f;
-end;
-
-? Useful for math, ex: 5*Math(1+2)
-fn Math(f)
-  return f * 1;
-end;
-
+?
 ? Returns true if a value is Not-a-Number
+?
 fn NaN(x)
   let i = 0;
   try
-    if x[0] == '-' || x[0] == '+' do
+    if (x:0 == '-' || x:0 == '+')
       i = 1;
     end;
   end;
-  while 1 do
+  while (1)
     try
-      let num = ord(x[i]);
-      if num >= 48 && num <= 57 do
+      let num = ord(x:i);
+      if (num >= ord('0') && num <= ord('9'))
         i = i + 1;
       else
         return 1;
@@ -67,104 +58,100 @@ fn NaN(x)
   return 0;
 end;
 
-? Absolute value
+?
+? Absolute value (|x|)
+?
 fn abs(x)
-  if x < 0 do
-    return x*M(0-1);
+  if (x < 0)
+    return x * neg;
   end;
-  return Math(x);
+  return x;
 end;
 
+?
 ? Invert the truth value of Boolean expressions
+?
 fn not(x)
   return x == 0;
 end;
 
+?
 ? Floating point to integer conversion
+?
 fn floor(float)
   return float^0;
 end;
 
+?
 ? Integer division
+?
 fn integer_division(x; y)
   let res = 0;
-  while x >= y do
+
+  while (x >= y)
     x = x - y;
     res = res + 1;
   end;
+
   return res;
 end;
 
+?
+? Return the nearest integer
+?
 fn round(x)
   let sign = x < 0;
   let y = abs(x);
   let t = floor(y);
 
-  if sign do
-    sign = 0 - 1;
+  if (sign)
+    sign = neg;
   else
     sign = 1;
   end;
 
-  if y - t >= 0.5 do
-    return sign * M(t + 1);
+  if (y - t >= 0.5)
+    return sign * (t + 1);
   end;
 
   return sign * t;
 end;
 
-? Integer square root
-fn integer_sqrt(x)
-  x = round(x);
-
-  if x == 0 do
-    return 0;
-  or x < 0 do
-    raise "Non-Real Number";
-  end;
-
-  let n = x;
-  let a = 0;
-
-  while 1 do
-    a = integer_division(n + integer_division(x; n); 2)
-    if a == n do
-      return n;
-    end;
-    n = a;
-  end;
-end;
-
+?
 ? Returns the value of x to the power of y
+?
 fn pow(x; y)
   let res = 1;
-  let neg = y < 0;
+  let ltz = y < 0;
 
   y = floor(abs(y));
 
-  while y do
+  while (y)
     res = res * x;
     y = y - 1;
   end;
 
-  if neg do
+  if (ltz)
     res = 1 / res;
   end;
 
   return res;
 end;
 
+?
 ? The factorial of a non-negative integer
+?
 fn factorial(x)
   let res = 1;
   let n = 1;
 
   x = floor(x);
-  if x < 0 do
+
+  if (x < 0)
     raise "Undefined";
   end;
 
-  while n < x + 1 do
+  while (n < x + 1)
     res = res * n;
     n = n + 1;
   end;
@@ -172,47 +159,57 @@ fn factorial(x)
   return res;
 end;
 
+?
 ? Convert Degrees to Radians
+?
 fn radians(x)
   return x * rad;
 end;
 
+?
 ? Convert Radians to Degrees
+?
 fn degrees(x)
   return x * deg;
 end;
 
-? The sine function
+?
+? The sine function (deg)
+?
 fn sin(x)
   let sine = 0;
   let n = 0;
 
   x = radians(x % 180)
 
-  while n < 10 do
-    sine = sine + pow(0-1; n) * pow(x; 2 * n + 1) / factorial(2 * n + 1);
+  while (n < 10)
+    sine = sine + pow(neg; n) * pow(x; 2 * n + 1) / factorial(2 * n + 1);
     n = n + 1;
   end;
 
   return sine;
 end;
 
-? The cosine function
+?
+? The cosine function (deg)
+?
 fn cos(x)
   let cosine = 0;
   let n = 0;
 
   x = radians(x % 180);
 
-  while n < 10 do
-    cosine = cosine + pow(0-1; n) * pow(x; 2 * n) / factorial(2 * n);
+  while (n < 10)
+    cosine = cosine + pow(neg; n) * pow(x; 2 * n) / factorial(2 * n);
     n = n + 1;
   end;
 
   return cosine;
 end;
 
-? The tangent function
+?
+? The tangent function (deg)
+?
 fn tan(x)
   return sin(x) / cos(x);
 end;

@@ -17,55 +17,41 @@
 
 #include <SOARE/SOARE.h>
 
+static AST ROOT = NULL;
 static MEM FUNCTION = NULL;
 
-/**
- * @brief Exit current statement #Runtime(AST)
- *
- * @param returns
- * @return char*
- */
-static char *ExitStatement(MEM statement, char *returns)
+////////////////////////////////////////////////////////////
+static char *ExitStatement(bBool is_root, MEM statement, char *returns)
 {
+    if (is_root)
+        return returns;
+
     MemFree(statement->next);
     statement->next = NULL;
     return returns;
 }
 
-/**
- * @brief Exit current statement an error #Runtime(AST)
- *
- * @param error
- * @param string
- * @param file
- * @return void*
- */
+////////////////////////////////////////////////////////////
 static void *ExitStatementError(MEM statement, SoareExceptions error, char *string, Document file)
 {
-    return ExitStatement(statement, LeaveException(error, string, file));
+    return ExitStatement(bFalse, statement, LeaveException(error, string, file));
 }
 
-/**
- * @brief Executes code from a tree
- *
- * @param tree
- * @return char*
- */
-static char *Runtime(AST tree);
+static char *Runtime(bBool is_root, AST tree);
 
-/**
- * @brief From file file
- *
- * @param filename
- * @return AST
- */
-static AST loadimport(char *filename)
+////////////////////////////////////////////////////////////
+static void loadimport(char *filename)
 {
+    // Read from file
     FILE *file = fopen(filename, "rb");
 
     if (!file)
-        return LeaveException(FileError, filename, EmptyDocument());
+    {
+        LeaveException(FileError, filename, EmptyDocument());
+        return;
+    }
 
+    // Get file size
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
     rewind(file);
@@ -75,28 +61,32 @@ static AST loadimport(char *filename)
     if (!content)
     {
         fclose(file);
-        return LeaveException(InterpreterError, filename, EmptyDocument());
+        __SOARE_OUT_OF_MEMORY();
+        return;
     }
 
     fread(content, sizeof(char), size, file);
-    content[size] = 0;
-
-    Tokens *tokens = Tokenizer(filename, content);
-    AST ast = Parse(tokens);
-
-    free(content);
-    TokensFree(tokens);
     fclose(file);
 
-    return ast;
+    content[size] = 0;
+
+    // Parse file and execute
+    Tokens *tokens = Tokenizer(filename, content);
+    free(content);
+    AST ast = Parse(tokens);
+    TokensFree(tokens);
+
+    BranchJuxtapose(ROOT, ast);
+
+    free(Runtime(bTrue, ast));
 }
 
-/**
- * @brief Execute a function
- *
- * @param tree
- * @return char*
- */
+// Break
+static bBool brk = bFalse;
+// Return
+static bBool ret = bFalse;
+
+////////////////////////////////////////////////////////////
 char *RunFunction(AST tree)
 {
     // Get the memory
@@ -122,9 +112,9 @@ char *RunFunction(AST tree)
     // Arguments
     AST ptr = get->body->child;
     AST src = tree->child;
-    MEM memf = Mem();
 
-    AST func = NULL;
+    // Memory for store argument
+    MEM memf = Mem();
 
     while (ptr)
     {
@@ -132,31 +122,19 @@ char *RunFunction(AST tree)
         if (ptr->type == NODE_BODY)
         {
             FUNCTION = memf;
-            return Runtime(ptr);
+            char *returned = Runtime(bFalse, ptr);
+            ret = bFalse;
+            return returned;
         }
 
         // Not enough argument
         if (!src)
         {
             MemFree(memf);
-            memf = NULL;
-            return LeaveException(UndefinedReference, ptr->value, tree->file);
+            return LeaveException(MissingArgument, ptr->value, tree->file);
         }
 
-        get = NULL;
-
-        // If it is a reference to a memory
-        if (src->type == NODE_MEMGET)
-            // If memory exists
-            if ((get = MemGet(MEMORY, src->value)))
-                // If memory is a function
-                if ((func = get->body))
-                    // Add this function in argument
-                    get = MemPushf(memf, ptr->value, func);
-
-        // If argument is not a function
-        if (!get || !func)
-            MemPush(memf, ptr->value, Eval(src));
+        MemPush(memf, ptr->value, Math(src));
 
         // Next argument
         src = src->sibling;
@@ -166,15 +144,8 @@ char *RunFunction(AST tree)
     return NULL;
 }
 
-static unsigned char broken = 0;
-
-/**
- * @brief Interprets an AST node tree
- *
- * @param tree
- * @return char*
- */
-static char *Runtime(AST tree)
+////////////////////////////////////////////////////////////
+static char *Runtime(bBool is_root, AST tree)
 {
     if (!tree)
         return NULL;
@@ -183,9 +154,10 @@ static char *Runtime(AST tree)
     statement->next = FUNCTION;
     FUNCTION = NULL;
 
-    broken = 0;
+    brk = bFalse;
+    ret = bFalse;
 
-    for (AST curr = tree->child; curr && !ErrorLevel(); curr = curr->sibling)
+    for (AST curr = tree->child; curr && !soare_errorlevel() && !ret; curr = curr->sibling)
     {
         switch (curr->type)
         {
@@ -201,12 +173,13 @@ static char *Runtime(AST tree)
 
         case NODE_BREAK:
             // Break out of loop
-            broken = 1;
-            return ExitStatement(statement, NULL);
+            brk = bTrue;
+            return ExitStatement(is_root, statement, NULL);
 
         case NODE_RETURN:
             // Return from function
-            return ExitStatement(statement, Eval(curr->child));
+            ret = bTrue;
+            return ExitStatement(is_root, statement, Math(curr->child));
 
         case NODE_RAISE:
             // Raise an exception
@@ -214,21 +187,17 @@ static char *Runtime(AST tree)
 
         case NODE_STRERROR:
             // Store error
-            MemPush(statement, curr->value, strdup(GetError()));
+            MemPush(statement, curr->value, strdup(soare_get_exception()));
             break;
 
         case NODE_IMPORT:
-        {
             // Import external file and merge its AST
-            AST tmp = loadimport(curr->value);
-            if (tmp)
-                BranchJuxtapose(curr, tmp->child);
-        }
-        break;
+            loadimport(curr->value);
+            break;
 
         case NODE_MEMNEW:
             // Create new variable in current scope
-            MemPush(statement, curr->value, Eval(curr->child));
+            MemPush(statement, curr->value, Math(curr->child));
             break;
 
         case NODE_MEMSET:
@@ -242,7 +211,7 @@ static char *Runtime(AST tree)
             if (get->body)
                 return ExitStatementError(statement, VariableDefinedAsFunction, curr->value, curr->file);
 
-            MemSet(get, Eval(curr->child));
+            MemSet(get, Math(curr->child));
         }
         break;
 
@@ -259,7 +228,7 @@ static char *Runtime(AST tree)
         {
             // Evaluate condition chain (if/or/else)
             AST tmp = curr->child;
-            char *condition = Eval(tmp);
+            char *condition = Math(tmp);
 
             while (condition)
             {
@@ -267,10 +236,10 @@ static char *Runtime(AST tree)
                 {
                     free(condition);
 
-                    char *value = Runtime(tmp->sibling);
+                    char *value = Runtime(bFalse, tmp->sibling);
 
-                    if (value || broken)
-                        return ExitStatement(statement, value);
+                    if (value || (brk || ret))
+                        return ExitStatement(is_root, statement, value);
                     break;
                 }
 
@@ -280,7 +249,7 @@ static char *Runtime(AST tree)
                     break;
 
                 tmp = tmp->sibling->sibling;
-                condition = Eval(tmp);
+                condition = Math(tmp);
             }
         }
         break;
@@ -288,18 +257,18 @@ static char *Runtime(AST tree)
         case NODE_REPETITION:
         {
             // Loop while condition is true (!= "0")
-            char *condition = Eval(curr->child);
+            char *condition = Math(curr->child);
 
-            while (condition && strcmp(condition, "0") && !ErrorLevel() && !broken)
+            while (condition && strcmp(condition, "0") && !soare_errorlevel() && !(brk || ret))
             {
                 free(condition);
 
-                char *value = Runtime(curr->child->sibling);
+                char *value = Runtime(bFalse, curr->child->sibling);
 
                 if (value)
-                    return ExitStatement(statement, value);
+                    return ExitStatement(is_root, statement, value);
 
-                condition = Eval(curr->child);
+                condition = Math(curr->child);
             }
 
             free(condition);
@@ -309,20 +278,20 @@ static char *Runtime(AST tree)
         case NODE_TRY:
         {
             // try/iferror block
-            unsigned char previous = AsIgnoredException();
-            IgnoreException(1);
-            char *value = Runtime(curr->child);
-            IgnoreException(previous);
+            bBool previous = soare_as_ignored_exception();
+            soare_ignore_exception(bTrue);
+            char *value = Runtime(bFalse, curr->child);
+            soare_ignore_exception(previous);
 
-            if (ErrorLevel() && !broken)
+            if (soare_errorlevel() && !(brk || ret))
             {
                 free(value);
-                ClearException();
-                value = Runtime(curr->child->sibling);
+                soare_clear_exception();
+                value = Runtime(bFalse, curr->child->sibling);
             }
 
-            if (value || broken)
-                return ExitStatement(statement, value);
+            if (value || (brk || ret))
+                return ExitStatement(is_root, statement, value);
         }
         break;
 
@@ -332,69 +301,42 @@ static char *Runtime(AST tree)
     }
 
     // Free scope and return
-    return ExitStatement(statement, NULL);
+    return ExitStatement(is_root, statement, NULL);
 }
 
-/**
- * @brief Initialize SOARE interpreter
- *
- */
+////////////////////////////////////////////////////////////
 void soare_init(void)
 {
     if (!MEMORY)
         MEMORY = Mem();
 }
 
-/**
- * @brief Kill SOARE interpreter
- *
- */
+////////////////////////////////////////////////////////////
 void soare_kill(void)
 {
     MemFree(MEMORY);
+    TreeFree(ROOT);
     MEMORY = NULL;
+    ROOT = NULL;
 }
 
-/**
- * @brief Execute SOARE code
- *
- * @param file
- * @param rawcode
- * @return char *
- */
+////////////////////////////////////////////////////////////
 char *Execute(char *__restrict__ file, char *__restrict__ rawcode)
 {
     // Clear interpreter exception
-    ClearException();
+    soare_clear_exception();
 
     // Interpretation step 1: Tokenizer
     Tokens *tokens = Tokenizer(file, rawcode);
     // Interpretation step 2: Parser
     AST ast = Parse(tokens);
 
-#ifdef __SOARE_DEBUG
-    // DEBUG: print tokens and trees
-    TokensLog(tokens);
-    TreeLog(ast);
-#endif
-
     // Free tokens
     TokensFree(tokens);
 
+    // Save AST
+    ROOT = BranchJuxtapose(ROOT, ast);
+
     // Interpretation step 3: Runtime
-    char *value = Runtime(ast);
-
-    // Free AST
-    TreeFree(ast);
-
-    return value;
+    return Runtime(bTrue, ast);
 }
-
-#ifdef __GNUC__
-
-static void __attribute__((destructor)) kill(void)
-{
-    soare_kill();
-}
-
-#endif /* __GNUC__ */

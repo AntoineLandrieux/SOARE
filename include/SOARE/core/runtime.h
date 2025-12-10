@@ -18,13 +18,13 @@
 
 /**
  * @brief Initialize SOARE interpreter
- * 
+ *
  */
 void soare_init(void);
 
 /**
  * @brief Kill SOARE interpreter
- * 
+ *
  */
 void soare_kill(void);
 

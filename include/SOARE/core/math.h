@@ -31,7 +31,7 @@ AST ParseValue(Tokens **tokens);
  * @param priority
  * @return AST
  */
-AST ParseExpr(Tokens **tokens, unsigned char priority);
+AST ParseExpression(Tokens **tokens, unsigned char priority);
 
 /**
  * @brief Evaluates the mathematical expression of a tree
@@ -39,6 +39,6 @@ AST ParseExpr(Tokens **tokens, unsigned char priority);
  * @param tree
  * @return char*
  */
-char *Eval(AST tree);
+char *Math(AST tree);
 
 #endif /* __SOARE_MATH_H__ */

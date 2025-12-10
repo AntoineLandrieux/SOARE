@@ -371,7 +371,7 @@ fn fib(n)
   let b = 1;
   let next = b;
 
-  while a < n do
+  while (a < n)
     write(a; '\n');
     a = b;
     b = next;
@@ -401,7 +401,7 @@ let a = 0;
 let b = 1;
 let next = b;
 
-while a < 100 do
+while (a < 100)
   write(a; '\n');
   a = b;
   b = next;
@@ -416,9 +416,9 @@ You can break a loop using `break`
 ```soare
 let i = 0;
 
-while 1 do
+while (1)
 
-  if i > 10 do
+  if (i > 10)
     break;
   end;
 
@@ -455,11 +455,11 @@ try
 
   let x = input("Enter a number: ");
 
-  if NaN(x) do
+  if (NaN(x))
     write("Not a number\n");
-  or x > 0 do
+  or (x > 0)
     write("Positive\n");
-  or x < 0 do
+  or (x < 0)
     write("Negative\n");
   else
     write("Zero\n");
@@ -476,6 +476,16 @@ end;
 Strings or numbers are actually arrays of characters:
 
 ```soare
+let msg = "Hello";
+let num = 713705;
+
+write(msg:0; '\n'); ? H
+write(num:3; '\n'); ? 7
+```
+
+The index can be a variable, and it can be negative:
+
+```soare
 ? For len() function
 loadimport "script/std.soare";
 
@@ -485,14 +495,14 @@ let index = 0;
 ? Returns the number of characters in the string
 let size = len(msg);
 
-while index < size do
-  write(msg[index]; '\n');
+while (index < size)
+  write(msg:index; '\n');
   index = index + 1;
 end;
 
 ? Negative number can be used to start with the end
-write(msg[0-1]; '\n'); ? Write the last character of "msg", here "!"
-write(msg[0-2]; '\n'); ? Write the one before last character of "msg", here "d"
+write(msg:(0-1); '\n'); ? Write the last character of "msg", here "!"
+write(msg:(0-2); '\n'); ? Write the one before last character of "msg", here "d"
 ```
 
 ### User Inputs
@@ -524,17 +534,17 @@ write("Hello "; usr; "!");
 
 ### Predefined Functions
 
-| Function              | Description                         |
-|-----------------------|-------------------------------------|
-| soareinfo()           | Show SOARE info                     |
-| time()                | Show current timestamp              |
-| random()              | Generate random number [0; 100]     |
-| system(...)           | Execute shell command               |
-| eval(code)            | Execute SOARE code and return value |
-| input(...)            | User input, print text              |
-| write(...)            | Print text                          |
-| wer(...)              | Print error                         |
-| ord(char)             | Get ASCII number from char          |
-| chr(number)           | Get char from ASCII number          |
+| Function     | Description                                       |
+|--------------|---------------------------------------------------|
+| chr(integer) | Get char from ASCII number                        |
+| eval(code)   | Execute SOARE code and return value               |
+| exit(status) | Quit SOARE                                        |
+| input(...)   | User input, print text                            |
+| ord(char)    | Get ASCII number from char                        |
+| random(seed) | Generate a random number [0; 255] based on a seed |
+| system(...)  | Execute shell command                             |
+| time()       | Show current timestamp                            |
+| wer(...)     | Print error                                       |
+| write(...)   | Print text                                        |
 
 > SOARE Antoine LANDRIEUX <https://github.com/AntoineLandrieux/SOARE> (MIT LICENSE) ❤️

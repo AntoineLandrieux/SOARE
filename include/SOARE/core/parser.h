@@ -23,10 +23,9 @@ typedef enum node_type
 {
 
     NODE_ROOT,
-    NODE_TRY,
     NODE_BODY,
+    NODE_TRY,
     NODE_RAISE,
-    NODE_ARRAY,
     NODE_VALUE,
     NODE_IMPORT,
     NODE_CALL,
@@ -68,6 +67,13 @@ typedef struct node
     struct node *sibling;
 
 } Node, *AST;
+
+/**
+ * @brief Check if all statement are closed after parsing tokens
+ *
+ * @return bBool
+ */
+bBool soare_is_all_statement_closed(void);
 
 /**
  * @brief Create a new node

@@ -5,24 +5,24 @@ loadimport "script/math.soare"
 let msg = input("Enter a msg: ");
 let key = "xxx";
 
-while 1 do
+while (1)
 
   key = input("Enter a key: ");
 
-  if NaN(key) do
-    werr("[ERROR] Invalid key: "; key ; '\n');
-  else
+  if (not(NaN(key)))
     break;
   end;
+
+  werr("[ERROR] Invalid key: "; key ; '\n');
 
 end;
 
 let i = 0;
 let l = len(msg);
 
-while i < l do
+while (i < l)
 
-  write(chr(ord(msg[i]) ^ key));
+  write(chr(ord(msg:i) ^ key));
   i = i + 1;
 
 end;

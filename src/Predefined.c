@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
+
+#include <assert.h>
 
 #include <time.h>
 
@@ -9,41 +10,50 @@
 
 #include "predefined.h"
 
-/**
- * @brief Convert byte to string
- *
- * @param byte
- * @return char*
- */
-static inline char *__byte_to_string(uint8_t byte)
+////////////////////////////////////////////////////////////
+static inline char *__byte_to_string(unsigned char byte)
 {
     char result[4] = {0, 0, 0, 0};
     snprintf(result, 4, "%d", byte);
     return strdup(result);
 }
 
-/**
- * @brief Get current timestamp
- *
- * @param args List of string arguments (commands to execute)
- * @return char* Current timestamp as string
- */
+////////////////////////////////////////////////////////////
+char *__soare_eval(soare_arguments_list args)
+{
+    char *code = soare_getarg(args, 0);
+
+    if (!code)
+        return NULL;
+
+    char *value = Execute("<eval>", code);
+    free(code);
+
+    return value;
+}
+
+////////////////////////////////////////////////////////////
+char *__soare_exit(soare_arguments_list args)
+{
+    char *code = soare_getarg(args, 0);
+    int status = !code ? 0 : atoi(code);
+
+    free(code);
+    exit(status);
+
+    return NULL;
+}
+
+////////////////////////////////////////////////////////////
 char *__soare_timestamp(soare_arguments_list args)
 {
+    (void)args;
     char timestamp[20];
     snprintf(timestamp, sizeof(timestamp), "%lld", (long long int)time(NULL));
     return strdup(timestamp);
 }
 
-/**
- * @brief Executes each argument as a system command.
- *
- * Iterates through the argument list, calling system() for each argument.
- * Returns "1" if any command fails, "0" otherwise.
- *
- * @param args List of string arguments (commands to execute)
- * @return char* "0" or "1" as a string (allocated, caller must free)
- */
+////////////////////////////////////////////////////////////
 char *__soare_system(soare_arguments_list args)
 {
     int result = 0;
@@ -69,36 +79,7 @@ char *__soare_system(soare_arguments_list args)
     return value;
 }
 
-/**
- * @brief Evaluate SOARE code.
- *
- * Takes a single string argument containing SOARE code, executes it,
- *
- * @param args List of string arguments (code to evaluate)
- * @return char* Result of evaluation
- */
-char *__soare_eval(soare_arguments_list args)
-{
-    char *code = soare_getarg(args, 0);
-
-    if (!code)
-        return NULL;
-
-    char *value = Execute("<eval>", code);
-    free(code);
-
-    return value;
-}
-
-/**
- * @brief Writes all arguments to the specified stream.
- *
- * Iterates through the argument list and prints each to the given FILE stream.
- *
- * @param stream Output stream (stdout or stderr)
- * @param args List of string arguments to write
- * @return char* Always returns NULL
- */
+////////////////////////////////////////////////////////////
 char *__write(FILE *stream, soare_arguments_list args)
 {
     char *value = NULL;
@@ -116,14 +97,7 @@ char *__write(FILE *stream, soare_arguments_list args)
     return NULL;
 }
 
-/**
- * @brief Writes arguments to stdout and reads a line from stdin.
- *
- * Prints all arguments, then reads user input from stdin.
- *
- * @param args List of string arguments to prompt
- * @return char* User input string (allocated, caller must free)
- */
+////////////////////////////////////////////////////////////
 char *__soare_input(soare_arguments_list args)
 {
     __write(stdout, args);
@@ -140,90 +114,33 @@ char *__soare_input(soare_arguments_list args)
     return result;
 }
 
-/**
- * @brief Writes arguments to stdout.
- *
- * @param args List of string arguments to write
- * @return char* Always returns NULL
- */
+////////////////////////////////////////////////////////////
 char *__soare_write(soare_arguments_list args)
 {
     return __write(stdout, args);
 }
 
-/**
- * @brief Writes arguments to stderr.
- *
- * @param args List of string arguments to write
- * @return char* Always returns NULL
- */
+////////////////////////////////////////////////////////////
 char *__soare_werr(soare_arguments_list args)
 {
     return __write(stderr, args);
 }
 
-char *__soare_soareinfo(soare_arguments_list args)
-{
-    printf(
-        //
-        "\nSOARE version %s :\n\n"
-        "  -> Author: Antoine LANDRIEUX\n"
-        "  -> Repository: <https://github.com/AntoineLandrieux/SOARE>\n"
-        "  -> Major: %d, Minor: %d, Patch: %d\n"
-        "  -> Platform: %s\n"
-        "  -> Date: %s\n"
-        "  -> Time: %s\n"
-        "  -> Timestamp: %s\n"
-        "  -> Error level: %d\n"
-        "  -> License:\n\n"
-        "MIT License\n\n"
-        "Copyright (c) 2025 AntoineLandrieux\n\n"
-        "Permission is hereby granted, free of charge, to any person obtaining a copy\n"
-        "of this software and associated documentation files (the \"Software\"), to deal\n"
-        "in the Software without restriction, including without limitation the rights\n"
-        "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n"
-        "copies of the Software, and to permit persons to whom the Software is\n"
-        "furnished to do so, subject to the following conditions:\n"
-        "The above copyright notice and this permission notice shall be included in all\n"
-        "copies or substantial portions of the Software.\n"
-        "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
-        "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"
-        "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"
-        "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
-        "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"
-        "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n"
-        "SOFTWARE.\n",
-        //
-        SOARE_VERSION,
-        SOARE_MAJOR, SOARE_MINOR, SOARE_PATCH,
-        __PLATFORM__,
-        __DATE__,
-        __TIME__,
-        __TIMESTAMP__,
-        (int)ErrorLevel()
-        //
-    );
-    return NULL;
-}
-
-/**
- * @brief Random number.
- *
- * @param args List of string arguments to write
- * @return char* Random number as string
- */
+////////////////////////////////////////////////////////////
 char *__soare_random(soare_arguments_list args)
 {
-    srand((unsigned int)time(NULL));
-    return __byte_to_string((uint8_t)(rand() % 100));
+    char *seed = soare_getarg(args, 0);
+
+    if (!seed)
+        return NULL;
+
+    srand((unsigned int)atoi(seed));
+    free(seed);
+
+    return __byte_to_string((unsigned char)rand());
 }
 
-/**
- * @brief Character from ASCII code.
- *
- * @param args List of string arguments to write
- * @return char* Character as string
- */
+////////////////////////////////////////////////////////////
 char *__soare_chr(soare_arguments_list args)
 {
     char *value = soare_getarg(args, 0);
@@ -239,12 +156,7 @@ char *__soare_chr(soare_arguments_list args)
     return strdup(result);
 }
 
-/**
- * @brief ASCII code from character.
- *
- * @param args List of string arguments to write
- * @return char* ASCII code as string
- */
+////////////////////////////////////////////////////////////
 char *__soare_ord(soare_arguments_list args)
 {
     char *value = soare_getarg(args, 0);
@@ -252,33 +164,29 @@ char *__soare_ord(soare_arguments_list args)
     if (!value)
         return NULL;
 
-    return __byte_to_string((uint8_t)value[0]);
+    return __byte_to_string((unsigned char)value[0]);
 }
 
-/**
- * @brief Registers predefined functions with the SOARE runtime.
- *
- * Adds system, input, write, ... functions.
- */
+////////////////////////////////////////////////////////////
 void predefined_functions(void)
 {
     /* Interpreter */
 
-    soare_addfunction("soareinfo", __soare_soareinfo);
-    soare_addfunction("system", __soare_system);
-    soare_addfunction("eval", __soare_eval);
-    soare_addfunction("time", __soare_timestamp);
+    assert(soare_addfunction("eval", __soare_eval));
+    assert(soare_addfunction("exit", __soare_exit));
+    assert(soare_addfunction("system", __soare_system));
+    assert(soare_addfunction("time", __soare_timestamp));
 
     /* Number / String */
 
-    soare_addfunction("random", __soare_random);
+    assert(soare_addfunction("random", __soare_random));
 
-    soare_addfunction("chr", __soare_chr);
-    soare_addfunction("ord", __soare_ord);
+    assert(soare_addfunction("chr", __soare_chr));
+    assert(soare_addfunction("ord", __soare_ord));
 
     /* Input / Output */
 
-    soare_addfunction("input", __soare_input);
-    soare_addfunction("write", __soare_write);
-    soare_addfunction("werr", __soare_werr);
+    assert(soare_addfunction("input", __soare_input));
+    assert(soare_addfunction("write", __soare_write));
+    assert(soare_addfunction("werr", __soare_werr));
 }

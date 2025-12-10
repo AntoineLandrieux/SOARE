@@ -18,24 +18,13 @@
 
 #include <SOARE/SOARE.h>
 
-/**
- * @brief Check if a character is a number
- *
- * @param character
- *
- * @return unsigned char
- */
+////////////////////////////////////////////////////////////
 static inline unsigned char chrNum(const char character)
 {
     return (character >= '0' && character <= '9') || character == '.';
 }
 
-/**
- * @brief Check if the character is a letter
- *
- * @param character
- * @return unsigned char
- */
+////////////////////////////////////////////////////////////
 static inline unsigned char chrAlpha_(const char character)
 {
     return ((character >= 'a' && character <= 'z') ||
@@ -43,46 +32,26 @@ static inline unsigned char chrAlpha_(const char character)
             character == '_');
 }
 
-/**
- * @brief Check if the character is a letter or a number
- *
- * @param character
- * @return unsigned char
- */
+////////////////////////////////////////////////////////////
 static inline unsigned char chrAlnum_(const char character)
 {
     return chrAlpha_(character) || chrNum(character);
 }
 
-/**
- * @brief Check if the character is a space
- *
- * @param character
- * @return unsigned char
- */
+////////////////////////////////////////////////////////////
 static inline unsigned char chrSpace(const char character)
 {
     return (character == ' ' || character == '\t' ||
             character == '\r' || character == '\n');
 }
 
-/**
- * @brief Check if the character is an operator
- *
- * @param string
- * @return unsigned char
- */
+////////////////////////////////////////////////////////////
 static inline unsigned char chrOperator(const char character)
 {
-    return strchr("<,+-^*/%>", character) != NULL;
+    return strchr("<,:+-^*/%>", character) != NULL;
 }
 
-/**
- * @brief Check if the string is an operator
- *
- * @param string
- * @return unsigned char
- */
+////////////////////////////////////////////////////////////
 static inline unsigned char strOperator(char *string)
 {
     return (
@@ -98,18 +67,12 @@ static inline unsigned char strOperator(char *string)
     );
 }
 
-/**
- * @brief Check if the string is a keyword
- *
- * @param string
- * @return unsigned char
- */
+////////////////////////////////////////////////////////////
 static inline unsigned char strKeyword(char *string)
 {
     return (
         //
         !strcmp(KEYWORD_AS, string) ||
-        !strcmp(KEYWORD_DO, string) ||
         !strcmp(KEYWORD_FN, string) ||
         !strcmp(KEYWORD_IF, string) ||
         !strcmp(KEYWORD_OR, string) ||
@@ -124,30 +87,23 @@ static inline unsigned char strKeyword(char *string)
         !strcmp(KEYWORD_IFERROR, string) ||
         !strcmp(KEYWORD_LOADIMPORT, string) ||
         // Custom keyword
-        soare_iskeyword(string)
+        soare_is_custom_keyword(string)
         //
     );
 }
 
-/**
- * @brief Give the type of the string
- *
- * @param string
- * @return token_type
- */
+////////////////////////////////////////////////////////////
 static inline token_type Symbol(char *string)
 {
     return strKeyword(string) ? TKN_KEYWORD : TKN_NAME;
 }
 
-/**
- * @brief Translate Escape Sequence <https://github.com/AntoineLandrieux/EscapeSequenceC/>
- *
- * @param string
- * @return char*
- */
+////////////////////////////////////////////////////////////
 static void TranslateEscapeSequence(char *string)
 {
+    // Translate Escape Sequence
+    // <https://github.com/AntoineLandrieux/EscapeSequenceC/>
+
     if (!string)
         return;
 
@@ -239,11 +195,7 @@ static void TranslateEscapeSequence(char *string)
     }
 }
 
-/**
- * @brief Return an empty document
- *
- * @return Document
- */
+////////////////////////////////////////////////////////////
 Document EmptyDocument(void)
 {
     Document document;
@@ -255,14 +207,7 @@ Document EmptyDocument(void)
     return document;
 }
 
-/**
- * @brief Create a new token
- *
- * @param filename
- * @param value
- * @param type
- * @return Tokens*
- */
+////////////////////////////////////////////////////////////
 Tokens *Token(char *__restrict__ filename, char *__restrict__ value, token_type type)
 {
     Tokens *token = (Tokens *)malloc(sizeof(Tokens));
@@ -282,14 +227,7 @@ Tokens *Token(char *__restrict__ filename, char *__restrict__ value, token_type 
     return token;
 }
 
-/**
- * @brief Check if a sequence of tokens corresponds with a sequence of token types
- *
- * @param tokens
- * @param iteration
- * @param ...
- * @return unsigned char
- */
+////////////////////////////////////////////////////////////
 unsigned char TokensFollowPattern(Tokens *tokens, unsigned int iteration, ...)
 {
     va_list args;
@@ -307,11 +245,7 @@ unsigned char TokensFollowPattern(Tokens *tokens, unsigned int iteration, ...)
     return result;
 }
 
-/**
- * @brief Free the memory allocated by the tokens
- *
- * @param token
- */
+////////////////////////////////////////////////////////////
 void TokensFree(Tokens *token)
 {
     if (!token)
@@ -324,11 +258,7 @@ void TokensFree(Tokens *token)
 
 #ifdef __SOARE_DEBUG
 
-/**
- * @brief Display the tokens
- *
- * @param token
- */
+////////////////////////////////////////////////////////////
 void TokensLog(Tokens *token)
 {
     if (!token)
@@ -361,15 +291,11 @@ void TokensLog(Tokens *token)
 
 #endif
 
-/**
- * @brief Cut a string
- *
- * @param string
- * @param size
- * @return char*
- */
+////////////////////////////////////////////////////////////
 static char *strcut(const char *string, size_t size)
 {
+    // Cut a string
+
     if (strlen(string) < size)
         size = strlen(string);
 
@@ -385,25 +311,15 @@ static char *strcut(const char *string, size_t size)
     return result;
 }
 
-/**
- * @brief Add +1 to ln and set col to 0
- *
- * @param ln
- * @param col
- */
+////////////////////////////////////////////////////////////
 static inline void updateln(unsigned long long *__restrict__ ln, unsigned long long *__restrict__ col)
 {
+    // Add +1 to ln and set col to 0
     *ln = (*ln) + 1;
     *col = 1;
 }
 
-/**
- * @brief Transform a string into a sequence of tokens
- *
- * @param filename
- * @param text
- * @return Tokens*
- */
+////////////////////////////////////////////////////////////
 Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
 {
     if (!text)
@@ -419,7 +335,7 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
     while (*text)
     {
         // Check for errors
-        if (ErrorLevel())
+        if (soare_errorlevel())
         {
             TokensFree(token);
             return NULL;
@@ -456,9 +372,9 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
         // Let text = "<="
         char operator[3] = {
             //
-            0 [text], // <
-            1 [text], // =
-            0         // Null character
+            text[0], // <
+            text[1], // =
+            0        // Null character
             //
         };
 
@@ -478,12 +394,6 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
             type = TKN_PARENL;
         else if (*text == ')')
             type = TKN_PARENR;
-
-        // Array
-        else if (*text == '[')
-            type = TKN_ARRAYL;
-        else if (*text == ']')
-            type = TKN_ARRAYR;
 
         // Semicolon
         else if (*text == ';')
@@ -525,7 +435,7 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
             type = TKN_STRING;
         }
 
-        // Error
+        // Error: `CharacterError`
         else
         {
             LeaveException(CharacterError, text, curr->file);

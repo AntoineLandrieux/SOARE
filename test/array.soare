@@ -1,5 +1,5 @@
 
-loadimport "script/std.min.soare"
+loadimport "script/std.soare"
 
 let msg="Hello World!";
 
@@ -8,11 +8,11 @@ fn spell(message)
   let index = 0;
   let size = len(message);
 
-  while index < size do
+  while (index < size)
 
-    write(message[index]);
+    write(message:index);
 
-    if in("AEIOUYaeiouy"; message[index]) do
+    if (find("AEIOUYaeiouy"; message:index) != (0-1))
       write(" is vowel")
     end;
 
@@ -20,6 +20,7 @@ fn spell(message)
     index = index + 1;
 
   end;
+
 end;
 
 spell(msg);

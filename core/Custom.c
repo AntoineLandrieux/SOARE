@@ -102,16 +102,10 @@ soare_addfunction("int_add", int_add);
 /* Functions */
 static struct soare_functions functions_list[100];
 /* Count */
-static size_t functions_count = 0;
+static unsigned long functions_count = 0;
 
-/**
- * @brief Add defined function
- *
- * @param name
- * @param function
- * @return unsigned int
- */
-unsigned int soare_addfunction(char *name, char *(*function)(soare_arguments_list))
+////////////////////////////////////////////////////////////
+unsigned long soare_addfunction(char *name, char *(*function)(soare_arguments_list))
 {
     if (functions_count >= 99 || !name || !function)
         return 0;
@@ -125,12 +119,7 @@ unsigned int soare_addfunction(char *name, char *(*function)(soare_arguments_lis
     return functions_count;
 }
 
-/**
- * @brief Get defined function
- *
- * @param name
- * @return soare_function
- */
+////////////////////////////////////////////////////////////
 soare_function soare_getfunction(char *name)
 {
     static soare_function none = {NULL, NULL};
@@ -145,18 +134,12 @@ soare_function soare_getfunction(char *name)
     return none;
 }
 
-/**
- * @brief Get argument from a function call
- *
- * @param args
- * @param position
- * @return char*
- */
+////////////////////////////////////////////////////////////
 char *soare_getarg(soare_arguments_list args, unsigned int position)
 {
     for (; position && args; position--)
         args = args->sibling;
-    return Eval(args);
+    return Math(args);
 }
 
 /*
@@ -189,19 +172,13 @@ soare_addkeyword("clear", clear);
 
 */
 
-/* Keyword */
+/* Keywords */
 static struct soare_keywords keywords_list[100];
 /* Count */
-static size_t keywords_count = 0;
+static unsigned long keywords_count = 0;
 
-/**
- * @brief Add defined keyword
- *
- * @param name
- * @param keyword
- * @return unsigned int
- */
-unsigned int soare_addkeyword(char *name, void (*keyword)(void))
+////////////////////////////////////////////////////////////
+unsigned long soare_addkeyword(char *name, void (*keyword)(void))
 {
     if (keywords_count >= 99 || !name || !keyword)
         return 0;
@@ -215,12 +192,7 @@ unsigned int soare_addkeyword(char *name, void (*keyword)(void))
     return keywords_count;
 }
 
-/**
- * @brief Get defined keyword
- *
- * @param name
- * @return soare_keyword
- */
+////////////////////////////////////////////////////////////
 soare_keyword soare_getkeyword(char *name)
 {
     static soare_keyword none = {NULL, NULL};
@@ -235,20 +207,15 @@ soare_keyword soare_getkeyword(char *name)
     return none;
 }
 
-/**
- * @brief Check if a keyword exists
- *
- * @param name
- * @return unsigned char
- */
-unsigned char soare_iskeyword(char *name)
+////////////////////////////////////////////////////////////
+bBool soare_is_custom_keyword(char *name)
 {
     if (!name)
-        return 0;
+        return bFalse;
 
     for (size_t i = 0; i < keywords_count; i++)
         if (!strcmp(keywords_list[i].name, name))
-            return 1;
+            return bTrue;
 
-    return 0;
+    return bFalse;
 }

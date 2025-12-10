@@ -10,13 +10,14 @@
 ? Antoine LANDRIEUX (MIT License) <std.soare>
 ? <https://github.com/AntoineLandrieux/SOARE/>
 ?
-? Included Variables:
+? Included Constants:
 ?   - false
 ?   - true
 ?   - null
 ?
 ? Included Functions:
-?   - in
+?   - bool
+?   - find
 ?   - len
 ?   - reverse
 ?   - sleep
@@ -26,63 +27,85 @@ let true = 1;
 
 let null = "";
 
-? in
-fn in(parent; source)
-  let index = 0;
-  try
-    while 1 do
-      if parent[index] == source do
-        return index + 1
-      end;
-      index = index + 1;
-    end;
-  iferror
-    return 0;
-  end;
+?
+? Convert value to boolean
+?
+fn bool(value)
+  return (value == 0) == 0;
 end;
 
-? Returns the number of characters in the string
+?
+? Returns the index of the first occurrence
+? of the character or -1 if it’s not found.
+?
+fn find(string; substr)
+  let l_str = len(string);
+  let l_sub = len(substr);
+  let i_str = 0;
+  let i_sub = 0;
+
+  while (i_str < l_str)
+
+    if (string:i_str == substr:i_sub)
+      i_sub = i_sub + 1;
+    or (i_sub)
+      i_str = i_str - i_sub;
+      i_sub = 0;
+    end;
+
+    if (i_sub == l_sub)
+      return i_str - i_sub + 1;
+    end;
+
+    i_str = i_str + 1;
+
+  end;
+
+  return 0 - 1;
+end;
+
+?
+? Returns the number of characters in the string,
+? including spaces and special characters
+?
 fn len(string)
+  let i = 0;
+  let t = "";
 
-  let index = 0;
-  let tmp = "";
-
-  while 1 do
+  while (1)
     try
-      tmp = string[index];
+      t = string:i;
     iferror
-      return index;
+      return i;
     end;
-    index = index + 1;
+    i = i + 1;
   end;
-
 end;
 
+?
 ? Reverse string
+?
 fn reverse(string)
+  let r = "";
+  let n = len(string) - 1;
 
-  let res = "";
-
-  let s = len(string);
-  let n = 0;
-
-  while n < s do
-    res = res, string[0-1-n];
-    n = n + 1;
+  while (n >= 0)
+    r = r, string:n;
+    n = n - 1;
   end;
 
-  return res;
-
+  return r;
 end;
 
-? sleep
+?
+? Pause the execution of a program
+? for a specified amount of time (t) sec
+?
 fn sleep(t)
-
   let curr = time();
   let next = curr + t;
 
-  while curr < next do
+  while (curr < next)
     curr = time();
   end;
-
 end;

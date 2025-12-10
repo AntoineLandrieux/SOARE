@@ -26,7 +26,6 @@ INCLUDE = include
 CFLAGS := -Wall
 CFLAGS += -Wextra
 CFLAGS += -Wno-unused-result
-CFLAGS += -Wno-unused-parameter
 CFLAGS += -Wno-implicit-fallthrough
 CFLAGS += -O2
 
@@ -45,6 +44,10 @@ endif
 SOARE_FLAGS :=
 SOARE_FLAGS += -D __SOARE_COLORED_OUTPUT
 # SOARE_FLAGS += -D __SOARE_DEBUG
+
+INTERPRETER_FLAGS :=
+# INTERPRETER_FLAGS += -D __KILL_MESSAGE=\"" - Bye\""
+# INTERPRETER_FLAGS += -D __SOARE_DEBUG
 
 default: $(BIN)/$(APP)
 
@@ -66,7 +69,7 @@ $(LIB)/%.o: $(CORE)/%.c
 
 $(BIN)/$(APP): $(BIN) $(LIB) $(RES) $(CORE_OBJS)
 	$(AR) rcs $(LIB)/libsoare$(VERSION_MAJOR).a $(CORE_OBJS)
-	$(CC) $(RES) $(SRC)/*.c -o $(BIN)/$(APP) -I $(INCLUDE) -L$(LIB) -lsoare$(VERSION_MAJOR) $(CFLAGS) $(SOARE_FLAGS)
+	$(CC) $(RES) $(SRC)/*.c -o $(BIN)/$(APP) -I $(INCLUDE) -L$(LIB) -lsoare$(VERSION_MAJOR) $(CFLAGS) $(INTERPRETER_FLAGS)
 	rm $(CORE_OBJS)
 
 run:

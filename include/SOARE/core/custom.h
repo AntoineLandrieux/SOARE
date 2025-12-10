@@ -17,9 +17,9 @@
  */
 
 /**
- * ======================
+ * ////////////////////////////////////////////////////////////
  *  FUNCTION
- * ======================
+ * ////////////////////////////////////////////////////////////
  */
 
 /**
@@ -38,9 +38,9 @@ typedef struct soare_functions
  *
  * @param name
  * @param function
- * @return unsigned int
+ * @return unsigned long
  */
-unsigned int soare_addfunction(char *name, char *(*function)(soare_arguments_list));
+unsigned long soare_addfunction(char *name, char *(*function)(soare_arguments_list));
 
 /**
  * @brief Get defined function
@@ -60,9 +60,9 @@ soare_function soare_getfunction(char *name);
 char *soare_getarg(soare_arguments_list args, unsigned int position);
 
 /**
- * ======================
+ * ////////////////////////////////////////////////////////////
  *  KEYWORDS
- * ======================
+ * ////////////////////////////////////////////////////////////
  */
 
 /**
@@ -81,9 +81,9 @@ typedef struct soare_keywords
  *
  * @param name
  * @param keyword
- * @return unsigned int
+ * @return unsigned long
  */
-unsigned int soare_addkeyword(char *name, void (*keyword)(void));
+unsigned long soare_addkeyword(char *name, void (*keyword)(void));
 
 /**
  * @brief Get defined keyword
@@ -97,8 +97,8 @@ soare_keyword soare_getkeyword(char *name);
  * @brief Check if a keyword exists
  *
  * @param name
- * @return unsigned char
+ * @return bBool
  */
-unsigned char soare_iskeyword(char *name);
+bBool soare_is_custom_keyword(char *name);
 
 #endif /* __SOARE_CUSTOM_H__ */

@@ -1,20 +1,20 @@
 
-loadimport "script/std.min.soare"
+loadimport "script/std.soare"
 
 let times = 0;
 
-while 1 do
+while (1)
 
   write("Please wait 5 seconds: ["; times; '/'; 5; "] ");
 
   let progress = 0;
 
-  while progress < times do
+  while (progress < times)
     write('=');
     progress = progress + 1;
   end;
 
-  if times == 5 do
+  if (times == 5)
     break;
   end;
 
@@ -24,3 +24,5 @@ while 1 do
   write('\r');
 
 end;
+
+write('\n');

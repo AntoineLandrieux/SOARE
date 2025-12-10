@@ -18,13 +18,9 @@
 #include <SOARE/SOARE.h>
 
 // Memory used by the interpreter
-MEM MEMORY = NULL;
+mem *MEMORY = NULL;
 
-/**
- * @brief Create a new empty memory
- *
- * @return MEM
- */
+////////////////////////////////////////////////////////////
 MEM Mem(void)
 {
     MEM memory = (mem *)malloc(sizeof(struct mem));
@@ -40,12 +36,7 @@ MEM Mem(void)
     return memory;
 }
 
-/**
- * @brief Give the last variable in the memory
- *
- * @param memory
- * @return MEM
- */
+////////////////////////////////////////////////////////////
 MEM MemLast(MEM memory)
 {
     if (!memory)
@@ -55,13 +46,7 @@ MEM MemLast(MEM memory)
     return memory;
 }
 
-/**
- * @brief Add a variable to an existing memory (free value if memory is NULL or if MemPush fail)
- *
- * @param memory
- * @param name
- * @return MEM
- */
+////////////////////////////////////////////////////////////
 MEM MemPush(mem *memory, char *name, char *value)
 {
     if (!memory)
@@ -88,14 +73,7 @@ MEM MemPush(mem *memory, char *name, char *value)
     return mem;
 }
 
-/**
- * @brief Add a function to an existing memory
- *
- * @param memory
- * @param name
- * @param body
- * @return MEM
- */
+////////////////////////////////////////////////////////////
 MEM MemPushf(MEM memory, char *name, AST body)
 {
     MEM mem = MemPush(memory, name, NULL);
@@ -104,13 +82,7 @@ MEM MemPushf(MEM memory, char *name, AST body)
     return mem;
 }
 
-/**
- * @brief Find a variable in the memory
- *
- * @param memory
- * @param name
- * @return MEM
- */
+////////////////////////////////////////////////////////////
 MEM MemGet(MEM memory, char *name)
 {
     if (!memory)
@@ -122,13 +94,7 @@ MEM MemGet(MEM memory, char *name)
     return get;
 }
 
-/**
- * @brief Update a variable (free value if memory is NULL)
- *
- * @param memory
- * @param name
- * @return MEM
- */
+////////////////////////////////////////////////////////////
 MEM MemSet(MEM memory, char *value)
 {
     if (!memory)
@@ -144,11 +110,7 @@ MEM MemSet(MEM memory, char *value)
 
 #ifdef __SOARE_DEBUG
 
-/**
- * @brief Display all variables
- *
- * @param memory
- */
+////////////////////////////////////////////////////////////
 void MemLog(MEM memory)
 {
     if (!memory)
@@ -158,29 +120,37 @@ void MemLog(MEM memory)
      *
      * Example:
      *
-     * [MEMORY] [message,   "Hello World!"]
-     * [MEMORY] [number,    "42"]
+     * [MEMORY] 000001b0480d1500 <variable> (null)
+     * |------> 0000000000000000 (null)
+     * [MEMORY] 000001b0480d1fa0 <variable> false
+     * |------> 000001b0480e3480 0
+     * [MEMORY] 000001b0480ded20 <variable> true
+     * |------> 000001b0480e3240 1
+     * [MEMORY] 000001b0480ded50 <variable> null
+     * |------> 000001b0480e3360
+     * [MEMORY] 000001b0480ded80 <callable> bool
+     * |------> 0000000000000000 (null)
      *
      */
 
     soare_write(
         //
         __soare_stdout,
-        "[MEMORY] [%s,\t\"%s\"]\n",
+        "[MEMORY] %p <%s> %s\n|------> %p %s\n",
+        (void *)memory,
+        memory->body ? "callable" : "variable",
         memory->name,
+        (void *)memory->value,
         memory->value
         //
     );
+
     MemLog(memory->next);
 }
 
 #endif /* __SOARE_DEBUG */
 
-/**
- * @brief Free the allocated memory
- *
- * @param memory
- */
+////////////////////////////////////////////////////////////
 void MemFree(MEM memory)
 {
     if (!memory)

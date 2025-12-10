@@ -16,9 +16,6 @@ SOARE is distributed under the [MIT License](LICENSE).
 ? This is your first SOARE code !
 write("Hello World!");
 
-? SOARE information
-soareinfo();
-
 ```
 
 ## 📖 Documentation

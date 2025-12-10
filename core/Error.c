@@ -17,13 +17,13 @@
 #include <SOARE/SOARE.h>
 
 /* Enable/disable error display */
-static unsigned char enable = 1;
-
-/* Error level */
-static char errorlevel = EXIT_SUCCESS;
+static bBool enable = bTrue;
 
 /* Last Error */
 static char *lasterror = "NoError";
+
+/* Error level */
+static int errorlevel = EXIT_SUCCESS;
 
 /* Exceptions */
 static char *Exceptions[] = {
@@ -35,6 +35,7 @@ static char *Exceptions[] = {
     "ValueError",
     "UnexpectedNear",
     "UndefinedReference",
+    "MissingArgument",
     "ObjectIsNotCallable",
     "VariableDefinedAsFunction",
     "MathError",
@@ -45,64 +46,38 @@ static char *Exceptions[] = {
 
 };
 
-/**
- * @brief Error display
- *
- * @return unsigned char
- */
-unsigned char AsIgnoredException(void)
-{
-    return !enable;
-}
-
-/**
- * @brief Enable/disable error display
- *
- * @param ignore
- */
-void IgnoreException(unsigned char ignore)
-{
-    enable = !ignore;
-}
-
-/**
- * @brief Clears errors
- *
- */
-void ClearException(void)
-{
-    errorlevel = EXIT_SUCCESS;
-}
-
-/**
- * @brief Get last error
- *
- * @return char*
- */
-char *GetError(void)
+////////////////////////////////////////////////////////////
+char *soare_get_exception(void)
 {
     return lasterror;
 }
 
-/**
- * @brief Returns the error level
- *
- * @return char
- */
-char ErrorLevel(void)
+////////////////////////////////////////////////////////////
+void soare_clear_exception(void)
+{
+    errorlevel = EXIT_SUCCESS;
+}
+
+////////////////////////////////////////////////////////////
+void soare_ignore_exception(bBool ignore)
+{
+    enable = !ignore;
+}
+
+////////////////////////////////////////////////////////////
+bBool soare_as_ignored_exception(void)
+{
+    return !enable;
+}
+
+////////////////////////////////////////////////////////////
+int soare_errorlevel(void)
 {
     return errorlevel;
 }
 
-/**
- * @brief Create a new error, and display it
- *
- * @param error
- * @param string
- * @param file
- * @return void* (always returns NULL)
- */
-void *LeaveException(SoareExceptions error, char *string, Document file)
+////////////////////////////////////////////////////////////
+void *LeaveException(SoareExceptions error, const char *string, Document file)
 {
     // Set lasterror
     lasterror = Exceptions[error];
@@ -112,15 +87,19 @@ void *LeaveException(SoareExceptions error, char *string, Document file)
     // If the errors are disabled, nothing is displayed
     if (enable)
     {
-#ifdef __SOARE_COLORED_OUTPUT
-        // Red
-        soare_write(__soare_stderr, "\033[91m");
-#endif /* __SOARE_COLORED_OUTPUT */
-
         soare_write(
             //
             __soare_stderr,
-            "\aExcept: %s\n\t\"%.13s\"\n\t ^~~~\n\tAt file %s:%lld:%lld\n",
+#ifdef __SOARE_COLORED_OUTPUT
+            // Red
+            "\033[91m"
+#endif /* __SOARE_COLORED_OUTPUT */
+            "\aExcept: %s\n\t\"%.13s\"\n\t ^~~~\n\tAt file %s:%lld:%lld\n"
+#ifdef __SOARE_COLORED_OUTPUT
+            // Normal
+            "\033[0m"
+#endif /* __SOARE_COLORED_OUTPUT */
+            ,
             lasterror,
             string,
             file.file,
@@ -128,11 +107,6 @@ void *LeaveException(SoareExceptions error, char *string, Document file)
             file.col
             //
         );
-
-#ifdef __SOARE_COLORED_OUTPUT
-        // Normal
-        soare_write(__soare_stderr, "\033[0m");
-#endif /* __SOARE_COLORED_OUTPUT */
     }
 
     return NULL;

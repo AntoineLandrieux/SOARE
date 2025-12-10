@@ -35,7 +35,7 @@ typedef struct mem
 } mem, *MEM;
 
 // Memory used by the interpreter
-extern MEM MEMORY;
+extern mem *MEMORY;
 
 /**
  * @brief Create a new empty memory

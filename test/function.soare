@@ -2,19 +2,22 @@
 fn Fib(n)
 
   fn Check(x)
-    if x < 1 do
+
+    if (x < 1)
       return "Invalid Input"
-    or x == 1 do
+    or (x == 1)
       return 0;
-    or x == 2 do
+    or (x == 2)
       return 1;
     end;
+
     return 0-1;
+
   end;
 
   let value = Check(n);
 
-  if value < 0 do
+  if (value < 0)
     return Fib(n-1) + Fib(n-2);
   end;
 
