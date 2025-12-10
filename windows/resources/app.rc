@@ -1,8 +1,8 @@
 SOARE ICON "../../resources/icon/icon.ico"
 
 1 VERSIONINFO
-FILEVERSION 1,0,0,0
-PRODUCTVERSION 1,0,0,0
+FILEVERSION 1,3,0,0
+PRODUCTVERSION 1,3,0,0
 FILEFLAGSMASK 0x3fL
 FILEFLAGS 0x0L
 FILEOS 0x4L
@@ -15,12 +15,12 @@ BLOCK "StringFileInfo"
     BEGIN
       VALUE "CompanyName", "Antoine LANDRIEUX"
       VALUE "FileDescription", "SOARE Interpreter"
-      VALUE "FileVersion", "1.0.0"
+      VALUE "FileVersion", "1.3.0"
       VALUE "InternalName", "SOARE"
       VALUE "LegalCopyright", "MIT License (c) 2024-2025 Antoine LANDRIEUX"
       VALUE "OriginalFilename", "soare.exe"
       VALUE "ProductName", "SOARE"
-      VALUE "ProductVersion", "1.0.0"
+      VALUE "ProductVersion", "1.3.0"
     END
   END
   BLOCK "VarFileInfo"

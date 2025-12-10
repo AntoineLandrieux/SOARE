@@ -14,3 +14,7 @@
 ## v1.2.3+
 
 - Introducing `as` keyword
+
+## v1.3.0+
+
+- Better syntax, optimize code

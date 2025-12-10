@@ -5,6 +5,6 @@
 
 ![interpreter](interpreter.png)
 
-## Editor
+## Example
 
-![editor](editor.png)
+![example](example.png)
