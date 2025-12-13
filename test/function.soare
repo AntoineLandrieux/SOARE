@@ -83,7 +83,7 @@ fn test_fib()
 
 end;
 
-? Main entry: run tests and return 0
+? Main entry: run all tests
 fn main()
 
   write("Running SOARE function tests\n");

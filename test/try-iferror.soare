@@ -47,7 +47,7 @@ fn test_divide_by_zero()
 
 end;
 
-? Main entry: run all error tests and return 0
+? Main entry: run all tests
 fn main()
 
   write("Running SOARE error handling tests\n");

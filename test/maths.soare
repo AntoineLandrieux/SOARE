@@ -116,7 +116,7 @@ fn test_constants_and_functions()
 
 end;
 
-? Main entry: run all math tests and return 0
+? Main entry: run all tests
 fn main()
 
   write("Running SOARE math tests\n");

@@ -157,7 +157,7 @@ fn measure_empty_loop(iter)
 
 end;
 
-? Main entry: run measurements and return 0
+? Main entry: run all tests
 fn main()
 
   write("Running SOARE timing/progress tests\n");
