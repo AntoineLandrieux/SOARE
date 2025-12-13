@@ -3,11 +3,11 @@
 
 ## ✅/❌ Important Task List
 
-- [ ] Possibility of having more than 100 custom keywords/functions
+- [ ] Better memory management
 
 ## ✅/❌ Optional Task List
 
-- [ ] Create more professional unit tests
+- [ ] Possibility of having more than 100 custom keywords/functions
 
 ## 🧑‍💻 In progress
 
@@ -16,3 +16,4 @@
 ## ✅ Done
 
 - [X] Introducing `as` keyword
+- [X] Create more professional unit tests

@@ -286,6 +286,7 @@ void TokensLog(Tokens *token)
         token->value
         //
     );
+
     TokensLog(token->next);
 }
 
@@ -295,7 +296,6 @@ void TokensLog(Tokens *token)
 static char *strcut(const char *string, size_t size)
 {
     // Cut a string
-
     if (strlen(string) < size)
         size = strlen(string);
 

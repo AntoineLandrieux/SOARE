@@ -60,7 +60,7 @@ char *__soare_system(soare_arguments_list args)
     char *value = NULL;
 
     // Loop through all arguments and execute them as system commands
-    for (int i = 0; 1; i++)
+    for (unsigned int i = 0; 1; i++)
     {
         if (!(value = soare_getarg(args, i)))
             break;
@@ -85,7 +85,7 @@ char *__write(FILE *stream, soare_arguments_list args)
     char *value = NULL;
 
     // Loop through all arguments and print them
-    for (int i = 0; 1; i++)
+    for (unsigned int i = 0; 1; i++)
     {
         if (!(value = soare_getarg(args, i)))
             break;
@@ -171,21 +171,17 @@ char *__soare_ord(soare_arguments_list args)
 void predefined_functions(void)
 {
     /* Interpreter */
-
     assert(soare_addfunction("eval", __soare_eval));
     assert(soare_addfunction("exit", __soare_exit));
     assert(soare_addfunction("system", __soare_system));
     assert(soare_addfunction("time", __soare_timestamp));
 
     /* Number / String */
-
     assert(soare_addfunction("random", __soare_random));
-
     assert(soare_addfunction("chr", __soare_chr));
     assert(soare_addfunction("ord", __soare_ord));
 
     /* Input / Output */
-
     assert(soare_addfunction("input", __soare_input));
     assert(soare_addfunction("write", __soare_write));
     assert(soare_addfunction("werr", __soare_werr));

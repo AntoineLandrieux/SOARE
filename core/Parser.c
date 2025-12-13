@@ -227,6 +227,7 @@ void TreeLog(AST tree)
         tree->value
         //
     );
+
     TreeLog(tree->child);
     TreeLog(tree->sibling);
 }

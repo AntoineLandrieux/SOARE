@@ -1,4 +1,22 @@
+? test/function.soare
+? Fibonacci function tests and utilities for SOARE (uses script/std.soare)
 
+loadimport "script/std.soare"
+
+let SEP = "--------------------------------\n";
+
+? Simple assertion: displays OK or FAIL
+fn assert_equal(a; b; msg)
+
+  if (a != b)
+    write("FAIL: "; msg; " -> got: '"; a; "' expected: '"; b; "'\n");
+  else
+    write(" OK : "; msg; '\n');
+  end;
+
+end;
+
+? Fibonacci implementation (keeps original style with nested Check)
 fn Fib(n)
 
   fn Check(x)
@@ -17,12 +35,64 @@ fn Fib(n)
 
   let value = Check(n);
 
+  ? If Check returned a non-numeric sentinel (e.g., "Invalid Input"), propagate it
+  if (value == "Invalid Input")
+    return value;
+  end;
+
   if (value < 0)
-    return Fib(n-1) + Fib(n-2);
+
+    let a = Fib(n-1);
+    let b = Fib(n-2);
+    return a + b;
+
   end;
 
   return value;
 
 end;
 
-write(Fib(10); '\n'); ? 34
+? Run a set of tests for Fib and print results
+fn test_fib()
+
+  write(SEP);
+  write("Test: Fibonacci function\n");
+
+  ? Known values
+  assert_equal(Fib(1); 0; "Fib(1) == 0");
+  assert_equal(Fib(2); 1; "Fib(2) == 1");
+  assert_equal(Fib(3); 1; "Fib(3) == 1");
+  assert_equal(Fib(4); 2; "Fib(4) == 2");
+  assert_equal(Fib(5); 3; "Fib(5) == 3");
+  assert_equal(Fib(6); 5; "Fib(6) == 5");
+  assert_equal(Fib(7); 8; "Fib(7) == 8");
+  assert_equal(Fib(8); 13; "Fib(8) == 13");
+  assert_equal(Fib(9); 21; "Fib(9) == 21");
+  assert_equal(Fib(10); 34; "Fib(10) == 34");
+
+  ? Edge cases
+  assert_equal(Fib(0); "Invalid Input"; "Fib(0) -> Invalid Input");
+  assert_equal(Fib(0-5); "Invalid Input"; "Fib(0-5) -> Invalid Input");
+
+  write('\n');
+
+  ? Demonstration prints
+  write("Demo: Fib(10) -> "; Fib(10); '\n');
+  write("Demo: Fib(1)  -> "; Fib(1); '\n');
+  write("Demo: Fib(2)  -> "; Fib(2); '\n');
+
+end;
+
+? Main entry: run tests and return 0
+fn main()
+
+  write("Running SOARE function tests\n");
+
+  test_fib();
+
+  write(SEP);
+  write("All tests finished\n");
+
+end;
+
+main();

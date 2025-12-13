@@ -23,6 +23,7 @@
 ////////////////////////////////////////////////////////////
 static inline void zeros(char *string)
 {
+
     /**
      *
      * Remove useless zeros

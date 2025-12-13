@@ -1,21 +1,64 @@
+? test/error.soare
+? Try/iferror tests and error handling examples for SOARE (uses script/std.soare)
 
-? Hello World
-try
-  write('Hello World!\n');
-iferror as err
-  werr('Error ! (issue): '; err; '\n');
+loadimport "script/std.soare"
+
+let SEP = "--------------------------------\n";
+
+? Test 1: Hello World inside try/iferror
+fn test_hello_world()
+
+  write(SEP);
+  write("Test: Hello World with try/iferror\n");
+
+  try
+    write('Hello World!\n');
+  iferror as err
+    werr('Error ! (issue): '; err; '\n');
+  end;
+
 end;
 
-? Error ! #2 Error value: RaiseException
-try
-  raise 'problem';
-iferror as err
-  werr('Error ! (normal): '; err; '\n');
+? Test 2: raise an exception and catch it
+fn test_raise_exception()
+
+  write(SEP);
+  write("Test: raise and catch exception\n");
+
+  try
+    raise 'problem';
+  iferror as err
+    werr('Error ! (normal): '; err; '\n');
+  end;
+
 end;
 
-? Error ! #3 Error value: DivideByZero
-try
-  write(3/0);
-iferror as err
-  werr('Error ! (normal): '; err; '\n');
+? Test 3: division by zero handling
+fn test_divide_by_zero()
+
+  write(SEP);
+  write("Test: division by zero handling\n");
+
+  try
+    write(3/0);
+  iferror as err
+    werr('Error ! (normal): '; err; '\n');
+  end;
+
 end;
+
+? Main entry: run all error tests and return 0
+fn main()
+
+  write("Running SOARE error handling tests\n");
+
+  test_hello_world();
+  test_raise_exception();
+  test_divide_by_zero();
+
+  write(SEP);
+  write("All tests finished\n");
+
+end;
+
+main();

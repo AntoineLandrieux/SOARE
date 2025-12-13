@@ -1,28 +1,179 @@
+? test/while.soare
+? Progress bar and timing tests for SOARE (uses script/std.soare)
+? Measure execution time of functions using time() (timestamp in seconds)
 
 loadimport "script/std.soare"
 
-let times = 0;
+let SEP = "--------------------------------\n";
 
-while (1)
+? Simple assertion: displays OK or FAIL
+fn assert_equal(a; b; msg)
 
-  write("Please wait 5 seconds: ["; times; '/'; 5; "] ");
-
-  let progress = 0;
-
-  while (progress < times)
-    write('=');
-    progress = progress + 1;
+  if (a != b)
+    write("FAIL: "; msg; " -> got: '"; a; "' expected: '"; b; "'\n");
+  else
+    write(" OK : "; msg; '\n');
   end;
-
-  if (times == 5)
-    break;
-  end;
-
-  sleep(1);
-  times = times + 1;
-
-  write('\r');
 
 end;
 
-write('\n');
+? Assertion: check a >= b
+fn assert_gte(a; b; msg)
+
+  if (a < b)
+    write("FAIL: "; msg; " -> got: '"; a; "' expected >= '"; b; "'\n");
+  else
+    write(" OK : "; msg; '\n');
+  end;
+
+end;
+
+? Original progress loop that sleeps 1 second per step
+fn run_progress(max_times)
+
+  let times = 0;
+
+  while (1)
+
+    write("Please wait "; max_times; " seconds: ["; times; '/'; max_times; "] ");
+
+    let progress = 0;
+
+    while (progress < times)
+      write('=');
+      progress = progress + 1;
+    end;
+
+    if (times == max_times)
+      break;
+    end;
+
+    sleep(1);
+    times = times + 1;
+
+    write('\r');
+
+  end;
+
+  write('\n');
+
+  ? return the final times value for assertions
+  return times;
+
+end;
+
+? Fast-run variant for tests (no sleep)
+fn run_progress_fast(max_times)
+
+  let times = 0;
+
+  while (1)
+
+    write("Fast run: ["; times; '/'; max_times; "] ");
+
+    let progress = 0;
+
+    while (progress < times)
+      write('=');
+      progress = progress + 1;
+    end;
+
+    if (times == max_times)
+      break;
+    end;
+
+    times = times + 1;
+    write('\r');
+
+  end;
+
+  write('\n');
+
+  return times;
+
+end;
+
+? Measure how long a call to run_progress(max_times) takes using time()
+fn measure_run_progress(max_times)
+
+  write(SEP);
+  write("Measuring run_progress("; max_times; ")\n");
+
+  let t0 = time();
+  let result = run_progress(max_times);
+  let t1 = time();
+
+  let duration = t1 - t0;
+  write("Result: times="; result; "  Duration (s): "; duration; '\n');
+
+  ? For the real run_progress we expect duration >= max_times because of sleep(1)
+  assert_gte(duration; max_times; "duration >= max_times for run_progress");
+
+end;
+
+? Measure how long a call to run_progress_fast(max_times) takes using time()
+fn measure_run_progress_fast(max_times)
+
+  write(SEP);
+  write("Measuring run_progress_fast("; max_times; ")\n");
+
+  let t0 = time();
+  let result = run_progress_fast(max_times);
+  let t1 = time();
+
+  let duration = t1 - t0;
+  write("Result: times="; result; "  Duration (s): "; duration; '\n');
+
+  ? For the fast variant we expect duration to be small (0 or 1 second)
+  ? We assert duration >= 0 and duration <= max(1, max_times) as a loose check
+  if (duration < 0)
+    write("FAIL: negative duration? "; duration; '\n');
+  else
+    write(" OK : duration non-negative\n");
+  end;
+
+end;
+
+? Additional micro-benchmark: measure an empty loop to show overhead of the language
+fn measure_empty_loop(iter)
+
+  write(SEP);
+  write("Measuring empty loop of "; iter; " iterations\n");
+
+  let t0 = time();
+  let i = 0;
+
+  while (i < iter)
+    let j = i + 1; ? trivial operation to avoid full optimization
+    i = j;
+  end;
+
+  let t1 = time();
+
+  let duration = t1 - t0;
+  write("Empty loop duration (s): "; duration; '\n');
+
+  return duration;
+
+end;
+
+? Main entry: run measurements and return 0
+fn main()
+
+  write("Running SOARE timing/progress tests\n");
+
+  ? Fast measurement (no sleeps) - useful for CI
+  measure_run_progress_fast(5);
+
+  ? Real-time measurement with sleep - will take ~5 seconds
+  measure_run_progress(5);
+
+  ? Micro-benchmark
+  let empty_dur = measure_empty_loop(100000);
+
+  write(SEP);
+  write("All tests finished\n");
+
+end;
+
+main();

@@ -14,7 +14,6 @@ static char *buffer = NULL;
 static char *append(const char *str1, const char *str2)
 {
     // String append
-
     size_t len = strlen(str1) + strlen(str2) + 1;
     char *result = (char *)malloc(len);
 
@@ -31,7 +30,6 @@ static char *append(const char *str1, const char *str2)
 static void loadfile(const char *filename)
 {
     // Reads from the file and stores the result in the buffer
-
     FILE *file = fopen(filename, "r");
 
     if (!file)
@@ -41,16 +39,16 @@ static void loadfile(const char *filename)
     }
 
     fseek(file, 0, SEEK_END);
-    long filesize = ftell(file);
+    long size = ftell(file);
     rewind(file);
 
-    if (!(buffer = (char *)malloc(filesize + 1)))
+    if (!(buffer = (char *)malloc(size + 1)))
     {
         __SOARE_OUT_OF_MEMORY();
         return;
     }
 
-    size_t read_size = fread(buffer, sizeof(char), filesize, file);
+    size_t read_size = fread(buffer, sizeof(char), size, file);
     buffer[read_size] = 0;
     fclose(file);
 }
@@ -59,7 +57,6 @@ static void loadfile(const char *filename)
 int Files(int argc, char *argv[])
 {
     // Load all files
-
     for (int i = 1; i < argc; i++)
     {
         loadfile(argv[i]);
@@ -76,7 +73,6 @@ int Files(int argc, char *argv[])
 int Console()
 {
     // Console mode
-
     printf(
         //
         "SOARE " SOARE_VERSION " [" __PLATFORM__ " - Antoine LANDRIEUX (MIT License)]\n"
@@ -93,7 +89,6 @@ int Console()
 
         do
         {
-
             if (!buffer)
             {
                 // >>> write("hello")
@@ -154,7 +149,6 @@ int Console()
 static void interpreter_kill(int sig)
 {
     // Kill SOARE
-
     signal(sig, SIG_DFL);
     exit(sig);
 }
@@ -163,7 +157,6 @@ static void interpreter_kill(int sig)
 static void interpreter_at_exit()
 {
     // Kill SOARE
-
     soare_kill();
     free(buffer);
 
@@ -176,7 +169,6 @@ static void interpreter_at_exit()
 static inline void handle_signal(void)
 {
     // Handle signal
-
     atexit(interpreter_at_exit);
 
     signal(SIGINT, /*  */ interpreter_kill);

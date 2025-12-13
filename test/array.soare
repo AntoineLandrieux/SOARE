@@ -1,27 +1,130 @@
+? test/array.soare
+? Indexing tests and utilities for SOARE (uses script/std.soare)
 
 loadimport "script/std.soare"
 
-let msg="Hello World!";
+let SEP = "--------------------------------\n";
 
-fn spell(message)
+? Simple assertion: displays OK or FAIL
+fn assert_equal(a; b; msg)
 
-  let index = 0;
-  let size = len(message);
-
-  while (index < size)
-
-    write(message:index);
-
-    if (find("AEIOUYaeiouy"; message:index) != (0-1))
-      write(" is vowel")
-    end;
-
-    write('\n');
-    index = index + 1;
-
+  if (a != b)
+    write("FAIL: "; msg; " -> got: '"; a; "' expected: '"; b; "'\n");
+  else
+    write(" OK : "; msg; '\n');
   end;
 
 end;
 
-spell(msg);
-write(msg; " -> "; reverse(msg); '\n');
+? Detects if the character at position idx of s is a basic ASCII/Latin vowel
+fn is_vowel(s; idx)
+
+  let ch = s:idx;
+  let vowels = "AEIOUYaeiouyÀÁÂÃÄÅàáâãäåÈÉÊËèéêëÌÍÎÏìíîïÒÓÔÕÖòóôõöÙÚÛÜùúûü";
+  return find(vowels; ch) != (0-1);
+
+end;
+
+? Indexing test on string and number
+fn test_indexing()
+
+  write(SEP);
+  write("Test: Indexing test on string and number\n");
+
+  let msg = "Hello";
+  let num = 713705;
+
+  ? Direct access by index
+  write("msg:0 -> '"; msg:0; "'\n"); ? expected H
+  write("msg:1 -> '"; msg:1; "'\n"); ? expected e
+  write("num:0 -> '"; num:0; "'\n"); ? expected 7
+  write("num:3 -> '"; num:3; "'\n"); ? expected 7
+
+  ? Assertions
+  assert_equal(msg:0; "H"; "msg:0 == 'H'");
+  assert_equal(msg:1; "e"; "msg:1 == 'e'");
+  assert_equal(num:0; "7"; "num:0 == '7'");
+  assert_equal(num:3; "7"; "num:3 == '7'");
+
+  write('\n');
+
+end;
+
+? Iteration test and vowel detection
+fn test_iteration_and_vowels()
+
+  write(SEP);
+  write("Test: Iteration test and vowel detection\n");
+
+  let s = "Hello World!";
+  let i = 0;
+  let n = len(s);
+  let vowels = 0;
+  let consonants = 0;
+
+  write("String: '"; s; "' (len="; n; ")\n");
+
+  while (i < n)
+
+    let ch = s:i;
+    write("["; i; "]\t'"; ch; "'");
+
+    if is_vowel(s; i) == 1
+      write(" -> vowel");
+      vowels = vowels + 1
+    else
+      ? Consider any character that is not a space or simple punctuation as a consonant
+      if find(" \t\n\r0123456789!\"#%&'()*+,-./:;<=>?@[\\]^_`{|}~"; ch) == (0-1)
+        write(" -> consonant");
+        consonants = consonants + 1
+      else
+        write(" -> other");
+      end;
+    end;
+
+    write('\n');
+    i = i + 1;
+
+  end;
+
+  write("Summary: vowels="; vowels; " consonants="; consonants; '\n');
+  write('\n');
+
+end;
+
+? Reverse test and properties
+fn test_reverse()
+
+  write(SEP);
+  write("Test: Reverse test and properties\n");
+
+  let examples = "Hello, SOARE!";
+  let rev = reverse(examples);
+  let round = reverse(rev);
+
+  write("Original : '"; examples; "'\n");
+  write("Reversed : '"; rev; "'\n");
+  write("Roundtrip: '"; round; "'\n");
+
+  assert_equal(round; examples; "reverse(reverse(x)) == x");
+  assert_equal(len(examples); len(rev); "len(x) == len(reverse(x))");
+
+  write('\n');
+
+end;
+
+? Exécution principale
+fn main()
+
+  write("Running SOARE array/string tests\n");
+
+  test_indexing();
+  test_iteration_and_vowels();
+  test_reverse();
+
+  write(SEP);
+  write("All tests finished\n");
+
+end;
+
+main();

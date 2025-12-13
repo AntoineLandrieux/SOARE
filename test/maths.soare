@@ -1,19 +1,133 @@
+? test/math.soare
+? Math operations tests for SOARE (uses script/math.soare)
 
 loadimport "script/math.soare"
 
-write(1+3.1;   '\n') ?  4.1
-write(1-3;     '\n') ? -2
-write(2.5*3;   '\n') ?  7.5
-write("7"/"4"; '\n') ?  1.75
-write(4%3;     '\n') ?  1
-write(1^3;     '\n') ?  2
-write(1<3;     '\n') ?  1
-write(1>3;     '\n') ?  0
+let SEP = "--------------------------------\n";
 
-try
-  write(4/0);
-iferror
-  write("Can't divide by 0"; '\n');
+? Simple assertion: displays OK or FAIL
+fn assert_equal(a; b; msg)
+
+  if (a != b)
+    write("FAIL: "; msg; " -> got: '"; a; "' expected: '"; b; "'\n");
+  else
+    write(" OK : "; msg; '\n');
+  end;
+
 end;
 
-write(floor(pi); '\n'); ? 3
+? Assertion for approximate equality for floats (tolerance simple)
+fn assert_approx(a; b; tol; msg)
+
+  let diff = a - b;
+
+  if (diff < 0)
+    let diff = 0 - diff;
+  end;
+
+  if (diff > tol)
+    write("FAIL: "; msg; " -> got: '"; a; "' expected approx: '"; b; "' (tol="; tol; ")\n");
+  else
+    write(" OK : "; msg; '\n');
+  end;
+
+end;
+
+? Run arithmetic checks that mirror the examples
+fn test_arithmetic()
+
+  write(SEP);
+  write("Test: basic arithmetic\n");
+
+  write("write(1+3.1;   '\\n') ?  4.1\n");
+  write("Result: ");
+  write(1+3.1; '\n');
+  assert_approx(1+3.1; 4.1; 0.000001; "1 + 3.1 == 4.1");
+
+  write("write(1-3;     '\\n') ? -2\n");
+  write("Result: ");
+  write(1-3; '\n');
+  assert_equal(1-3; 0-2; "1 - 3 == 0-2");
+
+  write("write(2.5*3;   '\\n') ?  7.5\n");
+  write("Result: ");
+  write(2.5*3; '\n');
+  assert_approx(2.5*3; 7.5; 0.000001; "2.5 * 3 == 7.5");
+
+  write("write(\"7\"/\"4\"; '\\n') ?  1.75\n");
+  write("Result: ");
+  write("7"/"4"; '\n');
+  assert_approx("7"/"4"; 1.75; 0.000001; "\"7\" / \"4\" == 1.75");
+
+  write("write(4%3;     '\\n') ?  1\n");
+  write("Result: ");
+  write(4%3; '\n');
+  assert_equal(4%3; 1; "4 % 3 == 1");
+
+  write("write(1^3;     '\\n') ?  2\n");
+  write("Result: ");
+  write(1^3; '\n');
+  assert_equal(1^3; 2; "1 ^ 3 == 2");
+
+  write("write(1<3;     '\\n') ?  1\n");
+  write("Result: ");
+  write(1<3; '\n');
+  assert_equal(1<3; 1; "1 < 3 == 1");
+
+  write("write(1>3;     '\\n') ?  0\n");
+  write("Result: ");
+  write(1>3; '\n');
+  assert_equal(1>3; 0; "1 > 3 == 0");
+
+  write('\n');
+
+end;
+
+? Test division by zero handling using try/iferror
+fn test_div_by_zero()
+
+  write(SEP);
+  write("Test: division by zero handling\n");
+
+  try
+    write(4/0);
+  iferror
+    write("Can't divide by 0"; '\n');
+  end;
+
+  ? We cannot capture the try/iferror return directly; just indicate the test ran
+  write("Checked division by zero with try/iferror (see message above)\n");
+  write('\n');
+
+end;
+
+? Test math constants and functions
+fn test_constants_and_functions()
+
+  write(SEP);
+  write("Test: constants and math functions\n");
+
+  write("write(floor(pi); '\\n'); ? 3\n");
+  write("Result: ");
+  write(floor(pi); '\n');
+  assert_equal(floor(pi); 3; "floor(pi) == 3");
+
+  write('\n');
+
+end;
+
+? Main entry: run all math tests and return 0
+fn main()
+
+  write("Running SOARE math tests\n");
+
+  test_arithmetic();
+  test_div_by_zero();
+  test_constants_and_functions();
+
+  write(SEP);
+  write("All tests finished\n");
+
+end;
+
+main();
