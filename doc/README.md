@@ -10,7 +10,7 @@
 
 ## Documentation
 
-- [VIEW DOC](documentation.md)
+- [VIEW DOCUMENTATION](documentation.md)
 
 ## Recommended stuff
 

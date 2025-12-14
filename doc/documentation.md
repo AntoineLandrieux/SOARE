@@ -1,46 +1,57 @@
 
-# SOARE documentation
+# SOARE Documentation
+
+Welcome to the SOARE documentation! SOARE is a simple, interpreted programming language write in C, designed to be easy to learn, especially for beginners. This documentation will guide you step by step, explaining basic concepts with concrete examples. We'll draw from the original documentation and practical examples like those in the `test/array.soare` file.
 
 ---
 
 ## Table of Contents
 
+- [What is SOARE?](#what-is-soare)
 - [Interpreter](#interpreter)
-
   - [Installing SOARE](#installing-soare)
   - [Compiling the Interpreter](#compiling-the-interpreter)
   - [Interpreter Commands](#interpreter-commands)
-  - [Add Interpreter keywords/functions in C/C++](#add-interpreter-keywordsfunctions-in-cc)
+  - [Add Interpreter Keywords/Functions in C/C++](#add-interpreter-keywordsfunctions-in-cc)
   - [Loading a File](#loading-a-file)
-  - [Create your own interpreter](#create-your-own-interpreter)
-
-- [SOARE](#soare)
-
+  - [Create Your Own Interpreter](#create-your-own-interpreter)
+- [SOARE Language](#soare-language)
   - [Introduction](#introduction)
-  - [Text and numbers](#text-and-numbers)
-  - [Storing data](#storing-data)
-  - [defining function](#defining-functions)
-  - [Loops and conditional structures](#loops-and-conditional-structures)
+  - [Text and Numbers](#text-and-numbers)
+  - [Storing Data](#storing-data)
+  - [Defining Functions](#defining-functions)
+  - [Loops and Conditional Structures](#loops-and-conditional-structures)
   - [Arrays](#arrays)
-  - [User inputs](#user-inputs)
-  - [Escape Sequence](#escape-sequence)
+  - [User Inputs](#user-inputs)
+  - [Escape Sequences](#escape-sequences)
   - [Predefined Functions](#predefined-functions)
+  - [Practical Examples](#practical-examples)
+
+---
+
+## What is SOARE?
+
+SOARE is an interpreted programming language, meaning you can write code and run it immediately without compiling first. It's simple, write in C, and perfect for learning the basics of programming. You can use it for scripts, calculations, or even more complex programs.
+
+Before starting, make sure you have installed SOARE (see [Installing SOARE](#installing-soare)).
 
 ---
 
 ## Interpreter
 
+The SOARE interpreter allows you to run code from the command line or via files.
+
 ### Installing SOARE
 
-To install SOARE, you can download the source code or the release from the [official repo](https://github.com/AntoineLandrieux/SOARE/).
+To install SOARE, download the release from the official repository: [https://github.com/AntoineLandrieux/SOARE/](https://github.com/AntoineLandrieux/SOARE/).
 
-**With git** :
+**With Git:**
 
 ```sh
 git clone https://github.com/AntoineLandrieux/SOARE.git
 ```
 
-On Windows, after [compiling the interpreter](#compiling-the-interpreter), you can run the `install.bat` file.
+On Windows, after compiling the interpreter (see below), run the `install.bat` file.
 
 To launch SOARE:
 
@@ -53,11 +64,11 @@ bin/soare
 
 ### Compiling the Interpreter
 
-**Tools recommended for Windows**:
+**Recommended Tools for Windows:**
 
 - [w64devkit](https://github.com/skeeto/w64devkit)
 
-**Tools recommended for Linux**:
+**Recommended Tools for Linux:**
 
 - `binutils`
 - `build-essential`
@@ -69,13 +80,13 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install binutils build-essential make -y
 ```
 
-**Compilation**:
+**Compilation:**
 
 ```sh
 make
 ```
 
-**Run executable**:
+**Run Executable:**
 
 ```sh
 # Windows/Linux
@@ -89,94 +100,65 @@ make run
 
 ### Interpreter Commands
 
-Executes the code written in the console
+The interpreter works in interactive mode. Type code and press Enter to execute it.
+
+**Simple Execution:**
 
 ```txt
 >>> write("Hello!");
 Hello!
->>> 
-```
-
-**Editor**:
-
-- `?editor`
-
-Editor mode for multi-line input
-
-```txt
->>> ?editor
-... let msg = "hello";
-... write(msg);
-```
-
-- `?run`
-
-Execute the editor content
-
-```txt
->>> ?editor
-... let msg = "hello";
-... write(msg);
-... ?run
-hello
 >>>
 ```
 
-- `?cancel`
-
-Cancels the code written in the editor mode
+**With statement:**
 
 ```txt
->>> ?editor
-... let msg = "hello";
-... write(msg);
-... ?cancel
->>> 
+>>> let x = 0;
+
+>>> if (x < 0)
+...   write("x is less than 0");
+... or (x > 0)
+...   write("x is greater than 0")
+... else
+...   write("x is equal to 0");
+... end;
+x is equal to 0
+>>>
 ```
 
-- `?exit`
-
-Closes the interpreter mode
-
-```soare
->>>?exit
-
-Bye!
-
-```
-
-### Add Interpreter keywords/functions in C/C++
+### Add Interpreter Keywords/Functions in C/C++
 
 > [!IMPORTANT]
-> **See [core/Custom.c](../core/Custom.c)**
+> See [core/Custom.c](../core/Custom.c) for examples.
 >
 
 #### Functions
 
-**Example**: Custom Function - Add Numbers with Variable Arguments
+**Example: Custom Function - Add Numbers with Variable Arguments:**
 
-This example demonstrates how to implement a custom function that adds together an unknown number of integer arguments.
+This example shows how to implement a custom function that adds an unknown number of integer arguments.
 
 - Function Name:
-  - char *int_add(soare_arguments_list args)
+  - `char *int_add(soare_arguments_list args)`
 - Arguments:
-  - args: A linked list of arguments passed to the function. Use soare_getarg(args, i) to retrieve the i-th argument as a string.
+  - `args`: A linked list of arguments passed to the function. Use `soare_getarg(args, i)` to retrieve the i-th argument as a string.
 - Return Value:
-  - Returns NULL (no value returned to SOARE).
-  - If you want to return a value, allocate memory for the result string before returning.
+  - Returns `NULL` (no value returned to SOARE).
+  - If you want to return a value, allocate memory for the result string.
 
-**Implementation Steps**:
+**Implementation Steps:**
 
-1. Initialize result accumulator.
-2. Loop through arguments using soare_getarg.
+1. Initialize the result accumulator.
+2. Loop through arguments using `soare_getarg`.
 3. Convert each argument from string to integer.
-4. Add to result.
+4. Add to the result.
 5. Print the result.
-6. Return NULL (or a string if needed).
+6. Return `NULL` (or a string if needed).
 
 - Memory Management:
-  - If returning a string, always allocate memory for it.
-  - Example:
+  - If returning a string, always allocate memory.
+
+**Example:**
 
 ```c
 char *ret = malloc(6 * sizeof(char));
@@ -188,7 +170,7 @@ strcpy(ret, "value");
 return ret;
 ```
 
-**Code**:
+**Code:**
 
 ```c
 char *int_add(soare_arguments_list args)
@@ -220,7 +202,7 @@ char *int_add(soare_arguments_list args)
 }
 ```
 
-**Implement this function**: `soare_addfunction(<function name>, <function>)`
+**Implement this function:** `soare_addfunction(<function name>, <function>)`
 
 ```c
 soare_addfunction("int_add", int_add);
@@ -228,14 +210,14 @@ soare_addfunction("int_add", int_add);
 
 #### Keywords
 
-**Example**: Custom Keyword - Clear screen
+**Example: Custom Keyword - Clear Screen:**
 
-This example demonstrates how to implement a custom keyword.
+This example shows how to implement a custom keyword.
 
 - Function Name:
   - Example: `void clear(void)`
 
-**Code**:
+**Code:**
 
 ```c
 void clear(void)
@@ -245,7 +227,7 @@ void clear(void)
 }
 ```
 
-**Implement this keyword**: `soare_addkeyword(<keyword name>, <function>)`
+**Implement this keyword:** `soare_addkeyword(<keyword name>, <function>)`
 
 ```c
 soare_addkeyword("clear", clear);
@@ -253,26 +235,25 @@ soare_addkeyword("clear", clear);
 
 ### Loading a File
 
-To load a file, you can use the command:
+To load a file, use the command:
 
 ```sh
 soare "filename.soare"
 ```
 
-### Create your own interpreter
+### Create Your Own Interpreter
 
 > [!IMPORTANT]
-> Functions like write, input or system are [predefined functions](#predefined-functions)
+> Functions like `write`, `input`, or `system` are [predefined functions](#predefined-functions).
 >
-> You should copy [`src/Predefined.c`](../src/Predefined.c) to create your own interpreter with these functions
+> Copy [`src/Predefined.c`](../src/Predefined.c) to create your own interpreter with these functions.
 >
 
-**Minimal code:**
+**Minimal Code:**
 
 ```c
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <SOARE/SOARE.h>
 
 int main(void)
@@ -283,15 +264,15 @@ int main(void)
   // Predefined functions in SOARE
   // write, input, system...
   // See `src/Predefined.c`
-  //predefined_functions();
+  // predefined_functions();
 
   // Execute(filename, code)
-  char *value = Execute("<input>", "return 'Hello World!';")
-  
+  char *value = Execute("<input>", "return 'Hello World!';");
+
   // Print returned value and free it
   printf("%s", value);
   free(value);
-  
+
   // Kill SOARE
   soare_kill();
   return 0;
@@ -300,73 +281,75 @@ int main(void)
 
 ---
 
-## SOARE
+## SOARE Language
+
+Now, let's dive into the language itself. We'll start with the basics and progress to more advanced concepts.
 
 ### Introduction
 
-Many examples in this manual, even those entered at the interactive prompt, include comments. Comments in SOARE begin with the character ?, and extend to the end of the physical line. A comment can appear at the start of a line or after whitespace or code, but not inside a string literal. Since comments are intended to clarify the code and are not interpreted by SOARE, they can be omitted when typing in examples.
+SOARE programs consist of statements that the interpreter executes line by line. Comments start with `?` and are ignored by the interpreter. They are used to explain the code.
 
-**Some examples** :
+**Examples:**
 
 ```soare
-? this is the first comment
-let number = 1; ? and this is the second comment
-                ? ... and now a third !
+? This is a comment
+let number = 1; ? And this is another comment
+                ? ... and one more!
 let text = "? This is not a comment because it's inside quotes.";
 ```
 
 > [!NOTE]
->
-> You can use ; at the end of a statement to indicate that it is complete.
->
+> You can use `;` at the end of a statement to indicate it is complete, but it's not always required.
 
 ### Text and Numbers
 
-SOARE can manipulate text (represented by a string) as well as numbers. This includes characters like "!", words like "rabbit", names like "Paris", sentences like "I support you.", etc. "Yay!". They can be enclosed in single quotes ('...') or double quotes ("...") with the same result.
+In SOARE, you can manipulate text (called strings) and numbers. Strings are enclosed in single quotes (`'...'`) or double quotes (`"..."`).
 
-To display text, we use the `write` keyword:
+To display text, use `write`:
 
 ```soare
-write("Hello World!\n"); ? (1) A newline character or \n is a control character for Line feed
+write("Hello World!\n"); ? \n is a newline character
 write(123.456);
 ```
 
-To display errors, we use the `werr` keyword:
+To display errors, use `werr`:
 
 ```soare
-werr("Error: my error !");
+werr("Error: an error!");
 ```
 
->
-> **(1)** See [Escape Sequence](#escape-sequence)
->
+> See [Escape Sequences](#escape-sequences) for more details on `\n`.
 
 ### Storing Data
 
-A variable allows you to store a number or text. A variable is defined by a name and a value.
+Variables allow you to store values (text or numbers) for later reuse. Use `let` to create a new variable.
 
 ```soare
-? let to create a new variable
-let name = "Antoine"
-let age = 15
+? Create a new variable with let
+let name = "Antoine";
+let age = 15;
 
-? here the variable age already exists, so no need for the let  sign
-age = age + 1
+? For an existing variable, no need for let
+age = age + 1;
 
-? the ',' sign with strings and numbers allows you to concatenate them
+? Concatenate text with ,
 let hello_name = "Hello ", name;
 
-? the write function support multiple-arguments with ';'
-write(hello_name; " "; age; "yo");
+? write can take multiple arguments separated by ;
+write(hello_name; " "; age; " years old");
 ```
+
+**Beginner Tip:** Think of variables as boxes where you store things. You give the box a name and put a value in it.
 
 ### Defining Functions
 
-We can create a function that writes the Fibonacci series:
+Functions are reusable blocks of code. They take parameters and can return a value.
+
+Example: A function to compute the Fibonacci sequence:
 
 ```soare
 fn fib(n)
-  ? Print a Fibonacci series up to n.
+  ? Print the Fibonacci series up to n
   let a = 0;
   let b = 1;
   let next = b;
@@ -381,22 +364,23 @@ fn fib(n)
   return a;
 end;
 
-write("The last value is ", fib(100));
+write("The last number is ", fib(100));
 ```
 
-The `fn` keyword introduces a function definition. It must be followed by the function name and the list of formal parameters in parentheses and separated by a ;.
+The `fn` keyword defines a function. Followed by the name and parameters in parentheses (separated by `;`).
 
-The `return` keyword exits the function, returning a value to the place where the function was called.
+`return` exits the function and returns a value.
+
+**Tip:** Functions are like recipes: you call them with ingredients (parameters), they do something, and can give you a result.
 
 ### Loops and Conditional Structures
 
-**while** :
+#### While Loops
 
-The while loop executes as long as the condition (here: a < 10) remains true. In SOARE, as in C, any non-zero integer value is true; zero is false. The test used in the example is a simple comparison. The standard comparison operators are written the same way as in C: < (less than), > (greater than), == (equal to), <= (less than or equal to), >= (greater than or equal to), and != (not equal to).
+A `while` loop repeats code as long as a condition is true.
 
 ```soare
-? Fibonacci series:
-? the sum of two elements defines the next
+? Fibonacci series
 let a = 0;
 let b = 1;
 let next = b;
@@ -409,26 +393,26 @@ while (a < 100)
 end;
 ```
 
-**break** :
+In SOARE, like in C, any non-zero integer is true; zero is false. Comparison operators are `<`, `>`, `==`, `<=`, `>=`, `!=`.
 
-You can break a loop using `break`
+#### Break
+
+Use `break` to exit a loop prematurely.
 
 ```soare
 let i = 0;
 
-while (1)
-
+while (1) ? Infinite loop
   if (i > 10)
     break;
   end;
 
   write(i; '\n');
   i = i + 1;
-
 end;
 ```
 
-**Result**:
+**Résultat :**
 
 ```txt
 0
@@ -444,9 +428,9 @@ end;
 10
 ```
 
-**if** et **iferror** :
+#### If and Iferror Conditions
 
-The most well-known type of statement is perhaps the if statement. For example:
+`if` tests a condition and executes code if true. `or` allows alternative conditions, `else` for the otherwise case.
 
 ```soare
 try
@@ -465,72 +449,78 @@ try
     write("Zero\n");
   end;
 
-? Store the name of the error in the variable "error"
+? Store the error name in the variable "error"
 iferror as error
-  werr("Error: "; error)
+  werr("Error: "; error);
 end;
 ```
 
+`iferror` handles errors.
+
+**Tip:** Think of conditions as decisions: "If it's raining, take an umbrella; otherwise, go for a walk."
+
 ### Arrays
 
-Strings or numbers are actually arrays of characters:
+In SOARE, strings and numbers are treated as arrays of characters. Access an element with `:` followed by the index (starting at 0).
 
 ```soare
 let msg = "Hello";
 let num = 713705;
 
-write(msg:0; '\n'); ? H
-write(num:3; '\n'); ? 7
+write(msg:0; '\n'); ? Prints H
+write(num:3; '\n'); ? Prints 7
 ```
 
-The index can be a variable, and it can be negative:
+The index can be a variable or negative (to count from the end).
 
 ```soare
-? For len() function
 loadimport "script/std.soare";
 
-let msg="Hello World!";
+let msg = "Hello World!";
 
 let index = 0;
-? Returns the number of characters in the string
-let size = len(msg);
+let size = len(msg); ? Length of the string
 
 while (index < size)
   write(msg:index; '\n');
   index = index + 1;
 end;
 
-? Negative number can be used to start with the end
-write(msg:(0-1); '\n'); ? Write the last character of "msg", here "!"
-write(msg:(0-2); '\n'); ? Write the one before last character of "msg", here "d"
+? Negative to start from the end
+write(msg:(0-1); '\n'); ? Last character: !
+write(msg:(0-2); '\n'); ? Second to last: d
 ```
+
+**Practical Example:** See the `test/array.soare` file for array tests, like counting vowels.
 
 ### User Inputs
 
-You can capture user input using `input()`
+Use `input()` to get user input.
 
 ```soare
-let usr = input("Enter your name: ");
-write("Hello "; usr; "!");
+let user = input("Enter your name: ");
+write("Hello "; user; "!");
 ```
 
-### Escape Sequence
+### Escape Sequences
 
-| Escape Sequence | Name               | Description                                                                            |
-|-----------------|--------------------|----------------------------------------------------------------------------------------|
-| \\a             | Alarm or Beep      | It is used to generate a bell sound.                                                   |
-| \\b             | Backspace          | It is used to move the cursor one place backward.                                      |
-| \\f             | Form Feed          | It is used to move the cursor to the start of the next logical page.                   |
-| \\n             | New Line           | It moves the cursor to the start of the next line.                                     |
-| \\r             | Carriage Return    | It moves the cursor to the start of the current line.                                  |
-| \\t             | Horizontal Tab     | It inserts some whitespace to the left of the cursor and moves the cursor accordingly. |
-| \\v             | Vertical Tab       | It is used to insert vertical space.                                                   |
-| \\\\            | Backlash           | Use to insert backslash character.                                                     |
-| \\`             | Single Quote       | It is used to display a single quotation mark.                                         |
-| \\'             | Single Quote       | It is used to display a single quotation mark.                                         |
-| \\"             | Double Quote       | It is used to display double quotation marks.                                          |
-| \\ooo           | Octal Number       | It is used to represent an octal number.                                               |
-| \\xhh           | Hexadecimal Number | It represents the hexadecimal number.                                                  |
+Escape sequences start with `\` and represent special characters.
+
+| Sequence | Name               | Description                                                                            |
+|----------|--------------------|----------------------------------------------------------------------------------------|
+| `\a`     | Alarm or Beep      | Generates a bell sound.                                                                |
+| `\b`     | Backspace          | Moves the cursor one place backward.                                                   |
+| `\f`     | Form Feed          | Moves the cursor to the start of the next logical page.                                |
+| `\n`     | New Line           | Moves the cursor to the start of the next line.                                        |
+| `\r`     | Carriage Return    | Moves the cursor to the start of the current line.                                     |
+| `\t`     | Horizontal Tab     | Inserts whitespace and moves the cursor accordingly.                                   |
+| `\v`     | Vertical Tab       | Inserts vertical space.                                                                |
+| `\\`     | Backslash          | Inserts the backslash character.                                                       |
+| `\``     | Single Quote       | Displays a single quotation mark.                                                      |
+| `\'`     | Single Quote       | Displays a single quotation mark.                                                      |
+| `\"`     | Double Quote       | Displays double quotation marks.                                                       |
+| `\ooo`   | Octal Number       | Represents an octal number.                                                            |
+| `\xhh`   | Hexadecimal Number | Represents a hexadecimal number.                                                       |
 
 ### Predefined Functions
 
@@ -544,7 +534,64 @@ write("Hello "; usr; "!");
 | random(seed) | Generate a random number [0; 255] based on a seed |
 | system(...)  | Execute shell command                             |
 | time()       | Show current timestamp                            |
-| wer(...)     | Print error                                       |
+| werr(...)    | Print error                                       |
 | write(...)   | Print text                                        |
+
+### Practical Examples
+
+Based on `test/array.soare`, here are examples to practice with arrays.
+
+**Indexing Test:**
+
+```soare
+let msg = "Hello";
+let num = 713705;
+
+write("msg:0 -> '"; msg:0; "'\n"); ? Expected: H
+write("num:3 -> '"; num:3; "'\n"); ? Expected: 7
+```
+
+**Iteration and Vowel Counting:**
+
+```soare
+loadimport "script/std.soare";
+
+let s = "Hello World!";
+let i = 0;
+let n = len(s);
+let vowels = 0;
+
+while (i < n)
+  let ch = s:i;
+  if (ch == "a" or ch == "e" or ch == "i" or ch == "o" or ch == "u" or ch == "y")
+    vowels = vowels + 1;
+  end;
+  i = i + 1;
+end;
+
+write("Number of vowels: "; vowels; '\n');
+```
+
+**Reversing a String:**
+
+```soare
+loadimport "script/std.soare";
+
+let original = "Hello";
+let reversed = "";
+let i = len(original) - 1;
+
+while (i >= 0)
+  reversed = reversed, original:i;
+  i = i - 1;
+end;
+
+write("Original: "; original; '\n');
+write("Reversed: "; reversed; '\n');
+```
+
+These examples will help you understand how to manipulate strings as arrays. Experiment by changing the values!
+
+---
 
 > SOARE Antoine LANDRIEUX <https://github.com/AntoineLandrieux/SOARE> (MIT LICENSE) ❤️
