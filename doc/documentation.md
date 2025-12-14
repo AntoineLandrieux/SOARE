@@ -506,21 +506,21 @@ write("Hello "; user; "!");
 
 Escape sequences start with `\` and represent special characters.
 
-| Sequence | Name               | Description                                                                            |
-|----------|--------------------|----------------------------------------------------------------------------------------|
-| `\a`     | Alarm or Beep      | Generates a bell sound.                                                                |
-| `\b`     | Backspace          | Moves the cursor one place backward.                                                   |
-| `\f`     | Form Feed          | Moves the cursor to the start of the next logical page.                                |
-| `\n`     | New Line           | Moves the cursor to the start of the next line.                                        |
-| `\r`     | Carriage Return    | Moves the cursor to the start of the current line.                                     |
-| `\t`     | Horizontal Tab     | Inserts whitespace and moves the cursor accordingly.                                   |
-| `\v`     | Vertical Tab       | Inserts vertical space.                                                                |
-| `\\`     | Backslash          | Inserts the backslash character.                                                       |
-| `\``     | Single Quote       | Displays a single quotation mark.                                                      |
-| `\'`     | Single Quote       | Displays a single quotation mark.                                                      |
-| `\"`     | Double Quote       | Displays double quotation marks.                                                       |
-| `\ooo`   | Octal Number       | Represents an octal number.                                                            |
-| `\xhh`   | Hexadecimal Number | Represents a hexadecimal number.                                                       |
+| Sequence | Name               | Description                                             |
+|----------|--------------------|---------------------------------------------------------|
+| `\a`     | Alarm or Beep      | Generates a bell sound.                                 |
+| `\b`     | Backspace          | Moves the cursor one place backward.                    |
+| `\f`     | Form Feed          | Moves the cursor to the start of the next logical page. |
+| `\n`     | New Line           | Moves the cursor to the start of the next line.         |
+| `\r`     | Carriage Return    | Moves the cursor to the start of the current line.      |
+| `\t`     | Horizontal Tab     | Inserts whitespace and moves the cursor accordingly.    |
+| `\v`     | Vertical Tab       | Inserts vertical space.                                 |
+| `\\`     | Backslash          | Inserts the backslash character.                        |
+| `\``     | Single Quote       | Displays a single quotation mark.                       |
+| `\'`     | Single Quote       | Displays a single quotation mark.                       |
+| `\"`     | Double Quote       | Displays double quotation marks.                        |
+| `\ooo`   | Octal Number       | Represents an octal number.                             |
+| `\xhh`   | Hexadecimal Number | Represents a hexadecimal number.                        |
 
 ### Predefined Functions
 
