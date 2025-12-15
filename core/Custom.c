@@ -71,7 +71,7 @@ char *int_add(soare_arguments_list args)
     char *x = NULL;
 
     // Loop through all arguments
-    for (int i = 0; 1; i++)
+    for (unsigned int i = 0; 1; i++)
     {
         // Retrieve the i-th argument
         x = soare_getarg(args, i);
@@ -81,6 +81,8 @@ char *int_add(soare_arguments_list args)
 
         // Convert argument to integer and add to result
         result += atoi(x);
+        // Free the memory used by x
+        free(x);
     }
 
     // Output the result to the console

@@ -103,7 +103,9 @@ char *__soare_input(soare_arguments_list args)
     __write(stdout, args);
 
     char input[__SOARE_MAX_INPUT__];
-    soare_input(input);
+
+    if (!soare_input(input))
+        return NULL;
 
     char *result = strdup(input);
 
@@ -164,7 +166,10 @@ char *__soare_ord(soare_arguments_list args)
     if (!value)
         return NULL;
 
-    return __byte_to_string((unsigned char)value[0]);
+    unsigned char ch = (unsigned char)value[0];
+    free(value);
+
+    return __byte_to_string(ch);
 }
 
 ////////////////////////////////////////////////////////////
