@@ -340,9 +340,6 @@ char *Math(AST tree)
         free(sx);
         free(sy);
 
-        if ((*(tree->value) == '/' || *(tree->value) == '%') && !dy)
-            return LeaveException(DivideByZero, tree->value, tree->file);
-
         switch (*(tree->value))
         {
         // < or <=
@@ -359,26 +356,30 @@ char *Math(AST tree)
         case '|':
             return __boolean(dx || dy);
 
-        case '^':
-            return __int((int)dx ^ (int)dy);
-
-        case '%':
-            return __int((int)dx % (int)dy);
-
-        case '*':
-            return __float(dx * dy);
-
-        case '/':
-            return __float(dx / dy);
-
         case '+':
             return __float(dx + dy);
 
         case '-':
             return __float(dx - dy);
 
+        case '*':
+            return __float(dx * dy);
+
+        case '/':
+            if (!dy)
+                return LeaveException(DivideByZero, tree->value, tree->file);
+            return __float(dx / dy);
+
+        case '%':
+            if (!dy)
+                return LeaveException(DivideByZero, tree->value, tree->file);
+            return __int((int)dx % (int)dy);
+
+        case '^':
+            return __int((int)dx ^ (int)dy);
+
         default:
-            return LeaveException(MathError, tree->value, tree->file);
+            break;
         }
     }
 

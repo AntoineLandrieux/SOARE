@@ -23,7 +23,6 @@ Welcome to the SOARE documentation! SOARE is a simple, interpreted programming l
   - [Loops and Conditional Structures](#loops-and-conditional-structures)
   - [Arrays](#arrays)
   - [User Inputs](#user-inputs)
-  - [Escape Sequences](#escape-sequences)
   - [Predefined Functions](#predefined-functions)
   - [Practical Examples](#practical-examples)
 
@@ -59,7 +58,7 @@ To launch SOARE:
 # Linux
 bin/soare
 # Windows
-%SOARE%\soare.exe
+%SOARE%\\soare.exe
 ```
 
 ### Compiling the Interpreter
@@ -75,7 +74,7 @@ bin/soare
 - `make`
 
 ```sh
-# Ubuntu/Debian
+# Ubuntu / Debian based Linux Distributions
 sudo apt update && sudo apt upgrade -y
 sudo apt install binutils build-essential make -y
 ```
@@ -320,7 +319,7 @@ To display errors, use `werr`:
 werr("Error: an error!");
 ```
 
-> See [Escape Sequences](#escape-sequences) for more details on `\n`.
+> Learn more about [Escape Sequences (learn.microsoft.com)](https://learn.microsoft.com/en-us/cpp/c-language/escape-sequences) for more details on `\n`.
 
 ### Storing Data
 
@@ -504,26 +503,6 @@ let user = input("Enter your name: ");
 write("Hello "; user; "!");
 ```
 
-### Escape Sequences
-
-Escape sequences start with `\` and represent special characters.
-
-| Sequence | Name               | Description                                             |
-|----------|--------------------|---------------------------------------------------------|
-| `\a`     | Alarm or Beep      | Generates a bell sound.                                 |
-| `\b`     | Backspace          | Moves the cursor one place backward.                    |
-| `\f`     | Form Feed          | Moves the cursor to the start of the next logical page. |
-| `\n`     | New Line           | Moves the cursor to the start of the next line.         |
-| `\r`     | Carriage Return    | Moves the cursor to the start of the current line.      |
-| `\t`     | Horizontal Tab     | Inserts whitespace and moves the cursor accordingly.    |
-| `\v`     | Vertical Tab       | Inserts vertical space.                                 |
-| `\\`     | Backslash          | Inserts the backslash character.                        |
-| `\``     | Single Quote       | Displays a single quotation mark.                       |
-| `\'`     | Single Quote       | Displays a single quotation mark.                       |
-| `\"`     | Double Quote       | Displays double quotation marks.                        |
-| `\ooo`   | Octal Number       | Represents an octal number.                             |
-| `\xhh`   | Hexadecimal Number | Represents a hexadecimal number.                        |
-
 ### Predefined Functions
 
 | Function     | Description                                       |
@@ -565,7 +544,8 @@ let vowels = 0;
 
 while (i < n)
   let ch = s:i;
-  if (ch == "a" or ch == "e" or ch == "i" or ch == "o" or ch == "u" or ch == "y")
+  if (ch == "a" || ch == "e" || ch == "i" || ch == "o" || ch == "u" || ch == "y")
+    write("caca");
     vowels = vowels + 1;
   end;
   i = i + 1;

@@ -26,7 +26,7 @@
  * T: testing
  *
  */
-#define SOARE_VERSION "Rv1.3.0"
+#define SOARE_VERSION "Rv1.3.1"
 
 /* SOARE max input */
 #define __SOARE_MAX_INPUT__ 255
