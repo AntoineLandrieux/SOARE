@@ -11,23 +11,28 @@
 # <https://github.com/AntoineLandrieux/SOARE/>
 #
 
-APP = soare
+
+BUILD = soare
 VERSION_MAJOR = 1
+
 
 AR = ar
 CC = gcc
 
+
+APP = app
 BIN = bin
-LIB = lib
-SRC = src
 CORE = core
+MODULES = modules
 INCLUDE = include
+
 
 CFLAGS := -Wall
 CFLAGS += -Wextra
 CFLAGS += -Wno-unused-result
 CFLAGS += -Wno-implicit-fallthrough
 CFLAGS += -O2
+
 
 ifeq ($(OS), Windows_NT)
 
@@ -41,39 +46,90 @@ WINDRES = echo
 
 endif
 
+
 SOARE_FLAGS :=
 SOARE_FLAGS += -D __SOARE_COLORED_OUTPUT
 # SOARE_FLAGS += -D __SOARE_DEBUG
+
+
+MODULE_FLAGS :=
+
 
 INTERPRETER_FLAGS :=
 # INTERPRETER_FLAGS += -D __KILL_MESSAGE=\"" - Bye\""
 # INTERPRETER_FLAGS += -D __SOARE_DEBUG
 
-default: $(BIN)/$(APP)
 
-$(LIB)/libsoare$(VERSION_MAJOR).a: $(CORE_OBJS)
+CORE_OBJS := $(patsubst $(CORE)/%.c, $(BIN)/%.o, $(wildcard $(CORE)/*.c))
+MODULES_OBJS := $(patsubst $(MODULES)/%.c, $(BIN)/%.o, $(wildcard $(MODULES)/*.c))
 
-CORE_OBJS := $(patsubst $(CORE)/%.c, $(LIB)/%.o, $(wildcard $(CORE)/*.c))
+
+.PHONY: all
+all: $(BIN)/$(BUILD)
+
 
 $(BIN):
+
+	@echo - Make bin directory...
 	mkdir $(BIN)
 
-$(LIB):
-	mkdir $(LIB)
 
 $(RES):
+
+	@echo - Build Windows ressources...
 	$(WINDRES) $(RC) -O coff -o $(RES)
 
-$(LIB)/%.o: $(CORE)/%.c
+
+$(BIN)/%.o: $(CORE)/%.c
+
 	$(CC) -c $< -o $@ -I $(INCLUDE) $(CFLAGS) $(SOARE_FLAGS)
 
-$(BIN)/$(APP): $(BIN) $(LIB) $(RES) $(CORE_OBJS)
-	$(AR) rcs $(LIB)/libsoare$(VERSION_MAJOR).a $(CORE_OBJS)
-	$(CC) $(RES) $(SRC)/*.c -o $(BIN)/$(APP) -I $(INCLUDE) -L$(LIB) -lsoare$(VERSION_MAJOR) $(CFLAGS) $(INTERPRETER_FLAGS)
-	rm $(CORE_OBJS)
 
-run:
-	$(BIN)/$(APP)
+$(BIN)/%.o: $(MODULES)/%.c
 
-clean:
-	rm -rf $(BIN) $(LIB)
+	$(CC) -c $< -o $@ -I $(INCLUDE) $(CFLAGS) $(MODULE_FLAGS)
+
+
+$(BIN)/$(BUILD): $(BIN) $(RES) $(CORE_OBJS) $(MODULES_OBJS)
+
+ifeq ($(OS), Windows_NT)
+	@echo - Build SOARE DLLs Windows...
+	$(CC) -shared $(CORE_OBJS) -o $(BIN)/soare$(VERSION_MAJOR).dll -I $(INCLUDE) $(CFLAGS)
+else
+	@echo - Build SOARE static libraries Unix/macOS...
+	$(AR) rcs $(BIN)/libsoare$(VERSION_MAJOR).a $(CORE_OBJS)
+endif
+
+	@echo - Build SOARE interpreter...
+	$(CC) $(RES) $(APP)/*.c $(MODULES)/*.c -o $(BIN)/$(BUILD) -I $(INCLUDE) -L$(BIN) -lsoare$(VERSION_MAJOR) $(CFLAGS) $(INTERPRETER_FLAGS)
+
+	@echo - Remove useless compiled files...
+	rm $(BIN)/*.o
+
+
+.PHONY: run
+run: $(BIN)/$(BUILD)
+
+	@echo - Run SOARE...
+	$(BIN)/$(BUILD)
+
+
+.PHONY: clean
+clean: $(BIN)
+
+	@echo - Remove compiled files...
+	rm -rf $(BIN)
+
+
+.PHONY: help
+help:
+
+	@echo
+	@echo Available targets :
+	@echo ---
+	@echo - make all : Build SOARE 
+	@echo - make run : Build and run SOARE
+	@echo - make help : Show this help message
+	@echo - make clean : Remove compiled files
+	@echo
+

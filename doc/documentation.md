@@ -58,7 +58,7 @@ To launch SOARE:
 # Linux
 bin/soare
 # Windows
-%SOARE%\\soare.exe
+%SOARE%\\bin\\soare.exe
 ```
 
 ### Compiling the Interpreter
@@ -140,7 +140,7 @@ This example shows how to implement a custom function that adds an unknown numbe
 - Function Name:
   - `char *int_add(soare_arguments_list args)`
 - Arguments:
-  - `args`: A linked list of arguments passed to the function. Use `soare_getarg(args, i)` to retrieve the i-th argument as a string.
+  - `args`: A linked list of arguments passed to the function. Use `soare_get_argument(args, i)` to retrieve the i-th argument as a string.
 - Return Value:
   - Returns `NULL` (no value returned to SOARE).
   - If you want to return a value, allocate memory for the result string.
@@ -148,7 +148,7 @@ This example shows how to implement a custom function that adds an unknown numbe
 **Implementation Steps:**
 
 1. Initialize the result accumulator.
-2. Loop through arguments using `soare_getarg`.
+2. Loop through arguments using `soare_get_argument`.
 3. Convert each argument from string to integer.
 4. Add to the result.
 5. Print the result.
@@ -183,7 +183,7 @@ char *int_add(soare_arguments_list args)
   for (unsigned int i = 0; 1; i++)
   {
     // Retrieve the i-th argument
-    x = soare_getarg(args, i);
+    x = soare_get_argument(args, i);
     if (!x)
       // Exit loop if no more arguments
       break;
@@ -203,10 +203,10 @@ char *int_add(soare_arguments_list args)
 }
 ```
 
-**Implement this function:** `soare_addfunction(<function name>, <function>)`
+**Implement this function:** `soare_add_function(<function name>, <function>)`
 
 ```c
-soare_addfunction("int_add", int_add);
+soare_add_function("int_add", int_add);
 ```
 
 #### Keywords

@@ -17,7 +17,7 @@
 
 #include <SOARE/SOARE.h>
 
-static bBool allStatementClosed = bTrue;
+static boolean_t all_statement_closed = bTrue;
 
 /**
  *  Example of AST (Abstract Syntax Tree) :
@@ -57,31 +57,35 @@ static bBool allStatementClosed = bTrue;
  */
 
 ////////////////////////////////////////////////////////////
-bBool soare_is_all_statement_closed(void)
+boolean_t soare_is_all_statement_closed(void)
 {
-    return allStatementClosed;
+    return all_statement_closed;
 }
 
 ////////////////////////////////////////////////////////////
-Node *Branch(char *value, node_type type, Document file)
+node_t *soare_new_node(char *value, node_type_t type, document_t file)
 {
-    Node *branch = (Node *)malloc(sizeof(Node));
+    node_t *node = (node_t *)malloc(sizeof(node_t));
 
-    if (!branch)
+    if (!node)
         return __SOARE_OUT_OF_MEMORY();
 
-    branch->value = !value ? NULL : strdup(value);
-    branch->type = type;
-    branch->file = file;
-    branch->parent = NULL;
-    branch->child = NULL;
-    branch->sibling = NULL;
+    node->value = value;
 
-    return branch;
+    if (value)
+        node->value = strdup(value);
+
+    node->type = type;
+    node->file = file;
+    node->parent = NULL;
+    node->child = NULL;
+    node->sibling = NULL;
+
+    return node;
 }
 
 ////////////////////////////////////////////////////////////
-AST BranchJuxtapose(Node *source, AST element)
+ast_t soare_tree_juxtapose(ast_t source, ast_t element)
 {
     if (!source)
         return element;
@@ -111,7 +115,7 @@ AST BranchJuxtapose(Node *source, AST element)
      *
      */
 
-    AST tmp = source->sibling;
+    ast_t tmp = source->sibling;
     source->sibling = element;
 
     for (; element->sibling; element = element->sibling)
@@ -126,7 +130,7 @@ AST BranchJuxtapose(Node *source, AST element)
 }
 
 ////////////////////////////////////////////////////////////
-AST BranchJoin(Node *parent, Node *child)
+ast_t soare_tree_join(ast_t parent, ast_t child)
 {
     if (!child)
         return parent;
@@ -160,94 +164,50 @@ AST BranchJoin(Node *parent, Node *child)
 
     if (parent->child)
     {
-        Node *tmp = parent->child;
+        node_t *tmp = parent->child;
+
         while (tmp->sibling)
+        {
             tmp = tmp->sibling;
+        }
+
         tmp->sibling = child;
     }
     else
+    {
         parent->child = child;
+    }
 
     child->parent = parent;
     return parent;
 }
 
 ////////////////////////////////////////////////////////////
-void TreeFree(AST tree)
+void soare_tree_free(ast_t tree)
 {
     if (!tree)
         return;
 
-    TreeFree(tree->child);
-    TreeFree(tree->sibling);
+    soare_tree_free(tree->sibling);
+    soare_tree_free(tree->child);
     free(tree->value);
     free(tree);
 }
 
-#ifdef __SOARE_DEBUG
-
 ////////////////////////////////////////////////////////////
-void TreeLog(AST tree)
+ast_t soare_parser(tokens_t *tokens)
 {
-    if (!tree)
-        return;
+    ast_t root = soare_new_node(NULL, NODE_ROOT, soare_empty_document());
+    ast_t curr = root;
 
-    /**
-     *
-     * Example:
-     *
-     * [BRANCH] [(null):00000:00000, 00, "(null)"]
-     * [BRANCH] [(null):00000:00000, 00, "(null)"]     [test.soare:00002:00001, 05, "write"]
-     * [BRANCH] [test.soare:00002:00001, 05, "write"]  [test.soare:00002:00007, 07, "Hello World!"]
-     *
-     */
-
-    soare_write(__soare_stdout, "[BRANCH] ");
-
-    if (tree->parent)
-        soare_write(
-            //
-            __soare_stdout,
-            "[%s:%.5lld:%.5lld, %.2X, \"%s\"]\t",
-            tree->parent->file.file,
-            tree->parent->file.ln,
-            tree->parent->file.col,
-            tree->parent->type,
-            tree->parent->value
-            //
-        );
-    soare_write(
-        //
-        __soare_stdout,
-        "[%s:%.5lld:%.5lld, %.2X, \"%s\"]\n",
-        tree->file.file,
-        tree->file.ln,
-        tree->file.col,
-        tree->type,
-        tree->value
-        //
-    );
-
-    TreeLog(tree->child);
-    TreeLog(tree->sibling);
-}
-
-#endif /* __SOARE_DEBUG */
-
-////////////////////////////////////////////////////////////
-AST Parse(Tokens *tokens)
-{
-    Node *root = Branch(NULL, NODE_ROOT, EmptyDocument());
-    Node *curr = root;
-
-    allStatementClosed = bTrue;
+    all_statement_closed = bTrue;
 
     while (tokens)
     {
         if (tokens->type == TKN_EOF)
             break;
 
-        Tokens *old = tokens;
+        tokens_t *old = tokens;
         tokens = tokens->next;
 
         switch (old->type)
@@ -259,25 +219,15 @@ AST Parse(Tokens *tokens)
 
             if (!strcmp(old->value, KEYWORD_FN))
             {
-                if (!TokensFollowPattern(tokens, 2, TKN_NAME, TKN_PARENL))
+                if (tokens->type != TKN_NAME || tokens->next->type != TKN_PARENL)
                 {
-                    TreeFree(root);
-                    return LeaveException(SyntaxError, old->value, old->file);
+                    soare_tree_free(root);
+                    return soare_leave_exception(SyntaxError, old->value, old->file);
                 }
 
-                /**
-                 *
-                 *       \
-                 *       (function)
-                 *      /
-                 *  (arg1)-(arg2)-(body)
-                 *                   \...
-                 *
-                 */
-
-                AST function = Branch(tokens->value, NODE_FUNCTION, old->file);
+                ast_t function = soare_new_node(tokens->value, NODE_FUNCTION, old->file);
                 tokens = tokens->next->next;
-                BranchJoin(curr, function);
+                soare_tree_join(curr, function);
 
                 while (1)
                 {
@@ -286,11 +236,11 @@ AST Parse(Tokens *tokens)
 
                     if (tokens->type != TKN_NAME)
                     {
-                        TreeFree(root);
-                        return LeaveException(SyntaxError, old->value, old->file);
+                        soare_tree_free(root);
+                        return soare_leave_exception(SyntaxError, old->value, old->file);
                     }
 
-                    BranchJoin(function, Branch(tokens->value, NODE_MEMSET, tokens->file));
+                    soare_tree_join(function, soare_new_node(tokens->value, NODE_MEMSET, tokens->file));
 
                     tokens = tokens->next;
 
@@ -298,104 +248,63 @@ AST Parse(Tokens *tokens)
                         tokens = tokens->next;
                 }
 
-                AST body = Branch(NULL, NODE_BODY, old->file);
-                BranchJoin(function, body);
+                ast_t body = soare_new_node(NULL, NODE_BODY, old->file);
+                soare_tree_join(function, body);
                 tokens = tokens->next;
                 curr = body;
             }
 
             else if (!strcmp(old->value, KEYWORD_BREAK))
             {
-                /**
-                 *
-                 *     \
-                 *     (break)
-                 *
-                 */
-                BranchJoin(curr, Branch(NULL, NODE_BREAK, old->file));
+                soare_tree_join(curr, soare_new_node(NULL, NODE_BREAK, old->file));
             }
 
             else if (!strcmp(old->value, KEYWORD_LET))
             {
-                if (!TokensFollowPattern(tokens, 2, TKN_NAME, TKN_ASSIGN))
+                if (tokens->type != TKN_NAME || tokens->next->type != TKN_ASSIGN)
                 {
-                    TreeFree(root);
-                    return LeaveException(SyntaxError, old->value, old->file);
+                    soare_tree_free(root);
+                    return soare_leave_exception(SyntaxError, old->value, old->file);
                 }
 
                 tokens = tokens->next->next;
-                AST content = ParseExpression(&tokens, 0xF);
+                ast_t content = soare_parse_expression(&tokens, 0xF);
 
                 if (!content)
                 {
-                    TreeFree(root);
-                    return LeaveException(ValueError, old->value, old->file);
+                    soare_tree_free(root);
+                    return soare_leave_exception(ValueError, old->value, old->file);
                 }
 
-                /**
-                 *
-                 *     \
-                 *     (varname)
-                 *         |
-                 *      (value)
-                 */
-
-                BranchJoin(curr, BranchJoin(Branch(old->next->value, NODE_MEMNEW, old->file), content));
+                soare_tree_join(curr, soare_tree_join(soare_new_node(old->next->value, NODE_MEMNEW, old->file), content));
             }
 
             else if (!strcmp(old->value, KEYWORD_RETURN))
             {
-
-                /**
-                 *
-                 *     \
-                 *     (return)
-                 *         |
-                 *      (value)
-                 */
-
-                BranchJoin(curr, BranchJoin(Branch(NULL, NODE_RETURN, old->file), ParseExpression(&tokens, 0xF)));
+                soare_tree_join(curr, soare_tree_join(soare_new_node(NULL, NODE_RETURN, old->file), soare_parse_expression(&tokens, 0xF)));
             }
 
             else if (!strcmp(old->value, KEYWORD_RAISE) || !strcmp(old->value, KEYWORD_LOADIMPORT))
             {
                 if (tokens->type != TKN_STRING)
                 {
-                    TreeFree(root);
-                    return LeaveException(SyntaxError, old->value, old->file);
+                    soare_tree_free(root);
+                    return soare_leave_exception(SyntaxError, old->value, old->file);
                 }
-
-                /**
-                 *
-                 *      \
-                 *    (raise/loadimport)
-                 *           |
-                 *        (string)
-                 *
-                 */
 
                 // Please note that `raise` and `loadimport` have the same structure
                 // If you changed KEYWORD_RAISE or KEYWORD_LOADIMPORT, please use :
                 // !strcmp(old->value, KEYWORD_RAISE) ? NODE_RAISE : NODE_IMPORT;
-                node_type type = *(old->value) == KEYWORD_RAISE[0] ? NODE_RAISE : NODE_IMPORT;
-                BranchJoin(curr, Branch(tokens->value, type, old->file));
+                node_type_t type = *(old->value) == KEYWORD_RAISE[0] ? NODE_RAISE : NODE_IMPORT;
+                soare_tree_join(curr, soare_new_node(tokens->value, type, old->file));
                 tokens = tokens->next;
             }
 
             else if (!strcmp(old->value, KEYWORD_TRY))
             {
-                Node *try = Branch(NULL, NODE_TRY, old->file);
-                BranchJoin(try, Branch(NULL, NODE_BODY, old->file));
-                BranchJoin(curr, try);
-
-                /**
-                 *
-                 *      \
-                 *     (try)
-                 *       |...
-                 *
-                 */
-
+                ast_t try = soare_new_node(NULL, NODE_TRY, old->file);
+                soare_tree_join(try, soare_new_node(NULL, NODE_BODY, old->file));
+                soare_tree_join(curr, try);
                 curr = try->child;
             }
 
@@ -403,20 +312,12 @@ AST Parse(Tokens *tokens)
             {
                 if (curr == root || curr->parent->type != NODE_TRY || curr->type == NODE_IFERROR)
                 {
-                    TreeFree(root);
-                    return LeaveException(UnexpectedNear, old->value, old->file);
+                    soare_tree_free(root);
+                    return soare_leave_exception(UnexpectedNear, old->value, old->file);
                 }
 
-                /**
-                 *
-                 *      /
-                 *  (try)-(iferror)
-                 *    |...    |...
-                 *
-                 */
-
-                Node *iferror = Branch(NULL, NODE_IFERROR, old->file);
-                BranchJoin(curr->parent, iferror);
+                ast_t iferror = soare_new_node(NULL, NODE_IFERROR, old->file);
+                soare_tree_join(curr->parent, iferror);
                 curr = iferror;
 
                 // iferror as <varname>
@@ -425,9 +326,9 @@ AST Parse(Tokens *tokens)
                     tokens = tokens->next;
 
                     if (tokens->type != TKN_NAME)
-                        return LeaveException(SyntaxError, old->value, old->file);
+                        return soare_leave_exception(SyntaxError, old->value, old->file);
 
-                    BranchJoin(curr, Branch(tokens->value, NODE_STRERROR, old->file));
+                    soare_tree_join(curr, soare_new_node(tokens->value, NODE_STRERROR, old->file));
 
                     tokens = tokens->next;
                 }
@@ -435,34 +336,24 @@ AST Parse(Tokens *tokens)
 
             else if (!strcmp(old->value, KEYWORD_IF) || !strcmp(old->value, KEYWORD_WHILE))
             {
-                AST condition = ParseExpression(&tokens, 0xF);
+                ast_t condition = soare_parse_expression(&tokens, 0xF);
 
                 if (!condition)
                 {
-                    TreeFree(root);
-                    return LeaveException(ValueError, old->value, old->file);
+                    soare_tree_free(root);
+                    return soare_leave_exception(ValueError, old->value, old->file);
                 }
-
-                /**
-                 *
-                 *
-                 *      (while/if)
-                 *         /
-                 *   (condition)-(body)
-                 * .../             \...
-                 *
-                 */
 
                 // Please note that `if` and `while` have the same structure
                 // If you changed KEYWORD_WHILE or KEYWORD_IF, please use :
                 // !strcmp(old->value, KEYWORD_IF) ? NODE_CONDITION : NODE_REPETITION;
-                node_type type = *(old->value) == KEYWORD_IF[0] ? NODE_CONDITION : NODE_REPETITION;
-                AST statement = Branch(NULL, type, old->file);
-                AST body = Branch(NULL, NODE_BODY, old->file);
+                node_type_t type = *(old->value) == KEYWORD_IF[0] ? NODE_CONDITION : NODE_REPETITION;
+                ast_t statement = soare_new_node(NULL, type, old->file);
+                ast_t body = soare_new_node(NULL, NODE_BODY, old->file);
 
-                BranchJoin(statement, condition);
-                BranchJoin(statement, body);
-                BranchJoin(curr, statement);
+                soare_tree_join(statement, condition);
+                soare_tree_join(statement, body);
+                soare_tree_join(curr, statement);
 
                 curr = body;
             }
@@ -471,32 +362,22 @@ AST Parse(Tokens *tokens)
             {
                 if (curr->parent->type != NODE_CONDITION)
                 {
-                    TreeFree(root);
-                    return LeaveException(UnexpectedNear, old->value, old->file);
+                    soare_tree_free(root);
+                    return soare_leave_exception(UnexpectedNear, old->value, old->file);
                 }
 
-                AST condition = ParseExpression(&tokens, 0xF);
+                ast_t condition = soare_parse_expression(&tokens, 0xF);
 
                 if (!condition)
                 {
-                    TreeFree(root);
-                    return LeaveException(ValueError, old->value, old->file);
+                    soare_tree_free(root);
+                    return soare_leave_exception(ValueError, old->value, old->file);
                 }
 
-                /**
-                 *
-                 *                /
-                 *             (if)
-                 *             /
-                 *   (condition 1)-(body 1)-(condition 2)-(body 2)
-                 *        |...        |...       |...        |...
-                 *
-                 */
+                ast_t body = soare_new_node(NULL, NODE_BODY, old->file);
 
-                AST body = Branch(NULL, NODE_BODY, old->file);
-
-                BranchJoin(curr->parent, condition);
-                BranchJoin(curr->parent, body);
+                soare_tree_join(curr->parent, condition);
+                soare_tree_join(curr->parent, body);
 
                 curr = body;
             }
@@ -505,24 +386,14 @@ AST Parse(Tokens *tokens)
             {
                 if (curr->parent->type != NODE_CONDITION)
                 {
-                    TreeFree(root);
-                    return LeaveException(UnexpectedNear, old->value, old->file);
+                    soare_tree_free(root);
+                    return soare_leave_exception(UnexpectedNear, old->value, old->file);
                 }
 
-                /**
-                 *
-                 *                /
-                 *             (if)--------(else)
-                 *             /            /
-                 *   (condition)--(body)  (1)--(body)
-                 *                   |...        |...
-                 *
-                 */
+                ast_t body = soare_new_node(NULL, NODE_BODY, old->file);
 
-                AST body = Branch(NULL, NODE_BODY, old->file);
-
-                BranchJoin(curr->parent, Branch("1", NODE_VALUE, old->file));
-                BranchJoin(curr->parent, body);
+                soare_tree_join(curr->parent, soare_new_node("1", NODE_VALUE, old->file));
+                soare_tree_join(curr->parent, body);
 
                 curr = body;
             }
@@ -531,8 +402,8 @@ AST Parse(Tokens *tokens)
             {
                 if (curr == root)
                 {
-                    TreeFree(root);
-                    return LeaveException(UnexpectedNear, old->value, old->file);
+                    soare_tree_free(root);
+                    return soare_leave_exception(UnexpectedNear, old->value, old->file);
                 }
 
                 curr = curr->parent->parent;
@@ -541,79 +412,52 @@ AST Parse(Tokens *tokens)
             else
             {
                 // Custom keyword
-                BranchJoin(curr, Branch(old->value, NODE_CUSTOM_KEYWORD, old->file));
+                soare_tree_join(curr, soare_new_node(old->value, NODE_CUSTOM_KEYWORD, old->file));
             }
 
             break;
 
         case TKN_NAME:
 
-            if (tokens->type != TKN_PARENL)
+            if (tokens->type == TKN_ASSIGN)
             {
-                if (tokens->type != TKN_ASSIGN)
-                {
-                    TreeFree(root);
-                    return LeaveException(UnexpectedNear, old->value, old->file);
-                }
-
                 tokens = tokens->next;
-                AST content = ParseExpression(&tokens, 0xF);
+                ast_t content = soare_parse_expression(&tokens, 0xF);
 
                 if (!content)
                 {
-                    TreeFree(root);
-                    return LeaveException(ValueError, old->value, old->file);
+                    soare_tree_free(root);
+                    return soare_leave_exception(ValueError, old->value, old->file);
                 }
 
-                /**
-                 *
-                 *      \
-                 *     (varname)
-                 *         |
-                 *      (value)
-                 *
-                 */
-
-                Node *memset = Branch(old->value, NODE_MEMSET, old->file);
-                BranchJoin(memset, content);
-                BranchJoin(curr, memset);
+                ast_t memset = soare_new_node(old->value, NODE_MEMSET, old->file);
+                soare_tree_join(memset, content);
+                soare_tree_join(curr, memset);
                 break;
             }
 
-            tokens = old;
-            AST call = ParseValue(&tokens);
-
-            if (!call)
-            {
-                TreeFree(root);
-                return LeaveException(ValueError, old->value, old->file);
-            }
-
-            /**
-             *
-             *      \
-             *    (function name)
-             *      /
-             *  (arg1)-(arg2)-(arg...)
-             *
-             */
-
-            BranchJoin(curr, call);
-            break;
-
         default:
 
-            TreeFree(root);
-            return LeaveException(UnexpectedNear, old->value, old->file);
+            tokens = old;
+            ast_t expression = soare_parse_expression(&tokens, 0xF);
+
+            if (!expression)
+            {
+                soare_tree_free(root);
+                return soare_leave_exception(UnexpectedNear, old->value, old->file);
+            }
+
+            soare_tree_join(curr, expression);
+            break;
         }
     }
 
     if (soare_errorlevel())
     {
-        TreeFree(root);
+        soare_tree_free(root);
         return NULL;
     }
 
-    allStatementClosed = (bBool)(curr == root);
-    return (AST)root;
+    all_statement_closed = (boolean_t)(curr == root);
+    return root;
 }

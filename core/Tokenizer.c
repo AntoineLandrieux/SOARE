@@ -19,13 +19,13 @@
 #include <SOARE/SOARE.h>
 
 ////////////////////////////////////////////////////////////
-static inline unsigned char chrNum(const char character)
+static inline unsigned char chr_num(const char character)
 {
     return (character >= '0' && character <= '9') || character == '.';
 }
 
 ////////////////////////////////////////////////////////////
-static inline unsigned char chrAlpha_(const char character)
+static inline unsigned char chr_alpha_(const char character)
 {
     return ((character >= 'a' && character <= 'z') ||
             (character >= 'A' && character <= 'Z') ||
@@ -33,26 +33,26 @@ static inline unsigned char chrAlpha_(const char character)
 }
 
 ////////////////////////////////////////////////////////////
-static inline unsigned char chrAlnum_(const char character)
+static inline unsigned char chr_alnum_(const char character)
 {
-    return chrAlpha_(character) || chrNum(character);
+    return chr_alpha_(character) || chr_num(character);
 }
 
 ////////////////////////////////////////////////////////////
-static inline unsigned char chrSpace(const char character)
+static inline unsigned char chr_space(const char character)
 {
     return (character == ' ' || character == '\t' ||
             character == '\r' || character == '\n');
 }
 
 ////////////////////////////////////////////////////////////
-static inline unsigned char chrOperator(const char character)
+static inline unsigned char chr_operator(const char character)
 {
     return strchr("<,:+-^*/%>", character) != NULL;
 }
 
 ////////////////////////////////////////////////////////////
-static inline unsigned char strOperator(char *string)
+static inline unsigned char str_operator(char *string)
 {
     return (
         //
@@ -68,7 +68,7 @@ static inline unsigned char strOperator(char *string)
 }
 
 ////////////////////////////////////////////////////////////
-static inline unsigned char strKeyword(char *string)
+static inline unsigned char str_keyword(char *string)
 {
     return (
         //
@@ -87,25 +87,27 @@ static inline unsigned char strKeyword(char *string)
         !strcmp(KEYWORD_IFERROR, string) ||
         !strcmp(KEYWORD_LOADIMPORT, string) ||
         // Custom keyword
-        soare_is_custom_keyword(string)
+        soare_get_keyword(string)
         //
     );
 }
 
 ////////////////////////////////////////////////////////////
-static inline token_type Symbol(char *string)
+static inline token_type_t symbol(char *string)
 {
-    return strKeyword(string) ? TKN_KEYWORD : TKN_NAME;
+    return str_keyword(string) ? TKN_KEYWORD : TKN_NAME;
 }
 
 ////////////////////////////////////////////////////////////
-static void TranslateEscapeSequence(char *string)
+static void translate_escape_sequence(tokens_t *token)
 {
     // Translate Escape Sequence
     // <https://github.com/AntoineLandrieux/EscapeSequenceC/>
 
-    if (!string)
+    if (!token)
         return;
+
+    char *string = token->value;
 
     char *chr = string;
     char *end = string + strlen(string);
@@ -154,7 +156,7 @@ static void TranslateEscapeSequence(char *string)
         case 'x':
             if (!sscanf(chr + 2, "%2x", &num))
             {
-                LeaveException(InvalidEscapeSequence, chr, EmptyDocument());
+                soare_leave_exception(InvalidEscapeSequence, chr, token->file);
                 return;
             }
             *chr = (char)num;
@@ -171,7 +173,7 @@ static void TranslateEscapeSequence(char *string)
         case '7':
             if (!sscanf(chr + 1, "%3o", &num))
             {
-                LeaveException(InvalidEscapeSequence, chr, EmptyDocument());
+                soare_leave_exception(InvalidEscapeSequence, chr, token->file);
                 return;
             }
             *chr = (char)num;
@@ -186,7 +188,7 @@ static void TranslateEscapeSequence(char *string)
             break;
 
         default:
-            LeaveException(InvalidEscapeSequence, chr, EmptyDocument());
+            soare_leave_exception(InvalidEscapeSequence, chr, token->file);
             return;
         }
 
@@ -196,11 +198,11 @@ static void TranslateEscapeSequence(char *string)
 }
 
 ////////////////////////////////////////////////////////////
-Document EmptyDocument(void)
+document_t soare_empty_document(void)
 {
-    Document document;
+    document_t document;
 
-    document.file = NULL;
+    document.filename = NULL;
     document.ln = 0;
     document.col = 0;
 
@@ -208,9 +210,9 @@ Document EmptyDocument(void)
 }
 
 ////////////////////////////////////////////////////////////
-Tokens *Token(char *__restrict__ filename, char *__restrict__ value, token_type type)
+tokens_t *soare_new_tokens(char *__restrict__ filename, char *__restrict__ value, token_type_t type)
 {
-    Tokens *token = (Tokens *)malloc(sizeof(Tokens));
+    tokens_t *token = (tokens_t *)malloc(sizeof(tokens_t));
 
     if (!token)
         return __SOARE_OUT_OF_MEMORY();
@@ -220,7 +222,7 @@ Tokens *Token(char *__restrict__ filename, char *__restrict__ value, token_type 
 
     token->file.ln = 0;
     token->file.col = 0;
-    token->file.file = filename;
+    token->file.filename = filename;
 
     token->next = NULL;
 
@@ -228,69 +230,15 @@ Tokens *Token(char *__restrict__ filename, char *__restrict__ value, token_type 
 }
 
 ////////////////////////////////////////////////////////////
-unsigned char TokensFollowPattern(Tokens *tokens, unsigned int iteration, ...)
-{
-    va_list args;
-    va_start(args, iteration);
-    unsigned char result = 1;
-
-    for (unsigned int i = 0; result && i < iteration; i++)
-    {
-        result = va_arg(args, token_type) == tokens->type;
-        tokens = tokens->next;
-        result = result && (tokens || i - 1 == iteration);
-    }
-
-    va_end(args);
-    return result;
-}
-
-////////////////////////////////////////////////////////////
-void TokensFree(Tokens *token)
+void soare_tokens_free(tokens_t *token)
 {
     if (!token)
         return;
 
-    TokensFree(token->next);
+    soare_tokens_free(token->next);
     free(token->value);
     free(token);
 }
-
-#ifdef __SOARE_DEBUG
-
-////////////////////////////////////////////////////////////
-void TokensLog(Tokens *token)
-{
-    if (!token)
-        return;
-
-    /**
-     *
-     * Example:
-     *
-     * [TOKENS] [test.soare:00001:00001, 09, "write"]
-     * [TOKENS] [test.soare:00001:00007, 03, "Hello"]
-     * [TOKENS] [test.soare:00001:00014, 0B, ";"]
-     * [TOKENS] [test.soare:00000:00000, 00, "EOF"]
-     *
-     */
-
-    soare_write(
-        //
-        __soare_stdout,
-        "[TOKENS] [%s:%.5lld:%.5lld, %.2X, \"%s\"]\n",
-        token->file.file,
-        token->file.ln,
-        token->file.col,
-        token->type,
-        token->value
-        //
-    );
-
-    TokensLog(token->next);
-}
-
-#endif
 
 ////////////////////////////////////////////////////////////
 static char *strcut(const char *string, size_t size)
@@ -320,13 +268,13 @@ static inline void updateln(unsigned long long *__restrict__ ln, unsigned long l
 }
 
 ////////////////////////////////////////////////////////////
-Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
+tokens_t *soare_tokenizer(char *__restrict__ filename, char *__restrict__ text)
 {
     if (!text)
         return NULL;
 
-    Tokens *token = Token(filename, NULL, TKN_EOF);
-    Tokens *curr = token;
+    tokens_t *token = soare_new_tokens(filename, NULL, TKN_EOF);
+    tokens_t *curr = token;
 
     // Line/Column
     unsigned long long ln = 1;
@@ -337,12 +285,12 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
         // Check for errors
         if (soare_errorlevel())
         {
-            TokensFree(token);
+            soare_tokens_free(token);
             return NULL;
         }
 
         // Ignore space sequence
-        if (chrSpace(*text))
+        if (chr_space(*text))
         {
             col++;
             // Check if there is a new line
@@ -363,7 +311,7 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
             continue;
         }
 
-        token_type type = TKN_EOF;
+        token_type_t type = TKN_EOF;
         unsigned long long offset = 1;
 
         curr->file.ln = ln;
@@ -379,7 +327,7 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
         };
 
         // Check if the string (operator) is an operator
-        if (strOperator(operator))
+        if (str_operator(operator))
         {
             offset += 1;
             type = TKN_OPERATOR;
@@ -400,20 +348,20 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
             type = TKN_SEMICOLON;
 
         // Operator
-        else if (chrOperator(*text))
+        else if (chr_operator(*text))
             type = TKN_OPERATOR;
 
         // Name
-        else if (chrAlpha_(*text))
+        else if (chr_alpha_(*text))
         {
-            for (; chrAlnum_(text[offset]); offset++)
+            for (; chr_alnum_(text[offset]); offset++)
                 /* pass */;
         }
 
         // Number (int, float)
-        else if (chrNum(*text))
+        else if (chr_num(*text))
         {
-            for (type = TKN_NUMBER; chrNum(text[offset]); offset++)
+            for (type = TKN_NUMBER; chr_num(text[offset]); offset++)
                 /* pass */;
         }
 
@@ -438,24 +386,24 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
         // Error: `CharacterError`
         else
         {
-            LeaveException(CharacterError, text, curr->file);
+            soare_leave_exception(CharacterError, text, curr->file);
             continue;
         }
 
         // Add token
         curr->value = strcut(text, offset);
         if (type == TKN_STRING)
-            TranslateEscapeSequence(curr->value);
+            translate_escape_sequence(curr);
 
-        curr->type = !type ? Symbol(curr->value) : type;
-        curr->next = Token(filename, NULL, TKN_EOF);
+        curr->type = !type ? symbol(curr->value) : type;
+        curr->next = soare_new_tokens(filename, NULL, TKN_EOF);
 
         curr = curr->next;
 
         offset += type == TKN_STRING;
 
         // Update text pointer
-        for (unsigned long long i = 0; i < offset; i++)
+        for (size_t i = 0; i < offset; i++)
         {
             col++;
             if (*text == '\n')
@@ -466,7 +414,6 @@ Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text)
         col += type == TKN_STRING;
     }
 
-    curr->value = strdup("EOF");
     // Return token
     return token;
 }

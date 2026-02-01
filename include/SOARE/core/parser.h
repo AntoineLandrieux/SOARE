@@ -17,116 +17,104 @@
  */
 
 /**
- * @brief List the different types of nodes
+ * @enum node_type
+ * @brief Different kinds of AST nodes produced by the parser.
  */
 typedef enum node_type
 {
 
-    NODE_ROOT,
-    NODE_BODY,
-    NODE_TRY,
-    NODE_RAISE,
-    NODE_VALUE,
-    NODE_IMPORT,
-    NODE_CALL,
-    NODE_TYPE,
-    NODE_FUNCTION,
-    NODE_MEMNEW,
-    NODE_MEMGET,
-    NODE_MEMSET,
-    NODE_IFERROR,
-    NODE_OPERATOR,
-    NODE_CONDITION,
-    NODE_REPETITION,
-    NODE_BREAK,
-    NODE_RETURN,
-    NODE_STRERROR,
-    NODE_CUSTOM_KEYWORD
+    NODE_ROOT,          /**< Root of the document */
+    NODE_BODY,          /**< Sequence of statements */
+    NODE_TRY,           /**< Try block */
+    NODE_RAISE,         /**< Raise/throw statement */
+    NODE_VALUE,         /**< Literal or value node */
+    NODE_IMPORT,        /**< Import statement */
+    NODE_CALL,          /**< Function call */
+    NODE_TYPE,          /**< Type annotation or cast */
+    NODE_FUNCTION,      /**< Function definition */
+    NODE_MEMNEW,        /**< Memory allocation / variable declaration */
+    NODE_MEMGET,        /**< Memory read */
+    NODE_MEMSET,        /**< Memory write */
+    NODE_IFERROR,       /**< If-error construct */
+    NODE_OPERATOR,      /**< Operator node (+, -, *, /, etc.) */
+    NODE_CONDITION,     /**< Conditional expression */
+    NODE_REPETITION,    /**< Loop/repetition construct */
+    NODE_BREAK,         /**< Break statement */
+    NODE_RETURN,        /**< Return statement */
+    NODE_STRERROR,      /**< String error node */
+    NODE_CUSTOM_KEYWORD /**< Custom keyword handled by the runtime */
 
-} node_type;
+} node_type_t;
 
 /**
- * @brief Structure of a node
+ * @struct node
+ * @brief Represents a node in the parse tree.
+ *
+ * Nodes are linked in a typical tree structure using `child` for the
+ * first child and `sibling` for subsequent children (left-child/right-sibling
+ * representation). `parent` points to the containing node. `file` holds the
+ * source document/location for diagnostics.
  */
 typedef struct node
 {
 
-    // Value
-    char *value;
-    // Type
-    node_type type;
+    char *value;          /**< Node textual value (may be NULL) */
+    node_type_t type;     /**< Node classification */
+    document_t file;      /**< Source document / location */
+    struct node *parent;  /**< Parent node (NULL for root) */
+    struct node *child;   /**< First child node */
+    struct node *sibling; /**< Next sibling node */
 
-    // Document
-    Document file;
-
-    // Node Parent
-    struct node *parent;
-    // Node Child
-    struct node *child;
-    // Node Sibling
-    struct node *sibling;
-
-} Node, *AST;
+} node_t, *ast_t;
 
 /**
- * @brief Check if all statement are closed after parsing tokens
+ * @brief Check that all statements are properly closed after parsing.
  *
- * @return bBool
+ * @return boolean_t Non-zero if all statements are closed, zero otherwise.
  */
-bBool soare_is_all_statement_closed(void);
+boolean_t soare_is_all_statement_closed(void);
 
 /**
- * @brief Create a new node
+ * @brief Create a new AST node (branch) with the specified properties.
  *
- * @param value
- * @param type
- * @param file
- * @return Node*
+ * @param value node_t textual value (copied or owned according to project rules).
+ * @param type  node_t type from `node_type_t`.
+ * @param file  document_t context for the node's source location.
+ * @return node_t* Newly allocated node, or NULL on allocation failure.
  */
-Node *Branch(char *value, node_type type, Document file);
+node_t *soare_new_node(char *value, node_type_t type, document_t file);
 
 /**
- * @brief Add a sibling branch
+ * @brief Append `element` as a sibling of `source`.
  *
- * @param source
- * @param element
- * @return AST
+ * @param source Existing node to which the element will be juxtaposed.
+ * @param element node_t or subtree to append as a sibling.
+ * @return ast_t The resulting AST (typically the head of the list).
  */
-AST BranchJuxtapose(Node *source, AST element);
+ast_t soare_tree_juxtapose(ast_t source, ast_t element);
 
 /**
- * @brief Join 2 branches
+ * @brief Attach `child` as the child of `parent` and return the modified AST.
  *
- * @param parent
- * @param child
- * @return AST
+ * @param parent Parent node to receive the child.
+ * @param child  Child node to attach.
+ * @return AST The updated AST (parent node or head of tree).
  */
-AST BranchJoin(Node *parent, Node *child);
+ast_t soare_tree_join(ast_t parent, ast_t child);
 
 /**
- * @brief Frees the memory allocated by a tree
+ * @brief Recursively free an AST and all owned resources.
  *
- * @param tree
+ * @param tree Root of the tree to free.
  */
-void TreeFree(AST tree);
-
-#ifdef __SOARE_DEBUG
+void soare_tree_free(ast_t tree);
 
 /**
- * @brief Display a tree
+ * @brief Parse a token stream into an AST.
  *
- * @param tree
+ * @param tokens Token stream produced by the tokenizer/lexer.
+ * @return AST Root of the parsed abstract syntax tree, or NULL on parse error.
  */
-void TreeLog(AST tree);
-
-#endif /* __SOARE_DEBUG */
-
-/**
- * @brief Turns a sequence of tokens into a tree (AST)
- *
- * @param tokens
- * @return AST
- */
-AST Parse(Tokens *tokens);
+ast_t soare_parser(tokens_t *tokens);
 
 #endif /* __SOARE_PARSER_H__ */

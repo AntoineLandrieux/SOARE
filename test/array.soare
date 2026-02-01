@@ -21,7 +21,7 @@ fn is_vowel(s; idx)
 
   let ch = s:idx;
   let vowels = "AEIOUYaeiouyÀÁÂÃÄÅàáâãäåÈÉÊËèéêëÌÍÎÏìíîïÒÓÔÕÖòóôõöÙÚÛÜùúûü";
-  return find(vowels; ch) != (0-1);
+  return find(vowels; s:idx) != (0-1);
 
 end;
 

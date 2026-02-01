@@ -62,28 +62,27 @@ IF NOT errorlevel 0 ECHO Error when update REG (try to run as an Administrator)
 ECHO Creating file...
 MKDIR %install_path%
 
-FOR %%i IN ("%CD%\bin\soare.exe" "%CD%\LICENSE" "%CD%\README.md") DO (
+FOR %%i IN ("%CD%\LICENSE" "%CD%\README.md") DO (
     IF NOT EXIST "%%i" (
         ECHO "File %%i" is missing...
         GOTO :end
     )
 )
 
-FOR %%i IN ("%CD%\lib\" "%CD%\include\" "%CD%\doc\" "%CD%\resources\" "%CD%\script\" "%CD%\windows\") DO (
+FOR %%i IN ("%CD%\bin\" "%CD%\include\" "%CD%\doc\" "%CD%\resources\" "%CD%\script\" "%CD%\windows\") DO (
     IF NOT EXIST "%%i" (
         ECHO "Folder %%i" is missing...
         GOTO :end
     )
 )
 
-COPY "%CD%\bin\soare.exe" "%install_path%\soare.exe"
 COPY "%CD%\LICENSE" "%install_path%\LICENSE"
 COPY "%CD%\README.md" "%install_path%\README.md"
 
+ECHO R | XCOPY "%CD%\bin\" "%install_path%\bin" /S /E
 ECHO R | XCOPY "%CD%\include\" "%install_path%\include" /S /E
-ECHO R | XCOPY "%CD%\lib\" "%install_path%\lib" /S /E
 ECHO R | XCOPY "%CD%\doc\" "%install_path%\doc" /S /E
-ECHO R | XCOPY "%CD%\script\" "%install_path%\script\" /S /E
+ECHO R | XCOPY "%CD%\script\" "%install_path%\script" /S /E
 ECHO R | XCOPY "%CD%\resources\" "%install_path%\resources" /S /E
 ECHO R | XCOPY "%CD%\windows\" "%install_path%\windows" /S /E
 

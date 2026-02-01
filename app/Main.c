@@ -1,12 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <signal.h>
 
 #include <SOARE/SOARE.h>
 
-#include "predefined.h"
+#include "../modules/module.h"
+
+/**
+ *  _____  _____  ___  ______ _____
+ * /  ___||  _  |/ _ \ | ___ \  ___|
+ * \ `--. | | | / /_\ \| |_/ / |__
+ *  `--. \| | | |  _  ||    /|  __|
+ * /\__/ /\ \_/ / | | || |\ \| |___
+ * \____/  \___/\_| |_/\_| \_\____/
+ *
+ * Antoine LANDRIEUX (MIT License) <Main.c>
+ * <https://github.com/AntoineLandrieux/SOARE/>
+ *
+ */
 
 static char *buffer = NULL;
 
@@ -34,7 +46,7 @@ static void loadfile(const char *filename)
 
     if (!file)
     {
-        LeaveException(FileError, filename, EmptyDocument());
+        soare_leave_exception(FileError, filename, soare_empty_document());
         return;
     }
 
@@ -60,7 +72,7 @@ int Files(int argc, char *argv[])
     for (int i = 1; i < argc; i++)
     {
         loadfile(argv[i]);
-        free(Execute(argv[i], buffer));
+        free(soare_execute(argv[i], buffer));
         free(buffer);
         buffer = NULL;
     }
@@ -72,7 +84,6 @@ int Files(int argc, char *argv[])
 ////////////////////////////////////////////////////////////
 int Console()
 {
-    // Console mode
     printf(
         //
         "SOARE " SOARE_VERSION " [" __PLATFORM__ " - Antoine LANDRIEUX (MIT License)]\n"
@@ -94,12 +105,12 @@ int Console()
                 // >>> write("hello")
                 // hello
                 // >>>
-                buffer = strdup(" ");
+                buffer = strdup("");
                 printf("\033[35m\n>>> \033[0m");
             }
             else
             {
-                // >>> if 1
+                // >>> if (1)
                 // ...   write("hello")
                 // ... end
                 // hello
@@ -119,18 +130,17 @@ int Console()
             buffer = append(buffer, user);
 
             // Parse for check if all statement closed
-            Tokens *tokens = Tokenizer("<input>", buffer);
-            TreeFree(Parse(tokens));
-            TokensFree(tokens);
+            tokens_t *tokens = soare_tokenizer("<input>", buffer);
+            soare_tree_free(soare_parser(tokens));
+            soare_tokens_free(tokens);
 
         } while (!soare_is_all_statement_closed() && !soare_errorlevel());
 
         if (!soare_errorlevel())
         {
-            // Run code
             char *result = NULL;
 
-            if ((result = Execute("<input>", buffer)))
+            if ((result = soare_execute("<input>", buffer)))
             {
                 printf("\033[32m\n%s\033[0m", result);
                 free(result);
@@ -181,8 +191,7 @@ static inline void handle_signal(void)
 int main(int argc, char *argv[])
 {
     handle_signal();
-    soare_init();
-    predefined_functions();
+    load_module();
 
     if (argc > 1)
         return Files(argc, argv);

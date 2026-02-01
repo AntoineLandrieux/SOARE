@@ -1,14 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <assert.h>
-
 #include <time.h>
 
 #include <SOARE/SOARE.h>
 
-#include "predefined.h"
+#include "module.h"
+
+/**
+ *  _____  _____  ___  ______ _____
+ * /  ___||  _  |/ _ \ | ___ \  ___|
+ * \ `--. | | | / /_\ \| |_/ / |__
+ *  `--. \| | | |  _  ||    /|  __|
+ * /\__/ /\ \_/ / | | || |\ \| |___
+ * \____/  \___/\_| |_/\_| \_\____/
+ *
+ * Antoine LANDRIEUX (MIT License) <Module.c>
+ * <https://github.com/AntoineLandrieux/SOARE/>
+ *
+ */
 
 ////////////////////////////////////////////////////////////
 static inline char *__byte_to_string(unsigned char byte)
@@ -19,23 +30,23 @@ static inline char *__byte_to_string(unsigned char byte)
 }
 
 ////////////////////////////////////////////////////////////
-char *__soare_eval(soare_arguments_list args)
+char *__soare_eval(soare_arguments_list_t args)
 {
-    char *code = soare_getarg(args, 0);
+    char *code = soare_get_argument(args, 0);
 
     if (!code)
         return NULL;
 
-    char *value = Execute("<eval>", code);
+    char *value = soare_execute("<eval>", code);
     free(code);
 
     return value;
 }
 
 ////////////////////////////////////////////////////////////
-char *__soare_exit(soare_arguments_list args)
+char *__soare_exit(soare_arguments_list_t args)
 {
-    char *code = soare_getarg(args, 0);
+    char *code = soare_get_argument(args, 0);
     int status = !code ? 0 : atoi(code);
 
     free(code);
@@ -45,7 +56,7 @@ char *__soare_exit(soare_arguments_list args)
 }
 
 ////////////////////////////////////////////////////////////
-char *__soare_timestamp(soare_arguments_list args)
+char *__soare_timestamp(soare_arguments_list_t args)
 {
     (void)args;
     char timestamp[20];
@@ -54,7 +65,7 @@ char *__soare_timestamp(soare_arguments_list args)
 }
 
 ////////////////////////////////////////////////////////////
-char *__soare_system(soare_arguments_list args)
+char *__soare_system(soare_arguments_list_t args)
 {
     int result = 0;
     char *value = NULL;
@@ -62,7 +73,7 @@ char *__soare_system(soare_arguments_list args)
     // Loop through all arguments and execute them as system commands
     for (unsigned int i = 0; 1; i++)
     {
-        if (!(value = soare_getarg(args, i)))
+        if (!(value = soare_get_argument(args, i)))
             break;
 
         result |= system(value);
@@ -80,17 +91,17 @@ char *__soare_system(soare_arguments_list args)
 }
 
 ////////////////////////////////////////////////////////////
-char *__write(FILE *stream, soare_arguments_list args)
+char *__write(FILE *stream, soare_arguments_list_t args)
 {
     char *value = NULL;
 
     // Loop through all arguments and print them
     for (unsigned int i = 0; 1; i++)
     {
-        if (!(value = soare_getarg(args, i)))
+        if (!(value = soare_get_argument(args, i)))
             break;
 
-        fprintf(stream, "%s", value);
+        soare_write(stream, "%s", value);
         free(value);
     }
 
@@ -98,9 +109,9 @@ char *__write(FILE *stream, soare_arguments_list args)
 }
 
 ////////////////////////////////////////////////////////////
-char *__soare_input(soare_arguments_list args)
+char *__soare_input(soare_arguments_list_t args)
 {
-    __write(stdout, args);
+    __write(__soare_stdout, args);
 
     char input[__SOARE_MAX_INPUT__];
 
@@ -117,21 +128,21 @@ char *__soare_input(soare_arguments_list args)
 }
 
 ////////////////////////////////////////////////////////////
-char *__soare_write(soare_arguments_list args)
+char *__soare_write(soare_arguments_list_t args)
 {
-    return __write(stdout, args);
+    return __write(__soare_stdout, args);
 }
 
 ////////////////////////////////////////////////////////////
-char *__soare_werr(soare_arguments_list args)
+char *__soare_werr(soare_arguments_list_t args)
 {
-    return __write(stderr, args);
+    return __write(__soare_stderr, args);
 }
 
 ////////////////////////////////////////////////////////////
-char *__soare_random(soare_arguments_list args)
+char *__soare_random(soare_arguments_list_t args)
 {
-    char *seed = soare_getarg(args, 0);
+    char *seed = soare_get_argument(args, 0);
 
     if (!seed)
         return NULL;
@@ -143,9 +154,9 @@ char *__soare_random(soare_arguments_list args)
 }
 
 ////////////////////////////////////////////////////////////
-char *__soare_chr(soare_arguments_list args)
+char *__soare_chr(soare_arguments_list_t args)
 {
-    char *value = soare_getarg(args, 0);
+    char *value = soare_get_argument(args, 0);
 
     if (!value)
         return NULL;
@@ -159,9 +170,9 @@ char *__soare_chr(soare_arguments_list args)
 }
 
 ////////////////////////////////////////////////////////////
-char *__soare_ord(soare_arguments_list args)
+char *__soare_ord(soare_arguments_list_t args)
 {
-    char *value = soare_getarg(args, 0);
+    char *value = soare_get_argument(args, 0);
 
     if (!value)
         return NULL;
@@ -173,21 +184,20 @@ char *__soare_ord(soare_arguments_list args)
 }
 
 ////////////////////////////////////////////////////////////
-void predefined_functions(void)
+void load_module(void)
 {
-    /* Interpreter */
-    assert(soare_addfunction("eval", __soare_eval));
-    assert(soare_addfunction("exit", __soare_exit));
-    assert(soare_addfunction("system", __soare_system));
-    assert(soare_addfunction("time", __soare_timestamp));
-
-    /* Number / String */
-    assert(soare_addfunction("random", __soare_random));
-    assert(soare_addfunction("chr", __soare_chr));
-    assert(soare_addfunction("ord", __soare_ord));
-
-    /* Input / Output */
-    assert(soare_addfunction("input", __soare_input));
-    assert(soare_addfunction("write", __soare_write));
-    assert(soare_addfunction("werr", __soare_werr));
+    assert(soare_add_function("eval", /*    */ __soare_eval));
+    assert(soare_add_function("exit", /*    */ __soare_exit));
+    assert(soare_add_function("system", /*  */ __soare_system));
+    assert(soare_add_function("time", /*    */ __soare_timestamp));
+    assert(soare_add_function("random", /*  */ __soare_random));
+    assert(soare_add_function("chr", /*     */ __soare_chr));
+    assert(soare_add_function("ord", /*     */ __soare_ord));
+    assert(soare_add_function("input", /*   */ __soare_input));
+    assert(soare_add_function("write", /*   */ __soare_write));
+    assert(soare_add_function("werr", /*    */ __soare_werr));
+    assert(soare_add_variable("false", /*   */ "0", /*            */ bFalse));
+    assert(soare_add_variable("true", /*    */ "1", /*            */ bFalse));
+    assert(soare_add_variable("null", /*    */ "", /*             */ bFalse));
+    assert(soare_add_variable("version", /* */ SOARE_VERSION, /*  */ bFalse));
 }

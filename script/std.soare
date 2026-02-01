@@ -10,11 +10,6 @@
 ? Antoine LANDRIEUX (MIT License) <std.soare>
 ? <https://github.com/AntoineLandrieux/SOARE/>
 ?
-? Included Constants:
-?   - false
-?   - true
-?   - null
-?
 ? Included Functions:
 ?   - bool
 ?   - find
@@ -22,10 +17,7 @@
 ?   - reverse
 ?   - sleep
 
-let false = 0;
-let true = 1;
-
-let null = "";
+write("[!] File std.soare loaded.\n");
 
 ?
 ? Convert value to boolean
@@ -69,15 +61,21 @@ end;
 ? including spaces and special characters
 ?
 fn len(string)
+  write("len[0]\n");
   let i = 0;
-  let t = "";
-
+  write("len[1]\n");
+  let t = " ";
+  write("len[2]\n");
+    write(i;"\n");
+    write(string;"\n");
   while (1)
+
     try
       t = string:i;
     iferror
       return i;
     end;
+
     i = i + 1;
   end;
 end;
