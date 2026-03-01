@@ -1,5 +1,5 @@
 #ifndef __SOARE__
-#define __SOARE__ 0x1
+#define __SOARE__
 
 /* #pragma once */
 
@@ -18,15 +18,12 @@
 
 /**
  * @def SOARE_VERSION
- * @brief SOARE version string.
+ * @brief SOARE version string
  *
  * The string follows the project's internal versioning format
- * (prefix letter + semantic version).
+ * (prefix letter + semantic version)
  */
-#define SOARE_VERSION "Rv1.3.2"
-
-/* SOARE max input */
-#define __SOARE_MAX_INPUT__ 255
+#define SOARE_VERSION "Rv1.4.0"
 
 /* Standard input */
 #define __soare_stdin stdin
@@ -35,10 +32,10 @@
 /* Standard output (error) */
 #define __soare_stderr stderr
 
-/** @brief Print helper (wrapper for fprintf). */
+/** @brief Print helper */
 #define soare_write fprintf
-/** @brief Read a line from standard input into `__buffer`. */
-#define soare_input(__buffer) fgets(__buffer, __SOARE_MAX_INPUT__, __soare_stdin)
+/** @brief Read a line from standard input into `__buffer` */
+#define soare_input(__buffer, __max_count) fgets(__buffer, __max_count, __soare_stdin)
 
 #ifdef __cplusplus
 /**
@@ -52,25 +49,25 @@ namespace SOARE
 
         /**
          * @enum boolean
-         * @brief Simple boolean type used throughout the codebase.
+         * @brief Simple boolean type
          */
         typedef enum boolean
         {
 
-            bFalse, /**< False value (0) */
+            bFalse, /**< False value (zero)    */
             bTrue   /**< True value (non-zero) */
 
         } boolean_t;
 
         /**
          * @struct document
-         * @brief Source location descriptor used for diagnostics.
+         * @brief Source location descriptor used for diagnostics
          */
         typedef struct document
         {
 
-            char *filename;         /**< Filename */
-            unsigned long long ln;  /**< 1-based line number */
+            char *filename;         /**< Filename              */
+            unsigned long long ln;  /**< 1-based line number   */
             unsigned long long col; /**< 1-based column number */
 
         } document_t;

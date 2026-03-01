@@ -1,5 +1,5 @@
 #ifndef __SOARE_PARSER_H__
-#define __SOARE_PARSER_H__ 0x1
+#define __SOARE_PARSER_H__
 
 /* #pragma once */
 
@@ -18,7 +18,7 @@
 
 /**
  * @enum node_type
- * @brief Different kinds of AST nodes produced by the parser.
+ * @brief Different kinds of AST nodes produced by the parser
  */
 typedef enum node_type
 {
@@ -48,72 +48,67 @@ typedef enum node_type
 
 /**
  * @struct node
- * @brief Represents a node in the parse tree.
- *
- * Nodes are linked in a typical tree structure using `child` for the
- * first child and `sibling` for subsequent children (left-child/right-sibling
- * representation). `parent` points to the containing node. `file` holds the
- * source document/location for diagnostics.
+ * @brief Represents a node in the parse tree
  */
 typedef struct node
 {
 
-    char *value;          /**< Node textual value (may be NULL) */
-    node_type_t type;     /**< Node classification */
+    char *value;          /**< Node textual value         */
+    node_type_t type;     /**< Node classification        */
     document_t file;      /**< Source document / location */
-    struct node *parent;  /**< Parent node (NULL for root) */
-    struct node *child;   /**< First child node */
-    struct node *sibling; /**< Next sibling node */
+    struct node *parent;  /**< Parent node                */
+    struct node *child;   /**< First child node           */
+    struct node *sibling; /**< Next sibling node          */
 
 } node_t, *ast_t;
 
 /**
- * @brief Check that all statements are properly closed after parsing.
+ * @brief Check that all statements are properly closed after parsing
  *
- * @return boolean_t Non-zero if all statements are closed, zero otherwise.
+ * @return boolean_t Non-zero if all statements are closed, zero otherwise
  */
 boolean_t soare_is_all_statement_closed(void);
 
 /**
- * @brief Create a new AST node (branch) with the specified properties.
+ * @brief Create a new AST node (branch) with the specified properties
  *
- * @param value node_t textual value (copied or owned according to project rules).
- * @param type  node_t type from `node_type_t`.
- * @param file  document_t context for the node's source location.
- * @return node_t* Newly allocated node, or NULL on allocation failure.
+ * @param value node_t textual value (copied or owned according to project rules)
+ * @param type node_t type from `node_type_t`
+ * @param file document_t context for the node's source location
+ * @return node_t* Allocated node, or NULL on allocation failure
  */
 node_t *soare_new_node(char *value, node_type_t type, document_t file);
 
 /**
- * @brief Append `element` as a sibling of `source`.
+ * @brief Append `element` as a sibling of `source`
  *
- * @param source Existing node to which the element will be juxtaposed.
- * @param element node_t or subtree to append as a sibling.
- * @return ast_t The resulting AST (typically the head of the list).
+ * @param source Existing node to which the element will be juxtaposed
+ * @param element node_t or subtree to append as a sibling
+ * @return ast_t The resulting AST
  */
 ast_t soare_tree_juxtapose(ast_t source, ast_t element);
 
 /**
- * @brief Attach `child` as the child of `parent` and return the modified AST.
+ * @brief Attach `child` as the child of `parent` and return the modified AST
  *
- * @param parent Parent node to receive the child.
- * @param child  Child node to attach.
- * @return AST The updated AST (parent node or head of tree).
+ * @param parent Parent node to receive the child
+ * @param child Child node to attach
+ * @return AST The updated AST
  */
 ast_t soare_tree_join(ast_t parent, ast_t child);
 
 /**
- * @brief Recursively free an AST and all owned resources.
+ * @brief Recursively free an AST and all owned resources
  *
- * @param tree Root of the tree to free.
+ * @param tree Root of the tree to free
  */
 void soare_tree_free(ast_t tree);
 
 /**
- * @brief Parse a token stream into an AST.
+ * @brief Parse a token stream into an AST
  *
- * @param tokens Token stream produced by the tokenizer/lexer.
- * @return AST Root of the parsed abstract syntax tree, or NULL on parse error.
+ * @param tokens Token stream produced by the tokenizer/lexer
+ * @return AST Root of the parsed abstract syntax tree, or NULL on parse error
  */
 ast_t soare_parser(tokens_t *tokens);
 

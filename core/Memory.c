@@ -24,34 +24,34 @@ Example: Custom Function - Add Numbers with Variable Arguments
 ==============================================================
 
 This example demonstrates how to implement a custom function
-that adds together an unknown number of integer arguments.
+that adds together an unknown number of integer arguments
 
 ----------------------------------------------------------
 Function Name:
     char *int_add(soare_arguments_list_t args)
 
 Arguments:
-    - args: A linked list of arguments passed to the function.
+    - args: A linked list of arguments passed to the function
         Use soare_get_argument(args, i) to retrieve the i-th argument
-        as a string.
+        as a string
 
 Return Value:
-    - Returns NULL (no value returned to SOARE).
+    - Returns NULL (no value returned to SOARE)
     - If you want to return a value, allocate memory for the
-        result string before returning.
+        result string before returning
 
 ----------------------------------------------------------
 Implementation Steps:
-    1. Initialize result accumulator.
-    2. Loop through arguments using soare_get_argument.
-    3. Convert each argument from string to integer.
-    4. Add to result.
-    5. Print the result.
-    6. Return NULL (or a string if needed).
+    1. Initialize result accumulator
+    2. Loop through arguments using soare_get_argument
+    3. Convert each argument from string to integer
+    4. Add to result
+    5. Print the result
+    6. Return NULL (or a string if needed)
 
 ----------------------------------------------------------
 Memory Management:
-    - If returning a string, always allocate memory for it.
+    - If returning a string, always allocate memory for it
     - Example:
         char *ret = malloc(6 * sizeof(char));
         if (!ret)
@@ -109,14 +109,19 @@ static soare_functions_t *functions_list_ptr = NULL;
 soare_functions_t *soare_add_function(char *name, char *(*function)(soare_arguments_list_t))
 {
     if (!name || !function)
+    {
         return NULL;
+    }
 
     soare_functions_t *node = (soare_functions_t *)malloc(sizeof(soare_functions_t));
 
     if (!node)
-        return __SOARE_OUT_OF_MEMORY();
+    {
+        SOARE_OUT_OF_MEMORY();
+        return NULL;
+    }
 
-    node->name = name;
+    node->name = strdup(name);
     node->exec = function;
     node->next = NULL;
 
@@ -137,8 +142,12 @@ soare_functions_t *soare_add_function(char *name, char *(*function)(soare_argume
 soare_functions_t *soare_get_function(char *name)
 {
     for (soare_functions_t *function = functions_list; function; function = function->next)
-        if (!strcmp(function->name, name))
+    {
+        if (function->name && !strcmp(function->name, name))
+        {
             return function;
+        }
+    }
     return NULL;
 }
 
@@ -150,6 +159,7 @@ void soare_clear_functions(void)
     while (list)
     {
         soare_functions_t *next = list->next;
+        free(list->name);
         free(list);
         list = next;
     }
@@ -162,7 +172,9 @@ void soare_clear_functions(void)
 char *soare_get_argument(soare_arguments_list_t args, unsigned int position)
 {
     for (; position && args; position--)
+    {
         args = args->sibling;
+    }
     return soare_math(args);
 }
 
@@ -172,7 +184,7 @@ char *soare_get_argument(soare_arguments_list_t args, unsigned int position)
 Example: Custom Keyword - Clear screen
 ==============================================================
 
-This example demonstrates how to implement a custom keyword.
+This example demonstrates how to implement a custom keyword
 
 ----------------------------------------------------------
 Function Name:
@@ -204,14 +216,19 @@ static soare_keywords_t *keywords_list_ptr = NULL;
 soare_keywords_t *soare_add_keyword(char *name, void (*keyword)(void))
 {
     if (!name || !keyword)
+    {
         return NULL;
+    }
 
     soare_keywords_t *node = (soare_keywords_t *)malloc(sizeof(soare_keywords_t));
 
     if (!node)
-        return __SOARE_OUT_OF_MEMORY();
+    {
+        SOARE_OUT_OF_MEMORY();
+        return NULL;
+    }
 
-    keywords_list_ptr->name = name;
+    keywords_list_ptr->name = strdup(name);
     keywords_list_ptr->exec = keyword;
     keywords_list_ptr->next = NULL;
 
@@ -232,8 +249,12 @@ soare_keywords_t *soare_add_keyword(char *name, void (*keyword)(void))
 soare_keywords_t *soare_get_keyword(char *name)
 {
     for (soare_keywords_t *keyword = keywords_list; keyword; keyword = keyword->next)
-        if (!strcmp(keyword->name, name))
+    {
+        if (keyword->name && !strcmp(keyword->name, name))
+        {
             return keyword;
+        }
+    }
     return NULL;
 }
 
@@ -245,6 +266,7 @@ void soare_clear_keywords(void)
     while (list)
     {
         soare_keywords_t *next = list->next;
+        free(list->name);
         free(list);
         list = next;
     }
@@ -259,7 +281,7 @@ void soare_clear_keywords(void)
 Example: Custom Variable - Boolean
 ==============================================================
 
-This example demonstrates how to implement a custom variable.
+This example demonstrates how to implement a custom variable
 
 ----------------------------------------------------------
 Code:
@@ -277,6 +299,9 @@ soare_add_variable("false", bool_false, 0);
 
 */
 
+/* Current scope level */
+static unsigned long long scope = 0;
+
 /* Variables */
 static soare_variables_t *variables_list = NULL;
 static soare_variables_t *variables_list_ptr = NULL;
@@ -285,20 +310,30 @@ static soare_variables_t *variables_list_ptr = NULL;
 soare_variables_t *soare_add_variable(char *name, char *value, boolean_t mutable)
 {
     if (!name)
+    {
         return NULL;
+    }
 
     soare_variables_t *node = (soare_variables_t *)malloc(sizeof(soare_variables_t));
 
     if (!node)
-        return __SOARE_OUT_OF_MEMORY();
+    {
+        SOARE_OUT_OF_MEMORY();
+        return NULL;
+    }
 
-    node->name = name;
-    node->value = value ? strdup(value) : NULL;
-    node->mutable = mutable;
-    node->scope = 0;
+    node->name = strdup(name);
     node->body = NULL;
     node->prev = NULL;
     node->next = NULL;
+    node->value = NULL;
+    node->scope = scope;
+    node->mutable = mutable;
+
+    if (value)
+    {
+        node->value = strdup(value);
+    }
 
     if (!variables_list)
     {
@@ -318,9 +353,59 @@ soare_variables_t *soare_add_variable(char *name, char *value, boolean_t mutable
 soare_variables_t *soare_get_variable(char *name)
 {
     for (soare_variables_t *var = variables_list_ptr; var; var = var->prev)
-        if (!strcmp(var->name, name))
+    {
+        if (var->name && !strcmp(var->name, name))
+        {
             return var;
+        }
+    }
     return NULL;
+}
+
+////////////////////////////////////////////////////////////
+void soare_up_scope(void)
+{
+    scope += 1;
+}
+
+////////////////////////////////////////////////////////////
+void soare_down_scope(void)
+{
+    scope -= scope ? 1 : 0;
+}
+
+////////////////////////////////////////////////////////////
+void soare_clear_scope(void)
+{
+    if (scope <= 1)
+    {
+        return;
+    }
+
+    soare_variables_t *list = variables_list_ptr;
+
+    while (list)
+    {
+        if (list->scope < scope)
+        {
+            soare_down_scope();
+            variables_list_ptr = list;
+            variables_list_ptr->next = NULL;
+            return;
+        }
+
+        soare_variables_t *prev = list->prev;
+
+        free(list->name);
+        free(list->value);
+        free(list);
+
+        list = prev;
+    }
+
+    scope = 0;
+    variables_list = NULL;
+    variables_list_ptr = NULL;
 }
 
 ////////////////////////////////////////////////////////////
@@ -331,34 +416,10 @@ void soare_clear_variables(void)
     while (list)
     {
         soare_variables_t *next = list->next;
+        free(list->name);
         free(list->value);
         free(list);
         list = next;
-    }
-
-    variables_list = NULL;
-    variables_list_ptr = NULL;
-}
-
-////////////////////////////////////////////////////////////
-void soare_clear_variables_scope(unsigned long long scope)
-{
-    soare_variables_t *list = variables_list_ptr;
-
-    while (list)
-    {
-        soare_variables_t *prev = list->prev;
-        list->next = NULL;
-
-        if (list->scope < scope)
-        {
-            variables_list_ptr = list;
-            return;
-        }
-
-        free(list->value);
-        free(list);
-        list = prev;
     }
 
     variables_list = NULL;

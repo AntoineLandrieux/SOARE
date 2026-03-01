@@ -1,5 +1,5 @@
 #ifndef __SOARE_ERROR_H__
-#define __SOARE_ERROR_H__ 0x1
+#define __SOARE_ERROR_H__
 
 /* #pragma once */
 
@@ -18,12 +18,13 @@
 
 /**
  * @enum soare_exceptions
- * @brief Enumerates the different exception types used by the interpreter.
+ * @brief Enumerates the different exception types used by the interpreter
  */
 typedef enum soare_exceptions
 {
 
     InterpreterError,          /**< Generic interpreter error (fatal)       */
+    MemoryError,               /**< Out-Of-Memory failures                  */
     FileError,                 /**< File I/O related error                  */
     CharacterError,            /**< Invalid character encountered           */
     SyntaxError,               /**< Parsing / syntax error                  */
@@ -34,7 +35,7 @@ typedef enum soare_exceptions
     ObjectIsNotCallable,       /**< Attempt to call a non-callable object   */
     VariableDefinedAsFunction, /**< Variable name conflicts with function   */
     AssignConstantVariable,    /**< Assignment to constant variable         */
-    MathError,                 /**< Generic math error (overflow, etc.)     */
+    MathError,                 /**< Generic math error                      */
     InvalidEscapeSequence,     /**< Bad string escape                       */
     IndexOutOfRange,           /**< Indexing outside container bounds       */
     DivideByZero,              /**< Division by zero                        */
@@ -43,57 +44,55 @@ typedef enum soare_exceptions
 } soare_exceptions_t;
 
 /**
- * @brief Retrieve the last formatted exception message.
+ * @brief Retrieve the last formatted exception message
  *
  * @return Pointer to a null-terminated string describing the last error,
- *         or NULL if no error is stored.
+ *         or NULL if no error is stored
  */
 char *soare_get_exception(void);
 
 /**
- * @brief Clear errorlevel.
+ * @brief Clear errorlevel
  *
  */
 void soare_clear_exception(void);
 
 /**
- * @brief Enable or disable displaying exceptions to the user.
+ * @brief Enable or disable displaying exceptions to the user
  *
- * @param ignore Non-zero to suppress error display, zero to enable display.
+ * @param ignore Non-zero to suppress error display, zero to enable display
  */
 void soare_ignore_exception(boolean_t ignore);
 
 /**
- * @brief Query whether exceptions are currently ignored.
+ * @brief Query whether exceptions are currently ignored
  *
- * @return boolean_t non-zero when exceptions are suppressed, zero otherwise.
+ * @return boolean_t non-zero when exceptions are suppressed, zero otherwise
  */
 boolean_t soare_as_ignored_exception(void);
 
 /**
- * @brief Get the current interpreter error level.
+ * @brief Get the current interpreter error level
  *
- * @return An integer error level.
+ * @return An integer error level
  */
 int soare_errorlevel(void);
 
 /**
- * @brief Create and display a new exception.
+ * @brief Create and display a new exception
  *
  * This function records an exception of the given type and associates a
- * human-readable message and source `document_t` (file/position) with it.
- * It returns NULL to allow usage patterns like `return soare_leave_exception(...);`.
+ * human-readable message and source `document_t` (file/position) with it
  *
- * @param error    Exception code from `soare_exceptions_t`.
- * @param string   Descriptive message (format already applied).
- * @param file     Document context where the error occurred.
- * @return void*   Always returns NULL.
+ * @param error    Exception code from `soare_exceptions_t`
+ * @param string   Descriptive message (format already applied)
+ * @param file     Document context where the error occurred
  */
-void *soare_leave_exception(soare_exceptions_t error, const char *string, document_t file);
+void soare_leave_exception(soare_exceptions_t error, const char *string, document_t file);
 
 /**
- * @brief Shorthand macro for out-of-memory failures.
+ * @brief Shorthand macro for out-of-memory failures
  */
-#define __SOARE_OUT_OF_MEMORY() soare_leave_exception(InterpreterError, "OUT OF MEMORY", soare_empty_document())
+#define SOARE_OUT_OF_MEMORY() soare_leave_exception(MemoryError, "OUT OF MEMORY", soare_empty_document())
 
 #endif /* __SOARE_ERROR_H__ */

@@ -22,9 +22,14 @@ CC = gcc
 
 APP = app
 BIN = bin
+LIB = lib
 CORE = core
 MODULES = modules
 INCLUDE = include
+
+
+TEST = test
+EXAMPLES = examples
 
 
 CFLAGS := -Wall
@@ -60,8 +65,11 @@ INTERPRETER_FLAGS :=
 # INTERPRETER_FLAGS += -D __SOARE_DEBUG
 
 
-CORE_OBJS := $(patsubst $(CORE)/%.c, $(BIN)/%.o, $(wildcard $(CORE)/*.c))
-MODULES_OBJS := $(patsubst $(MODULES)/%.c, $(BIN)/%.o, $(wildcard $(MODULES)/*.c))
+CORE_OBJS := $(patsubst $(CORE)/%.c, $(LIB)/%.o, $(wildcard $(CORE)/*.c))
+
+
+TEST_OBJS := $(wildcard $(TEST)/*.soare)
+# TEST_OBJS += $(wildcard $(EXAMPLES)/*.soare)
 
 
 .PHONY: all
@@ -74,51 +82,54 @@ $(BIN):
 	mkdir $(BIN)
 
 
+$(LIB):
+
+	@echo - Make lib directory...
+	mkdir $(LIB)
+
+
 $(RES):
 
-	@echo - Build Windows ressources...
+	@echo - Build Windows resources...
 	$(WINDRES) $(RC) -O coff -o $(RES)
 
 
-$(BIN)/%.o: $(CORE)/%.c
+$(LIB)/%.o: $(CORE)/%.c
 
 	$(CC) -c $< -o $@ -I $(INCLUDE) $(CFLAGS) $(SOARE_FLAGS)
 
 
-$(BIN)/%.o: $(MODULES)/%.c
+$(BIN)/$(BUILD): $(BIN) $(LIB) $(RES) $(CORE_OBJS)
 
-	$(CC) -c $< -o $@ -I $(INCLUDE) $(CFLAGS) $(MODULE_FLAGS)
-
-
-$(BIN)/$(BUILD): $(BIN) $(RES) $(CORE_OBJS) $(MODULES_OBJS)
-
-ifeq ($(OS), Windows_NT)
-	@echo - Build SOARE DLLs Windows...
-	$(CC) -shared $(CORE_OBJS) -o $(BIN)/soare$(VERSION_MAJOR).dll -I $(INCLUDE) $(CFLAGS)
-else
-	@echo - Build SOARE static libraries Unix/macOS...
-	$(AR) rcs $(BIN)/libsoare$(VERSION_MAJOR).a $(CORE_OBJS)
-endif
+	@echo - Build SOARE static libraries...
+	$(AR) rcs $(LIB)/libsoare$(VERSION_MAJOR).a $(CORE_OBJS)
 
 	@echo - Build SOARE interpreter...
-	$(CC) $(RES) $(APP)/*.c $(MODULES)/*.c -o $(BIN)/$(BUILD) -I $(INCLUDE) -L$(BIN) -lsoare$(VERSION_MAJOR) $(CFLAGS) $(INTERPRETER_FLAGS)
+	$(CC) $(RES) $(APP)/*.c $(MODULES)/*.c -o $(BIN)/$(BUILD) -I $(INCLUDE) -L$(LIB) -lsoare$(VERSION_MAJOR) $(CFLAGS) $(INTERPRETER_FLAGS)
 
 	@echo - Remove useless compiled files...
-	rm $(BIN)/*.o
+	rm $(LIB)/*.o
 
 
 .PHONY: run
-run: $(BIN)/$(BUILD)
+run:
 
 	@echo - Run SOARE...
 	$(BIN)/$(BUILD)
 
 
+.PHONY: test
+test:
+
+	@echo - Run SOARE tests...
+	$(BIN)/$(BUILD) $(TEST_OBJS)
+
+
 .PHONY: clean
-clean: $(BIN)
+clean: $(BIN) $(LIB)
 
 	@echo - Remove compiled files...
-	rm -rf $(BIN)
+	rm -rf $(BIN) $(LIB)
 
 
 .PHONY: help
@@ -128,8 +139,9 @@ help:
 	@echo Available targets :
 	@echo ---
 	@echo - make all : Build SOARE 
-	@echo - make run : Build and run SOARE
+	@echo - make run : Run SOARE
 	@echo - make help : Show this help message
+	@echo - make test : Test SOARE with test files
 	@echo - make clean : Remove compiled files
 	@echo
 

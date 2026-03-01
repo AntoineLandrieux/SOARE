@@ -10,11 +10,12 @@ fn assert_equal(a; b; msg)
 
   if (a != b)
     write("FAIL: "; msg; " -> got: '"; a; "' expected: '"; b; "'\n");
+    exit(1);
   else
     write(" OK : "; msg; '\n');
-  end;
+  end
 
-end;
+end
 
 ? Fibonacci implementation (keeps original style with nested Check)
 fn Fib(n)
@@ -27,18 +28,18 @@ fn Fib(n)
       return 0;
     or (x == 2)
       return 1;
-    end;
+    end
 
     return 0-1;
 
-  end;
+  end
 
   let value = Check(n);
 
   ? If Check returned a non-numeric sentinel (e.g., "Invalid Input"), propagate it
   if (value == "Invalid Input")
     return value;
-  end;
+  end
 
   if (value < 0)
 
@@ -46,11 +47,11 @@ fn Fib(n)
     let b = Fib(n-2);
     return a + b;
 
-  end;
+  end
 
   return value;
 
-end;
+end
 
 ? Run a set of tests for Fib and print results
 fn test_fib()
@@ -81,7 +82,7 @@ fn test_fib()
   write("Demo: Fib(1)  -> "; Fib(1); '\n');
   write("Demo: Fib(2)  -> "; Fib(2); '\n');
 
-end;
+end
 
 ? Main entry: run all tests
 fn main()
@@ -93,6 +94,6 @@ fn main()
   write(SEP);
   write("All tests finished\n");
 
-end;
+end
 
 main();

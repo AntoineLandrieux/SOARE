@@ -20,36 +20,34 @@
 /* Stored tree */
 ast_t ROOT = NULL;
 
-/* Number of defined scopes */
-static unsigned long long scope = 0;
 /* Break */
 static boolean_t scope_broken = bFalse;
 /* Return */
 static boolean_t scope_returned = bFalse;
 
 ////////////////////////////////////////////////////////////
-static inline char *exit_scope(boolean_t is_root, char *returns)
+static inline char *exit_scope(char *returns)
 {
-    if (!is_root)
-        soare_clear_variables_scope(scope);
-    scope -= 1;
+    soare_clear_scope();
     return returns;
 }
 
 ////////////////////////////////////////////////////////////
-static inline void *exit_scope_error(boolean_t is_root, soare_exceptions_t error, char *string, document_t file)
+static inline void *exit_scope_error(soare_exceptions_t error, char *string, document_t file)
 {
-    return exit_scope(is_root, soare_leave_exception(error, string, file));
+    soare_leave_exception(error, string, file);
+    soare_clear_scope();
+    return NULL;
 }
 
 ////////////////////////////////////////////////////////////
 static inline boolean_t is_true_str(const char *str)
 {
-    return str && strcmp(str, "0");
+    return str && *str && strcmp(str, "0");
 }
 
 ////////////////////////////////////////////////////////////
-static char *runtime(boolean_t is_root, ast_t tree);
+static char *runtime(ast_t tree);
 
 ////////////////////////////////////////////////////////////
 static void loadimport(char *filename)
@@ -85,7 +83,7 @@ static void loadimport(char *filename)
     if (!content)
     {
         fclose(file);
-        __SOARE_OUT_OF_MEMORY();
+        SOARE_OUT_OF_MEMORY();
         return;
     }
 
@@ -107,9 +105,9 @@ static void loadimport(char *filename)
     soare_tokens_free(tokens);
     soare_tree_juxtapose(ROOT, ast);
 
-    scope -= 1;
-    free(runtime(bTrue, ast));
-    scope += 1;
+    soare_down_scope();
+    free(runtime(ast));
+    soare_up_scope();
 }
 
 ////////////////////////////////////////////////////////////
@@ -122,111 +120,118 @@ char *soare_run_function(ast_t tree)
         soare_functions_t *function = soare_get_function(tree->value);
 
         if (function)
+        {
             return function->exec(tree->child);
+        }
 
-        return soare_leave_exception(UndefinedReference, tree->value, tree->file);
+        soare_leave_exception(UndefinedReference, tree->value, tree->file);
+        return NULL;
     }
 
     if (!get->body)
-        return soare_leave_exception(ObjectIsNotCallable, tree->value, tree->file);
+    {
+        soare_leave_exception(ObjectIsNotCallable, tree->value, tree->file);
+        return NULL;
+    }
 
     ast_t def = get->body->child;
     ast_t arg = tree->child;
+
+    soare_up_scope();
 
     while (def)
     {
         if (def->type == NODE_BODY)
         {
-            char *returned = runtime(bFalse, def);
+            soare_down_scope();
+            char *returned = runtime(def);
             scope_returned = bFalse;
             return returned;
         }
 
         if (!arg)
         {
-            soare_clear_variables_scope(scope + 1);
-            return soare_leave_exception(MissingArgument, def->value, tree->file);
+            soare_clear_scope();
+            soare_leave_exception(MissingArgument, def->value, tree->file);
+            return NULL;
         }
 
-        soare_variables_t *param = soare_add_variable(def->value, NULL, 1);
-
-        if (param)
-        {
-            param->value = soare_math(arg);
-            param->scope = scope + 1;
-        }
+        char *param = soare_math(arg);
+        soare_add_variable(def->value, param, bTrue);
+        free(param);
 
         // Next argument
         arg = arg->sibling;
         def = def->sibling;
     }
 
+    soare_clear_scope();
     return NULL;
 }
 
 ////////////////////////////////////////////////////////////
-static char *runtime(boolean_t is_root, ast_t tree)
+static char *runtime(ast_t tree)
 {
     if (!tree)
+    {
         return NULL;
+    }
 
-    scope += 1;
+    soare_up_scope();
+
     scope_broken = bFalse;
     scope_returned = bFalse;
 
-    for (ast_t curr = tree->child; curr && !soare_errorlevel() && !scope_returned; curr = curr->sibling)
+    ast_t current = tree->child;
+
+    while (current && !soare_errorlevel())
     {
-        switch (curr->type)
+        switch (current->type)
         {
         case NODE_RAISE:
-            return exit_scope_error(is_root, RaiseException, curr->value, curr->file);
+        {
+            return exit_scope_error(RaiseException, current->value, current->file);
+        }
 
         case NODE_BREAK:
+        {
             scope_broken = bTrue;
-            return exit_scope(is_root, NULL);
+            return exit_scope(NULL);
+        }
 
         case NODE_RETURN:
+        {
             scope_returned = bTrue;
-            return exit_scope(is_root, soare_math(curr->child));
+            return exit_scope(soare_math(current->child));
+        }
 
         case NODE_IMPORT:
-            loadimport(curr->value);
-            break;
-
-        case NODE_MEMNEW:
         {
-            soare_variables_t *var = soare_add_variable(curr->value, NULL, bTrue);
-
-            if (var)
-            {
-                var->value = soare_math(curr->child);
-                var->scope = scope;
-            }
-
+            loadimport(current->value);
             break;
         }
 
         case NODE_STRERROR:
         {
-            soare_variables_t *err = soare_add_variable(curr->value, NULL, bFalse);
+            soare_add_variable(current->value, soare_get_exception(), bFalse);
+            break;
+        }
 
-            if (err)
-            {
-                err->value = strdup(soare_get_exception());
-                err->scope = scope;
-            }
-
+        case NODE_MEMNEW:
+        {
+            char *content = soare_math(current->child);
+            soare_add_variable(current->value, content, bTrue);
+            free(content);
             break;
         }
 
         case NODE_FUNCTION:
         {
-            soare_variables_t *fn = soare_add_variable(curr->value, NULL, bFalse);
+            soare_variables_t *fn = soare_add_variable(current->value, NULL, bFalse);
 
             if (fn)
             {
-                fn->body = curr;
-                fn->scope = scope;
+                fn->body = current;
             }
 
             break;
@@ -234,35 +239,43 @@ static char *runtime(boolean_t is_root, ast_t tree)
 
         case NODE_MEMSET:
         {
-            soare_variables_t *get = soare_get_variable(curr->value);
+            soare_variables_t *get = soare_get_variable(current->value);
 
             if (!get)
-                return exit_scope_error(is_root, UndefinedReference, curr->value, curr->file);
+            {
+                return exit_scope_error(UndefinedReference, current->value, current->file);
+            }
 
             if (get->body)
-                return exit_scope_error(is_root, VariableDefinedAsFunction, curr->value, curr->file);
+            {
+                return exit_scope_error(VariableDefinedAsFunction, current->value, current->file);
+            }
 
             if (!get->mutable)
-                return exit_scope_error(is_root, AssignConstantVariable, curr->value, curr->file);
+            {
+                return exit_scope_error(AssignConstantVariable, current->value, current->file);
+            }
 
             free(get->value);
-            get->value = soare_math(curr->child);
+            get->value = soare_math(current->child);
             break;
         }
 
         case NODE_CUSTOM_KEYWORD:
         {
-            soare_keywords_t *keyword = soare_get_keyword(curr->value);
+            soare_keywords_t *keyword = soare_get_keyword(current->value);
 
             if (keyword)
+            {
                 keyword->exec();
+            }
 
             break;
         }
 
         case NODE_CONDITION:
         {
-            ast_t tmp = curr->child;
+            ast_t tmp = current->child;
             char *condition = soare_math(tmp);
 
             while (condition)
@@ -270,10 +283,12 @@ static char *runtime(boolean_t is_root, ast_t tree)
                 if (is_true_str(condition))
                 {
                     free(condition);
-                    char *value = runtime(bFalse, tmp->sibling);
+                    char *value = runtime(tmp->sibling);
 
                     if (value || scope_broken || scope_returned)
-                        return exit_scope(is_root, value);
+                    {
+                        return exit_scope(value);
+                    }
 
                     break;
                 }
@@ -281,7 +296,9 @@ static char *runtime(boolean_t is_root, ast_t tree)
                 free(condition);
 
                 if (!tmp->sibling)
+                {
                     break;
+                }
 
                 tmp = tmp->sibling->sibling;
                 condition = soare_math(tmp);
@@ -291,18 +308,20 @@ static char *runtime(boolean_t is_root, ast_t tree)
 
         case NODE_REPETITION:
         {
-            char *condition = soare_math(curr->child);
+            char *condition = soare_math(current->child);
 
             while (condition && is_true_str(condition) && !soare_errorlevel() && !scope_broken && !scope_returned)
             {
                 free(condition);
 
-                char *value = runtime(bFalse, curr->child->sibling);
+                char *value = runtime(current->child->sibling);
 
                 if (value)
-                    return exit_scope(is_root, value);
+                {
+                    return exit_scope(value);
+                }
 
-                condition = soare_math(curr->child);
+                condition = soare_math(current->child);
             }
 
             free(condition);
@@ -313,30 +332,34 @@ static char *runtime(boolean_t is_root, ast_t tree)
         {
             boolean_t previous = soare_as_ignored_exception();
             soare_ignore_exception(bTrue);
-            char *value = runtime(bFalse, curr->child);
+            char *value = runtime(current->child);
             soare_ignore_exception(previous);
 
             if (soare_errorlevel() && !scope_broken && !scope_returned)
             {
                 free(value);
                 soare_clear_exception();
-                value = runtime(bFalse, curr->child->sibling);
+                value = runtime(current->child->sibling);
             }
 
             if (value || scope_broken || scope_returned)
-                return exit_scope(is_root, value);
+            {
+                return exit_scope(value);
+            }
 
             break;
         }
 
         default:
 
-            free(soare_math(curr));
+            free(soare_math(current));
             break;
         }
+
+        current = current->sibling;
     }
 
-    return exit_scope(is_root, NULL);
+    return exit_scope(NULL);
 }
 
 ////////////////////////////////////////////////////////////
@@ -362,13 +385,11 @@ char *soare_execute(char *__restrict__ filename, char *__restrict__ rawcode)
     tokens_t *tokens = soare_tokenizer(filename, rawcode);
     // Interpretation step 2: Parser
     ast_t ast = soare_parser(tokens);
-
     // Free tokens
     soare_tokens_free(tokens);
-
     // Save ast
     ROOT = soare_tree_juxtapose(ROOT, ast);
 
     // Interpretation step 3: runtime
-    return runtime(bTrue, ast);
+    return runtime(ast);
 }

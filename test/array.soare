@@ -10,20 +10,21 @@ fn assert_equal(a; b; msg)
 
   if (a != b)
     write("FAIL: "; msg; " -> got: '"; a; "' expected: '"; b; "'\n");
+    exit(1);
   else
     write(" OK : "; msg; '\n');
-  end;
+  end
 
-end;
+end
 
 ? Detects if the character at position idx of s is a basic ASCII/Latin vowel
 fn is_vowel(s; idx)
 
   let ch = s:idx;
   let vowels = "AEIOUYaeiouyÀÁÂÃÄÅàáâãäåÈÉÊËèéêëÌÍÎÏìíîïÒÓÔÕÖòóôõöÙÚÛÜùúûü";
-  return find(vowels; s:idx) != (0-1);
+  return find(vowels; ch) != (0-1);
 
-end;
+end
 
 ? Indexing test on string and number
 fn test_indexing()
@@ -48,7 +49,7 @@ fn test_indexing()
 
   write('\n');
 
-end;
+end
 
 ? Iteration test and vowel detection
 fn test_iteration_and_vowels()
@@ -79,18 +80,18 @@ fn test_iteration_and_vowels()
         consonants = consonants + 1
       else
         write(" -> other");
-      end;
-    end;
+      end
+    end
 
     write('\n');
     i = i + 1;
 
-  end;
+  end
 
   write("Summary: vowels="; vowels; " consonants="; consonants; '\n');
   write('\n');
 
-end;
+end
 
 ? Reverse test and properties
 fn test_reverse()
@@ -111,7 +112,7 @@ fn test_reverse()
 
   write('\n');
 
-end;
+end
 
 ? Main entry: run all tests
 fn main()
@@ -125,6 +126,6 @@ fn main()
   write(SEP);
   write("All tests finished\n");
 
-end;
+end
 
 main();

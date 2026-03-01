@@ -1,5 +1,5 @@
 #ifndef __SOARE_MODULE_H__
-#define __SOARE_MODULE_H__ 0x1
+#define __SOARE_MODULE_H__
 
 /* #pragma once */
 
@@ -27,9 +27,10 @@ namespace SOARE_MODULE
 #endif /* __cplusplus */
 
         /**
-         * @brief Registers predefined functions/keywords with the SOARE runtime.
+         * @brief Registers predefined functions/keywords with the SOARE runtime
          *
-         * Adds system, input, write, ... functions.
+         * Adds system, input, write, ... functions
+         * Adds true, false, null, ... variables
          */
         void load_module(void);
 

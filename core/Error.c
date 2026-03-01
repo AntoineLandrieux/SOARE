@@ -29,6 +29,7 @@ static char *last_error = NULL;
 static char *exceptions_list[] = {
 
     "InterpreterError",
+    "MemoryError",
     "FileError",
     "CharacterError",
     "SyntaxError",
@@ -78,7 +79,7 @@ int soare_errorlevel(void)
 }
 
 ////////////////////////////////////////////////////////////
-void *soare_leave_exception(soare_exceptions_t error, const char *string, document_t file)
+void soare_leave_exception(soare_exceptions_t error, const char *string, document_t file)
 {
     // Set lasterror
     last_error = exceptions_list[error];
@@ -109,6 +110,4 @@ void *soare_leave_exception(soare_exceptions_t error, const char *string, docume
             //
         );
     }
-
-    return NULL;
 }

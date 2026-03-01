@@ -1,7 +1,7 @@
 ? test/math.soare
-? Math operations tests for SOARE (uses script/math.soare)
+? Math operations tests for SOARE (uses script/stdmath.soare)
 
-loadimport "script/math.soare"
+loadimport "script/stdmath.soare"
 
 let SEP = "--------------------------------\n";
 
@@ -10,11 +10,12 @@ fn assert_equal(a; b; msg)
 
   if (a != b)
     write("FAIL: "; msg; " -> got: '"; a; "' expected: '"; b; "'\n");
+    exit(1);
   else
     write(" OK : "; msg; '\n');
-  end;
+  end
 
-end;
+end
 
 ? Assertion for approximate equality for floats (tolerance simple)
 fn assert_approx(a; b; tol; msg)
@@ -23,15 +24,15 @@ fn assert_approx(a; b; tol; msg)
 
   if (diff < 0)
     let diff = 0 - diff;
-  end;
+  end
 
   if (diff > tol)
     write("FAIL: "; msg; " -> got: '"; a; "' expected approx: '"; b; "' (tol="; tol; ")\n");
   else
     write(" OK : "; msg; '\n');
-  end;
+  end
 
-end;
+end
 
 ? Run arithmetic checks that mirror the examples
 fn test_arithmetic()
@@ -81,7 +82,7 @@ fn test_arithmetic()
 
   write('\n');
 
-end;
+end
 
 ? Test division by zero handling using try/iferror
 fn test_div_by_zero()
@@ -93,13 +94,13 @@ fn test_div_by_zero()
     write(4/0);
   iferror
     write("Can't divide by 0"; '\n');
-  end;
+  end
 
   ? We cannot capture the try/iferror return directly; just indicate the test ran
   write("Checked division by zero with try/iferror (see message above)\n");
   write('\n');
 
-end;
+end
 
 ? Test math constants and functions
 fn test_constants_and_functions()
@@ -114,7 +115,7 @@ fn test_constants_and_functions()
 
   write('\n');
 
-end;
+end
 
 ? Main entry: run all tests
 fn main()
@@ -128,6 +129,6 @@ fn main()
   write(SEP);
   write("All tests finished\n");
 
-end;
+end
 
 main();

@@ -105,7 +105,9 @@ static void translate_escape_sequence(tokens_t *token)
     // <https://github.com/AntoineLandrieux/EscapeSequenceC/>
 
     if (!token)
+    {
         return;
+    }
 
     char *string = token->value;
 
@@ -215,7 +217,10 @@ tokens_t *soare_new_tokens(char *__restrict__ filename, char *__restrict__ value
     tokens_t *token = (tokens_t *)malloc(sizeof(tokens_t));
 
     if (!token)
-        return __SOARE_OUT_OF_MEMORY();
+    {
+        SOARE_OUT_OF_MEMORY();
+        return NULL;
+    }
 
     token->value = !value ? NULL : strdup(value);
     token->type = type;
@@ -230,10 +235,23 @@ tokens_t *soare_new_tokens(char *__restrict__ filename, char *__restrict__ value
 }
 
 ////////////////////////////////////////////////////////////
+void soare_tokens_next(tokens_t **tokens)
+{
+    if (!tokens || !*tokens)
+    {
+        return;
+    }
+
+    *tokens = (*tokens)->next;
+}
+
+////////////////////////////////////////////////////////////
 void soare_tokens_free(tokens_t *token)
 {
     if (!token)
+    {
         return;
+    }
 
     soare_tokens_free(token->next);
     free(token->value);
@@ -243,17 +261,23 @@ void soare_tokens_free(tokens_t *token)
 ////////////////////////////////////////////////////////////
 static char *strcut(const char *string, size_t size)
 {
-    // Cut a string
     if (strlen(string) < size)
+    {
         size = strlen(string);
+    }
 
     char *result = (char *)malloc(size + 1);
 
     if (!result)
-        return __SOARE_OUT_OF_MEMORY();
+    {
+        SOARE_OUT_OF_MEMORY();
+        return NULL;
+    }
 
     for (size_t ptr = 0; ptr < size; ptr++)
+    {
         result[ptr] = string[ptr];
+    }
 
     result[size] = 0;
     return result;
@@ -271,10 +295,12 @@ static inline void updateln(unsigned long long *__restrict__ ln, unsigned long l
 tokens_t *soare_tokenizer(char *__restrict__ filename, char *__restrict__ text)
 {
     if (!text)
+    {
         return NULL;
+    }
 
-    tokens_t *token = soare_new_tokens(filename, NULL, TKN_EOF);
-    tokens_t *curr = token;
+    tokens_t *root = soare_new_tokens(filename, NULL, TKN_EOF);
+    tokens_t *curr = root;
 
     // Line/Column
     unsigned long long ln = 1;
@@ -285,7 +311,7 @@ tokens_t *soare_tokenizer(char *__restrict__ filename, char *__restrict__ text)
         // Check for errors
         if (soare_errorlevel())
         {
-            soare_tokens_free(token);
+            soare_tokens_free(root);
             return NULL;
         }
 
@@ -295,9 +321,11 @@ tokens_t *soare_tokenizer(char *__restrict__ filename, char *__restrict__ text)
             col++;
             // Check if there is a new line
             if (*text == '\n')
+            {
                 // increment ln
                 // col = 1
                 updateln(&ln, &col);
+            }
             text++;
             continue;
         }
@@ -307,7 +335,9 @@ tokens_t *soare_tokenizer(char *__restrict__ filename, char *__restrict__ text)
         {
             // Comments end with a new line ('\n')
             while (*text != '\n' && *text)
+            {
                 text++;
+            }
             continue;
         }
 
@@ -335,34 +365,50 @@ tokens_t *soare_tokenizer(char *__restrict__ filename, char *__restrict__ text)
 
         // Assign
         else if (*text == '=')
+        {
             type = TKN_ASSIGN;
+        }
 
         // Parenthesis
         else if (*text == '(')
+        {
             type = TKN_PARENL;
+        }
         else if (*text == ')')
+        {
             type = TKN_PARENR;
+        }
 
         // Semicolon
         else if (*text == ';')
+        {
             type = TKN_SEMICOLON;
+        }
 
         // Operator
         else if (chr_operator(*text))
+        {
             type = TKN_OPERATOR;
+        }
 
         // Name
         else if (chr_alpha_(*text))
         {
-            for (; chr_alnum_(text[offset]); offset++)
-                /* pass */;
+            while (chr_alnum_(text[offset]))
+            {
+                offset++;
+            }
         }
 
         // Number (int, float)
         else if (chr_num(*text))
         {
-            for (type = TKN_NUMBER; chr_num(text[offset]); offset++)
-                /* pass */;
+            type = TKN_NUMBER;
+
+            while (chr_num(text[offset]))
+            {
+                offset++;
+            }
         }
 
         // String `str`|'str'|"str"
@@ -390,12 +436,19 @@ tokens_t *soare_tokenizer(char *__restrict__ filename, char *__restrict__ text)
             continue;
         }
 
-        // Add token
         curr->value = strcut(text, offset);
-        if (type == TKN_STRING)
-            translate_escape_sequence(curr);
 
-        curr->type = !type ? symbol(curr->value) : type;
+        if (type == TKN_STRING)
+        {
+            translate_escape_sequence(curr);
+        }
+
+        if (type == TKN_EOF)
+        {
+            type = symbol(curr->value);
+        }
+
+        curr->type = type;
         curr->next = soare_new_tokens(filename, NULL, TKN_EOF);
 
         curr = curr->next;
@@ -406,14 +459,15 @@ tokens_t *soare_tokenizer(char *__restrict__ filename, char *__restrict__ text)
         for (size_t i = 0; i < offset; i++)
         {
             col++;
+
             if (*text == '\n')
+            {
                 updateln(&ln, &col);
+            }
+
             text++;
         }
-
-        col += type == TKN_STRING;
     }
 
-    // Return token
-    return token;
+    return root;
 }

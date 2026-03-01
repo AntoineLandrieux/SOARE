@@ -1,5 +1,5 @@
 #ifndef __SOARE_TOKENIZER_H__
-#define __SOARE_TOKENIZER_H__ 0x1
+#define __SOARE_TOKENIZER_H__
 
 /* #pragma once */
 
@@ -18,74 +18,75 @@
 
 /**
  * @enum token_type
- * @brief Kinds of tokens emitted by the tokenizer.
+ * @brief Kinds of tokens used by the interpretor
  */
 typedef enum token_type
 {
 
-    TKN_EOF,      /**< End-of-file marker */
-    TKN_NAME,     /**< Identifier / name */
-    TKN_NUMBER,   /**< Numeric literal */
-    TKN_STRING,   /**< String literal */
-    TKN_PARENL,   /**< Left parenthesis '(' */
-    TKN_PARENR,   /**< Right parenthesis ')' */
-    TKN_ASSIGN,   /**< Assignment operator */
-    TKN_KEYWORD,  /**< Language keyword */
+    TKN_EOF,      /**< End-Of-File marker           */
+    TKN_NAME,     /**< Identifier / name            */
+    TKN_NUMBER,   /**< Numeric literal              */
+    TKN_STRING,   /**< String literal               */
+    TKN_PARENL,   /**< Left parenthesis '('         */
+    TKN_PARENR,   /**< Right parenthesis ')'        */
+    TKN_ASSIGN,   /**< Assignment operator          */
+    TKN_KEYWORD,  /**< Language keyword             */
     TKN_OPERATOR, /**< Operator symbol (+, -, etc.) */
-    TKN_SEMICOLON /**< Statement terminator ';' */
+    TKN_SEMICOLON /**< Statement terminator ';'     */
 
 } token_type_t;
 
 /**
  * @struct tokens_t
- * @brief Singly-linked token node used by the parser.
- *
- * The tokenizer produces a linked list of `tokens_t`. Each node contains the
- * token textual `value`, its `type`, the `file` document for diagnostics,
- * and a pointer to the next token.
+ * @brief Token node used by the parser
  */
 typedef struct tokens
 {
 
-    char *value;         /**< Token text (owned by the token stream) */
-    token_type_t type;   /**< Token kind */
+    char *value;         /**< Token text                      */
+    token_type_t type;   /**< Token value                     */
     document_t file;     /**< Source location for diagnostics */
-    struct tokens *next; /**< Next token in stream */
+    struct tokens *next; /**< Next token                      */
 
 } tokens_t;
 
 /**
- * @brief Return an empty/default `document_t` value.
+ * @brief Return an empty/default `document_t` value
  *
- * Useful when a token or node has no meaningful filename/location.
- *
- * @return document_t An empty document descriptor.
+ * @return document_t An empty document descriptor
  */
 document_t soare_empty_document(void);
 
 /**
- * @brief Create a new token node.
+ * @brief Create a new token node
  *
- * @param filename Source filename for the token (used in the `document_t`).
- * @param value    Token text (string). Ownership and copying follow project conventions.
- * @param type     Token type from `token_type_t`.
- * @return tokens_t* Newly allocated token node, or NULL on allocation failure.
+ * @param filename Source filename for the token
+ * @param value Token text
+ * @param type Token type
+ * @return tokens_t* Allocated token node, or NULL on allocation failure
  */
 tokens_t *soare_new_tokens(char *__restrict__ filename, char *__restrict__ value, token_type_t type);
 
 /**
- * @brief Free a token stream and all associated memory.
+ * @brief Advance to the next token
  *
- * @param token Head of the token list to free.
+ * @param tokens Pointer to the current token pointer
+ */
+void soare_tokens_next(tokens_t **tokens);
+
+/**
+ * @brief Free a token stream and all associated memory
+ *
+ * @param token Head of the token list to free
  */
 void soare_tokens_free(tokens_t *tokens);
 
 /**
- * @brief Lexical analysis: transform source text into a token stream.
+ * @brief Lexical analysis: transform source text into a token stream
  *
- * @param filename Logical filename to associate with produced tokens.
- * @param text     Source code buffer to tokenize.
- * @return tokens_t* Head of the produced token list, or NULL on error.
+ * @param filename Logical filename to associate with produced tokens
+ * @param text Source code buffer to tokenize
+ * @return tokens_t* Head of the produced token list
  */
 tokens_t *soare_tokenizer(char *__restrict__ filename, char *__restrict__ text);
 

@@ -11,20 +11,32 @@
 ? <https://github.com/AntoineLandrieux/SOARE/>
 ?
 ? Included Functions:
+?   - assert
 ?   - bool
 ?   - find
 ?   - len
+?   - replace
+?   - replace_all
 ?   - reverse
 ?   - sleep
+?
 
-write("[!] File std.soare loaded.\n");
+?
+? Assertion
+?
+fn assert(boolean)
+  if (bool(boolean) != true)
+    werr("Assertion failed: value == "; boolean; " timestamp: "; time(); "\n");
+    exit(1);
+  end
+end
 
 ?
 ? Convert value to boolean
 ?
 fn bool(value)
-  return (value == 0) == 0;
-end;
+  return (value == false) == false;
+end
 
 ?
 ? Returns the index of the first occurrence
@@ -37,51 +49,82 @@ fn find(string; substr)
   let i_sub = 0;
 
   while (i_str < l_str)
-
     if (string:i_str == substr:i_sub)
       i_sub = i_sub + 1;
     or (i_sub)
       i_str = i_str - i_sub;
       i_sub = 0;
-    end;
-
+    end
     if (i_sub == l_sub)
       return i_str - i_sub + 1;
-    end;
-
+    end
     i_str = i_str + 1;
-
-  end;
+  end
 
   return 0 - 1;
-end;
+end
 
 ?
 ? Returns the number of characters in the string,
 ? including spaces and special characters
 ?
 fn len(string)
-  write("len[0]\n");
   let i = 0;
-  write("len[1]\n");
-  let t = " ";
-  write("len[2]\n");
-    write(i;"\n");
-    write(string;"\n");
+  let t = "";
   while (1)
-
     try
       t = string:i;
     iferror
       return i;
-    end;
-
+    end
     i = i + 1;
-  end;
-end;
+  end
+end
 
 ?
-? Reverse string
+? Replaces only the first occurrence of a given character in a string
+?
+fn replace(a; c; string)
+  let s = len(string);
+  let r = "";
+  let i = 0;
+  let f = false;
+
+  while (i < s)
+    if (string:i == a && f == false)
+      r = r, c;
+      f = true;
+    else
+      r = r, string:i;
+    end
+    i = i + 1;
+  end
+
+  return r;
+end
+
+?
+? Replace all occurrences of a given character in a string
+?
+fn replace_all(a; c; string)
+  let s = len(string);
+  let r = "";
+  let i = 0;
+
+  while (i < s)
+    if (string:i == a:0)
+      r = r, c:0;
+    else
+      r = r, string:i;
+    end
+    i = i + 1;
+  end
+
+  return r;
+end
+
+?
+? Reverses the order of the elements in an string
 ?
 fn reverse(string)
   let r = "";
@@ -90,10 +133,10 @@ fn reverse(string)
   while (n >= 0)
     r = r, string:n;
     n = n - 1;
-  end;
+  end
 
   return r;
-end;
+end
 
 ?
 ? Pause the execution of a program
@@ -105,5 +148,5 @@ fn sleep(t)
 
   while (curr < next)
     curr = time();
-  end;
-end;
+  end
+end

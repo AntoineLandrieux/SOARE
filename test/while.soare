@@ -11,22 +11,24 @@ fn assert_equal(a; b; msg)
 
   if (a != b)
     write("FAIL: "; msg; " -> got: '"; a; "' expected: '"; b; "'\n");
+    exit(1);
   else
     write(" OK : "; msg; '\n');
-  end;
+  end
 
-end;
+end
 
 ? Assertion: check a >= b
 fn assert_gte(a; b; msg)
 
   if (a < b)
     write("FAIL: "; msg; " -> got: '"; a; "' expected >= '"; b; "'\n");
+    exit(1);
   else
     write(" OK : "; msg; '\n');
-  end;
+  end
 
-end;
+end
 
 ? Original progress loop that sleeps 1 second per step
 fn run_progress(max_times)
@@ -42,25 +44,25 @@ fn run_progress(max_times)
     while (progress < times)
       write('=');
       progress = progress + 1;
-    end;
+    end
 
     if (times == max_times)
       break;
-    end;
+    end
 
     sleep(1);
     times = times + 1;
 
     write('\r');
 
-  end;
+  end
 
   write('\n');
 
   ? return the final times value for assertions
   return times;
 
-end;
+end
 
 ? Fast-run variant for tests (no sleep)
 fn run_progress_fast(max_times)
@@ -76,22 +78,22 @@ fn run_progress_fast(max_times)
     while (progress < times)
       write('=');
       progress = progress + 1;
-    end;
+    end
 
     if (times == max_times)
       break;
-    end;
+    end
 
     times = times + 1;
     write('\r');
 
-  end;
+  end
 
   write('\n');
 
   return times;
 
-end;
+end
 
 ? Measure how long a call to run_progress(max_times) takes using time()
 fn measure_run_progress(max_times)
@@ -109,7 +111,7 @@ fn measure_run_progress(max_times)
   ? For the real run_progress we expect duration >= max_times because of sleep(1)
   assert_gte(duration; max_times; "duration >= max_times for run_progress");
 
-end;
+end
 
 ? Measure how long a call to run_progress_fast(max_times) takes using time()
 fn measure_run_progress_fast(max_times)
@@ -130,9 +132,9 @@ fn measure_run_progress_fast(max_times)
     write("FAIL: negative duration? "; duration; '\n');
   else
     write(" OK : duration non-negative\n");
-  end;
+  end
 
-end;
+end
 
 ? Additional micro-benchmark: measure an empty loop to show overhead of the language
 fn measure_empty_loop(iter)
@@ -146,7 +148,7 @@ fn measure_empty_loop(iter)
   while (i < iter)
     let j = i + 1; ? trivial operation to avoid full optimization
     i = j;
-  end;
+  end
 
   let t1 = time();
 
@@ -155,7 +157,7 @@ fn measure_empty_loop(iter)
 
   return duration;
 
-end;
+end
 
 ? Main entry: run all tests
 fn main()
@@ -174,6 +176,6 @@ fn main()
   write(SEP);
   write("All tests finished\n");
 
-end;
+end
 
 main();

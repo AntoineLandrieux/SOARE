@@ -25,12 +25,13 @@ static char *buffer = NULL;
 ////////////////////////////////////////////////////////////
 static char *append(const char *str1, const char *str2)
 {
-    // String append
-    size_t len = strlen(str1) + strlen(str2) + 1;
-    char *result = (char *)malloc(len);
+    char *result = (char *)malloc(strlen(str1) + strlen(str2) + 1);
 
     if (!result)
-        return __SOARE_OUT_OF_MEMORY();
+    {
+        SOARE_OUT_OF_MEMORY();
+        return NULL;
+    }
 
     strcpy(result, str1);
     strcat(result, str2);
@@ -39,9 +40,38 @@ static char *append(const char *str1, const char *str2)
 }
 
 ////////////////////////////////////////////////////////////
+static void interpreter_kill(int sig)
+{
+    // Kill SOARE
+    signal(sig, SIG_DFL);
+    exit(sig);
+}
+
+////////////////////////////////////////////////////////////
+static void interpreter_at_exit(void)
+{
+    soare_kill();
+    free(buffer);
+
+#ifdef __KILL_MESSAGE
+    fprintf(stderr, "\n\n%s\n\n", __KILL_MESSAGE);
+#endif
+}
+
+////////////////////////////////////////////////////////////
+static inline void handle_signal(void)
+{
+    atexit(interpreter_at_exit);
+
+    signal(SIGINT, /*  */ interpreter_kill);
+    signal(SIGTERM, /* */ interpreter_kill);
+    signal(SIGABRT, /* */ interpreter_kill);
+    signal(SIGSEGV, /* */ interpreter_kill);
+}
+
+////////////////////////////////////////////////////////////
 static void loadfile(const char *filename)
 {
-    // Reads from the file and stores the result in the buffer
     FILE *file = fopen(filename, "r");
 
     if (!file)
@@ -54,9 +84,11 @@ static void loadfile(const char *filename)
     long size = ftell(file);
     rewind(file);
 
-    if (!(buffer = (char *)malloc(size + 1)))
+    buffer = (char *)malloc(size + 1);
+
+    if (!buffer)
     {
-        __SOARE_OUT_OF_MEMORY();
+        SOARE_OUT_OF_MEMORY();
         return;
     }
 
@@ -68,7 +100,6 @@ static void loadfile(const char *filename)
 ////////////////////////////////////////////////////////////
 int Files(int argc, char *argv[])
 {
-    // Load all files
     for (int i = 1; i < argc; i++)
     {
         loadfile(argv[i]);
@@ -77,7 +108,7 @@ int Files(int argc, char *argv[])
         buffer = NULL;
     }
 
-    soare_kill();
+    interpreter_at_exit();
     return EXIT_SUCCESS;
 }
 
@@ -92,7 +123,8 @@ int Console()
         //
     );
 
-    char user[__SOARE_MAX_INPUT__];
+#define MAX_INPUT 255
+    char user[MAX_INPUT];
 
     while (1)
     {
@@ -118,12 +150,14 @@ int Console()
                 printf("\033[0;2m... \033[0m");
             }
 
-            if (!soare_input(user))
+            if (!soare_input(user, MAX_INPUT))
+            {
                 break;
+            }
 
             if (!buffer)
             {
-                __SOARE_OUT_OF_MEMORY();
+                SOARE_OUT_OF_MEMORY();
                 return EXIT_FAILURE;
             }
 
@@ -138,9 +172,9 @@ int Console()
 
         if (!soare_errorlevel())
         {
-            char *result = NULL;
+            char *result = soare_execute("<input>", buffer);
 
-            if ((result = soare_execute("<input>", buffer)))
+            if (result)
             {
                 printf("\033[32m\n%s\033[0m", result);
                 free(result);
@@ -151,40 +185,8 @@ int Console()
         buffer = NULL;
     }
 
-    soare_kill();
+    interpreter_at_exit();
     return EXIT_SUCCESS;
-}
-
-////////////////////////////////////////////////////////////
-static void interpreter_kill(int sig)
-{
-    // Kill SOARE
-    signal(sig, SIG_DFL);
-    exit(sig);
-}
-
-////////////////////////////////////////////////////////////
-static void interpreter_at_exit()
-{
-    // Kill SOARE
-    soare_kill();
-    free(buffer);
-
-#ifdef __KILL_MESSAGE
-    fprintf(stderr, "\n\n%s\n\n", __KILL_MESSAGE);
-#endif
-}
-
-////////////////////////////////////////////////////////////
-static inline void handle_signal(void)
-{
-    // Handle signal
-    atexit(interpreter_at_exit);
-
-    signal(SIGINT, /*  */ interpreter_kill);
-    signal(SIGTERM, /* */ interpreter_kill);
-    signal(SIGABRT, /* */ interpreter_kill);
-    signal(SIGSEGV, /* */ interpreter_kill);
 }
 
 ////////////////////////////////////////////////////////////
@@ -194,7 +196,9 @@ int main(int argc, char *argv[])
     load_module();
 
     if (argc > 1)
+    {
         return Files(argc, argv);
+    }
 
     return Console();
 }
