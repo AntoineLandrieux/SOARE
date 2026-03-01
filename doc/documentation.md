@@ -537,7 +537,7 @@ write("Hello "; user; "!");
 | system(cmd)               | Execute a shell command                           |
 | time()                    | Show current timestamp                            |
 | random(seed)              | Generate a random number [0; 255] based on a seed |
-| def(name, value, mutable) | Create new a variable                             |
+| def(name; value; mutable) | Create new a variable                             |
 | chr(integer)              | Get char from ASCII number                        |
 | ord(char)                 | Get ASCII number from char                        |
 | input(...)                | User input, print text                            |
