@@ -1,5 +1,5 @@
 #ifndef __SOARE_KEYWORDS_H__
-#define __SOARE_KEYWORDS_H__ 0x1
+#define __SOARE_KEYWORDS_H__
 
 /* #pragma once */
 

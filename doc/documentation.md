@@ -11,9 +11,9 @@ Welcome to the SOARE documentation! SOARE is a simple, interpreted programming l
 - [Interpreter](#interpreter)
   - [Installing SOARE](#installing-soare)
   - [Compiling the Interpreter](#compiling-the-interpreter)
+  - [Loading a File](#loading-a-file)
   - [Interpreter Commands](#interpreter-commands)
   - [Add Interpreter Keywords/Functions in C/C++](#add-interpreter-keywordsfunctions-in-cc)
-  - [Loading a File](#loading-a-file)
   - [Create Your Own Interpreter](#create-your-own-interpreter)
 - [SOARE Language](#soare-language)
   - [Introduction](#introduction)
@@ -23,7 +23,7 @@ Welcome to the SOARE documentation! SOARE is a simple, interpreted programming l
   - [Loops and Conditional Structures](#loops-and-conditional-structures)
   - [Arrays](#arrays)
   - [User Inputs](#user-inputs)
-  - [Predefined Functions](#predefined-functions)
+  - [Predefined](#predefined)
   - [Practical Examples](#practical-examples)
 
 ---
@@ -58,7 +58,7 @@ To launch SOARE:
 # Linux
 bin/soare
 # Windows
-%SOARE%\\soare.exe
+%SOARE%\\bin\\soare.exe
 ```
 
 ### Compiling the Interpreter
@@ -97,6 +97,14 @@ make run
 ./bin/soare
 ```
 
+### Loading a File
+
+To load a file, use the command:
+
+```sh
+soare "filename.soare"
+```
+
 ### Interpreter Commands
 
 The interpreter works in interactive mode. Type code and press Enter to execute it.
@@ -120,7 +128,7 @@ Hello!
 ...   write("x is greater than 0")
 ... else
 ...   write("x is equal to 0");
-... end;
+... end
 x is equal to 0
 >>>
 ```
@@ -128,7 +136,7 @@ x is equal to 0
 ### Add Interpreter Keywords/Functions in C/C++
 
 > [!IMPORTANT]
-> See [core/Custom.c](../core/Custom.c) for examples.
+> See [core/Memory.c](../core/Memory.c) and [modules/Mocule.c](../modules/Module.c) for examples.
 >
 
 #### Functions
@@ -138,9 +146,9 @@ x is equal to 0
 This example shows how to implement a custom function that adds an unknown number of integer arguments.
 
 - Function Name:
-  - `char *int_add(soare_arguments_list args)`
+  - `char *int_add(soare_arguments_list_t args)`
 - Arguments:
-  - `args`: A linked list of arguments passed to the function. Use `soare_getarg(args, i)` to retrieve the i-th argument as a string.
+  - `args`: A linked list of arguments passed to the function. Use `soare_get_argument(args, i)` to retrieve the i-th argument as a string.
 - Return Value:
   - Returns `NULL` (no value returned to SOARE).
   - If you want to return a value, allocate memory for the result string.
@@ -148,7 +156,7 @@ This example shows how to implement a custom function that adds an unknown numbe
 **Implementation Steps:**
 
 1. Initialize the result accumulator.
-2. Loop through arguments using `soare_getarg`.
+2. Loop through arguments using `soare_get_argument`.
 3. Convert each argument from string to integer.
 4. Add to the result.
 5. Print the result.
@@ -172,7 +180,7 @@ return ret;
 **Code:**
 
 ```c
-char *int_add(soare_arguments_list args)
+char *int_add(soare_arguments_list_t args)
 {
   // Accumulator for the sum
   int result = 0;
@@ -183,7 +191,7 @@ char *int_add(soare_arguments_list args)
   for (unsigned int i = 0; 1; i++)
   {
     // Retrieve the i-th argument
-    x = soare_getarg(args, i);
+    x = soare_get_argument(args, i);
     if (!x)
       // Exit loop if no more arguments
       break;
@@ -203,10 +211,10 @@ char *int_add(soare_arguments_list args)
 }
 ```
 
-**Implement this function:** `soare_addfunction(<function name>, <function>)`
+**Implement this function:** `soare_add_function(<function name>, <function>)`
 
 ```c
-soare_addfunction("int_add", int_add);
+soare_add_function("int_add", int_add);
 ```
 
 #### Keywords
@@ -228,18 +236,30 @@ void clear(void)
 }
 ```
 
-**Implement this keyword:** `soare_addkeyword(<keyword name>, <function>)`
+**Implement this keyword:** `soare_add_keyword(<keyword name>, <function>)`
 
 ```c
-soare_addkeyword("clear", clear);
+soare_add_keyword("clear", clear);
 ```
 
-### Loading a File
+#### Variables
 
-To load a file, use the command:
+**Example: Custom Variables - Booleans:**
 
-```sh
-soare "filename.soare"
+This example demonstrates how to implement a custom variable.
+
+**Code:**
+
+```c
+char *bool_true  = "1";
+char *bool_false = "0";
+```
+
+**Implement these variables:** `soare_add_keyword(<variable name>, <value>, <mutable>)`
+
+```c
+soare_add_variable("true",  bool_true,  0);
+soare_add_variable("false", bool_false, 0);
 ```
 
 ### Create Your Own Interpreter
@@ -247,7 +267,7 @@ soare "filename.soare"
 > [!IMPORTANT]
 > Functions like `write`, `input`, or `system` are [predefined functions](#predefined-functions).
 >
-> Copy [`src/Predefined.c`](../src/Predefined.c) to create your own interpreter with these functions.
+> Copy [`modules/Module.c`](../modules/Module.c) to create your own interpreter with these functions.
 >
 
 **Minimal Code:**
@@ -257,22 +277,25 @@ soare "filename.soare"
 #include <stdlib.h>
 #include <SOARE/SOARE.h>
 
+// Module (Predefined functions/keywords/variables)
+//#include "modules/module.h"
+
 int main(void)
 {
-  // Initialize SOARE
-  soare_init();
-
   // Predefined functions in SOARE
   // write, input, system...
-  // See `src/Predefined.c`
-  // predefined_functions();
+  // See `modules/Module.c`
+  //load_module();
 
-  // Execute(filename, code)
-  char *value = Execute("<input>", "return 'Hello World!';");
+  // soare_execute(<filename>, <code>)
+  char *value = soare_execute("<input>", "return 'Hello World!';");
 
   // Print returned value and free it
-  printf("%s", value);
-  free(value);
+  if (value)
+  {
+    printf("%s", value);
+    free(value);
+  }
 
   // Kill SOARE
   soare_kill();
@@ -360,10 +383,10 @@ fn fib(n)
     a = b;
     b = next;
     next = a + b;
-  end;
+  end
 
   return a;
-end;
+end
 
 write("The last number is ", fib(100));
 ```
@@ -391,7 +414,7 @@ while (a < 100)
   a = b;
   b = next;
   next = a + b;
-end;
+end
 ```
 
 In SOARE, like in C, any non-zero integer is true; zero is false. Comparison operators are `<`, `>`, `==`, `<=`, `>=`, `!=`, `~=`.
@@ -406,11 +429,11 @@ let i = 0;
 while (1) ? Infinite loop
   if (i > 10)
     break;
-  end;
+  end
 
   write(i; '\n');
   i = i + 1;
-end;
+end
 ```
 
 **Result :**
@@ -448,12 +471,12 @@ try
     write("Negative\n");
   else
     write("Zero\n");
-  end;
+  end
 
 ? Store the error name in the variable "error"
 iferror as error
   werr("Error: "; error);
-end;
+end
 ```
 
 `iferror` handles errors.
@@ -485,7 +508,7 @@ let size = len(msg); ? Length of the string
 while (index < size)
   write(msg:index; '\n');
   index = index + 1;
-end;
+end
 
 ? Negative to start from the end
 write(msg:(0-1); '\n'); ? Last character: !
@@ -503,20 +526,34 @@ let user = input("Enter your name: ");
 write("Hello "; user; "!");
 ```
 
-### Predefined Functions
+### Predefined
 
-| Function     | Description                                       |
-|--------------|---------------------------------------------------|
-| chr(integer) | Get char from ASCII number                        |
-| eval(code)   | Execute SOARE code and return value               |
-| exit(status) | Quit SOARE                                        |
-| input(...)   | User input, print text                            |
-| ord(char)    | Get ASCII number from char                        |
-| random(seed) | Generate a random number [0; 255] based on a seed |
-| system(...)  | Execute shell command                             |
-| time()       | Show current timestamp                            |
-| werr(...)    | Print error                                       |
-| write(...)   | Print text                                        |
+#### Predefined functions
+
+| Function                  | Description                                       |
+|---------------------------|---------------------------------------------------|
+| eval(code)                | Execute SOARE code and return value               |
+| exit(status)              | Quit SOARE                                        |
+| system(cmd)               | Execute a shell command                           |
+| time()                    | Show current timestamp                            |
+| random(seed)              | Generate a random number [0; 255] based on a seed |
+| def(name; value; mutable) | Create new a variable                             |
+| chr(integer)              | Get char from ASCII number                        |
+| ord(char)                 | Get ASCII number from char                        |
+| input(...)                | User input, print text                            |
+| write(...)                | Print text                                        |
+| werr(...)                 | Print error                                       |
+
+#### Predefined variables
+
+| Variable | Description                   |
+|----------|-------------------------------|
+| OS       | Current Operating System      |
+| true     | Boolean True value (non-zero) |
+| false    | Boolean False value (zero)    |
+| null     | Empty string                  |
+| void     | NULL pointer                  |
+| version  | Current SOARE version         |
 
 ### Practical Examples
 
@@ -547,9 +584,9 @@ while (i < n)
   if (ch == "a" || ch == "e" || ch == "i" || ch == "o" || ch == "u" || ch == "y")
     write("caca");
     vowels = vowels + 1;
-  end;
+  end
   i = i + 1;
-end;
+end
 
 write("Number of vowels: "; vowels; '\n');
 ```
@@ -566,7 +603,7 @@ let i = len(original) - 1;
 while (i >= 0)
   reversed = reversed, original:i;
   i = i - 1;
-end;
+end
 
 write("Original: "; original; '\n');
 write("Reversed: "; reversed; '\n');

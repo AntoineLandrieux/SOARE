@@ -1,5 +1,5 @@
 #ifndef __SOARE_TOKENIZER_H__
-#define __SOARE_TOKENIZER_H__ 0x1
+#define __SOARE_TOKENIZER_H__
 
 /* #pragma once */
 
@@ -17,95 +17,77 @@
  */
 
 /**
- * @brief List the different types of tokens
+ * @enum token_type
+ * @brief Kinds of tokens used by the interpretor
  */
 typedef enum token_type
 {
 
-    TKN_EOF,
-    TKN_NAME,
-    TKN_NUMBER,
-    TKN_STRING,
-    TKN_PARENL,
-    TKN_PARENR,
-    TKN_ASSIGN,
-    TKN_KEYWORD,
-    TKN_OPERATOR,
-    TKN_SEMICOLON
+    TKN_EOF,      /**< End-Of-File marker           */
+    TKN_NAME,     /**< Identifier / name            */
+    TKN_NUMBER,   /**< Numeric literal              */
+    TKN_STRING,   /**< String literal               */
+    TKN_PARENL,   /**< Left parenthesis '('         */
+    TKN_PARENR,   /**< Right parenthesis ')'        */
+    TKN_ASSIGN,   /**< Assignment operator          */
+    TKN_KEYWORD,  /**< Language keyword             */
+    TKN_OPERATOR, /**< Operator symbol (+, -, etc.) */
+    TKN_SEMICOLON /**< Statement terminator ';'     */
 
-} token_type;
+} token_type_t;
 
 /**
- * @brief Structure of a token
+ * @struct tokens_t
+ * @brief Token node used by the parser
  */
-typedef struct Tokens
+typedef struct tokens
 {
 
-    // Value
-    char *value;
-    // Type
-    token_type type;
+    char *value;         /**< Token text                      */
+    token_type_t type;   /**< Token value                     */
+    document_t file;     /**< Source location for diagnostics */
+    struct tokens *next; /**< Next token                      */
 
-    // Document
-    Document file;
-
-    // Next
-    struct Tokens *next;
-
-} Tokens;
+} tokens_t;
 
 /**
- * @brief Return an empty document
+ * @brief Return an empty/default `document_t` value
  *
- * @return Document
+ * @return document_t An empty document descriptor
  */
-Document EmptyDocument(void);
+document_t soare_empty_document(void);
 
 /**
- * @brief Create a new token
+ * @brief Create a new token node
  *
- * @param filename
- * @param value
- * @param type
- * @return Tokens*
+ * @param filename Source filename for the token
+ * @param value Token text
+ * @param type Token type
+ * @return tokens_t* Allocated token node, or NULL on allocation failure
  */
-Tokens *Token(char *__restrict__ filename, char *__restrict__ value, token_type type);
+tokens_t *soare_new_tokens(char *__restrict__ filename, char *__restrict__ value, token_type_t type);
 
 /**
- * @brief Check if a sequence of tokens corresponds with a sequence of token types
+ * @brief Advance to the next token
  *
- * @param tokens
- * @param iteration
- * @param ...
- * @return unsigned char
+ * @param tokens Pointer to the current token pointer
  */
-unsigned char TokensFollowPattern(Tokens *tokens, unsigned int iteration, ...);
+void soare_tokens_next(tokens_t **tokens);
 
 /**
- * @brief Free the memory allocated by the tokens
+ * @brief Free a token stream and all associated memory
  *
- * @param token
+ * @param token Head of the token list to free
  */
-void TokensFree(Tokens *token);
-
-#ifdef __SOARE_DEBUG
+void soare_tokens_free(tokens_t *tokens);
 
 /**
- * @brief Display the tokens
+ * @brief Lexical analysis: transform source text into a token stream
  *
- * @param token
+ * @param filename Logical filename to associate with produced tokens
+ * @param text Source code buffer to tokenize
+ * @return tokens_t* Head of the produced token list
  */
-void TokensLog(Tokens *token);
-
-#endif /* __SOARE_DEBUG */
-
-/**
- * @brief Transform a string into a sequence of tokens
- *
- * @param filename
- * @param text
- * @return Tokens*
- */
-Tokens *Tokenizer(char *__restrict__ filename, char *__restrict__ text);
+tokens_t *soare_tokenizer(char *__restrict__ filename, char *__restrict__ text);
 
 #endif /* __SOARE_TOKENIZER_H__ */

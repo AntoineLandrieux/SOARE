@@ -1,5 +1,5 @@
 #ifndef __SOARE_PLATFORM_H__
-#define __SOARE_PLATFORM_H__ 0x1
+#define __SOARE_PLATFORM_H__
 
 /* #pragma once */
 
@@ -43,7 +43,7 @@
 #define __PLATFORM__ "Unix" // Unix
 
 #else
-#define __PLATFORM__ "Unknown OS" // Other
+#define __PLATFORM__ "Other" // Other
 
 #endif
 

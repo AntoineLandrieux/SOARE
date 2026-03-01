@@ -1,5 +1,5 @@
 #ifndef __SOARE_RUNTIME_H__
-#define __SOARE_RUNTIME_H__ 0x1
+#define __SOARE_RUNTIME_H__
 
 /* #pragma once */
 
@@ -17,32 +17,25 @@
  */
 
 /**
- * @brief Initialize SOARE interpreter
+ * @brief Execute a function represented by an AST node
  *
+ * @param tree AST node representing the function to run
+ * @return char* Allocated result string, or NULL on error
  */
-void soare_init(void);
+char *soare_run_function(ast_t tree);
 
 /**
- * @brief Kill SOARE interpreter
+ * @brief Execute SOARE source code
  *
+ * @param file Logical filename associated
+ * @param rawcode Source code buffer to execute
+ * @return char* Result string
+ */
+char *soare_execute(char *__restrict__ filename, char *__restrict__ rawcode);
+
+/**
+ * @brief Free resources used by the interpreter
  */
 void soare_kill(void);
-
-/**
- * @brief Execute a function
- *
- * @param tree
- * @return char*
- */
-char *RunFunction(AST tree);
-
-/**
- * @brief Execute SOARE code
- *
- * @param file
- * @param rawcode
- * @return char *
- */
-char *Execute(char *__restrict__ file, char *__restrict__ rawcode);
 
 #endif /* __SOARE_RUNTIME_H__ */

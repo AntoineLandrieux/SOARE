@@ -1,5 +1,0 @@
-let false=0;let true=1;let null="";fn bool(value)return(value==0)==0;end;fn find(string;substr)let l_str=len(string);let l_sub=len(substr);let i_str=0
-;let i_sub=0;while(i_str<l_str)if(string:i_str==substr:i_sub)i_sub=i_sub+1;or(i_sub)i_str=i_str-i_sub;i_sub=0;end;if(i_sub==l_sub)return i_str-i_sub+
-1;end;i_str=i_str+1;end;return 0-1;end;fn len(string)let i=0;let t="";while(1)try t=string:i;iferror return i;end;i=i+1;end;end;fn reverse(string)let 
-r="";let n=len(string)-1;while(n>=0)r=r,string:n;n=n-1;end;return r;end;fn sleep(t)let curr=time();let next=curr+t;while(curr<next)curr=time();end;end
-;

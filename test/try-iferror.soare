@@ -15,9 +15,9 @@ fn test_hello_world()
     write('Hello World!\n');
   iferror as err
     werr('Error ! (issue): '; err; '\n');
-  end;
+  end
 
-end;
+end
 
 ? Test 2: raise an exception and catch it
 fn test_raise_exception()
@@ -29,9 +29,9 @@ fn test_raise_exception()
     raise 'problem';
   iferror as err
     werr('Error ! (normal): '; err; '\n');
-  end;
+  end
 
-end;
+end
 
 ? Test 3: division by zero handling
 fn test_divide_by_zero()
@@ -43,9 +43,9 @@ fn test_divide_by_zero()
     write(3/0);
   iferror as err
     werr('Error ! (normal): '; err; '\n');
-  end;
+  end
 
-end;
+end
 
 ? Main entry: run all tests
 fn main()
@@ -59,6 +59,6 @@ fn main()
   write(SEP);
   write("All tests finished\n");
 
-end;
+end
 
 main();

@@ -17,13 +17,9 @@
 
 #include <SOARE/SOARE.h>
 
-/* A clean way to write (*tokens) = (*tokens)->next */
-#define __tokens_next() (*tokens) = (*tokens)->next
-
 ////////////////////////////////////////////////////////////
-static inline void zeros(char *string)
+static inline void remove_useless_zeros(char *string)
 {
-
     /**
      *
      * Remove useless zeros
@@ -41,10 +37,14 @@ static inline void zeros(char *string)
     char *end = string + strlen(string) - 1;
 
     while (end > string && *end == '0')
+    {
         end--;
+    }
 
     if (*end == '.')
+    {
         end--;
+    }
 
     *(end + 1) = 0;
 }
@@ -52,144 +52,167 @@ static inline void zeros(char *string)
 ////////////////////////////////////////////////////////////
 static inline char *__int(int number)
 {
-    // Convert int to string
-    char str[32] = {0};
+    char str[16] = {0};
     sprintf(str, "%d", number);
-
-    // Duplicate string
     return strdup(str);
 }
 
 ////////////////////////////////////////////////////////////
 static inline char *__float(long double number)
 {
-    // Convert long double to string
-    char str[64] = {0};
+    char str[42] = {0};
     sprintf(str, "%Lf", number);
-
-    // Remove useless zeros
-    zeros(str);
-
-    // Duplicate string
+    remove_useless_zeros(str);
     return strdup(str);
 }
 
 ////////////////////////////////////////////////////////////
 static inline char *__boolean(char boolean)
 {
-    // Convert char:1 to string
-    char str[2] = {'0' + (boolean && 1), 0};
-    // Duplicate string
+    char str[2] = {'0' + !!boolean, 0};
     return strdup(str);
 }
 
 ////////////////////////////////////////////////////////////
-static inline char *__at(Document file, char *string, long long index)
+static inline char *__at(document_t file, char *string, long long index)
 {
     // Get char from a string at index
-    // Size of string
     long long size = (long long)strlen(string);
 
-    // Allow negative index
     if (index < 0)
+    {
+        // Allow negative index
         index = size + index;
-    if (index < 0 || index >= size)
-        return LeaveException(IndexOutOfRange, string, file);
+    }
 
-    // Duplicate string
+    if (index < 0 || index >= size)
+    {
+        soare_leave_exception(IndexOutOfRange, string, file);
+        return NULL;
+    }
+
     char str[2] = {string[index], 0};
     return strdup(str);
 }
 
 ////////////////////////////////////////////////////////////
-static inline unsigned char MathPriority(char symbol)
+static inline short math_priority(char symbol)
 {
     // Looks up the mathematical priority of an operator
     if (symbol == ':')
+    {
         return 0;
-    if (strchr("/*%^", symbol))
+    }
+    else if (strchr("/*%^", symbol) != NULL)
+    {
         return 1;
-    if (strchr("+-", symbol))
+    }
+    else if (strchr("+-,", symbol) != NULL)
+    {
         return 2;
+    }
+    // Minimum priority
     return 3;
 }
 
 ////////////////////////////////////////////////////////////
-AST ParseValue(Tokens **tokens)
+static ast_t parse_value(tokens_t **tokens)
 {
-    Node *value = Branch((*tokens)->value, NODE_ROOT, (*tokens)->file);
-
-    if (!value)
+    if (!tokens)
+    {
         return NULL;
+    }
 
-    Tokens *old = *tokens;
+    tokens_t *old = *tokens;
+    node_t *value = soare_new_node(old->value, NODE_ROOT, old->file);
 
-    __tokens_next();
+    if (!old || !value)
+    {
+        return NULL;
+    }
+
+    soare_tokens_next(tokens);
 
     switch (old->type)
     {
     case TKN_STRING:
     case TKN_NUMBER:
-
+    {
         value->type = NODE_VALUE;
         break;
+    }
 
     case TKN_PARENL:
-
+    {
         value->type = NODE_BODY;
 
-        BranchJoin(value, ParseExpression(tokens, 0xF));
+        ast_t expression = soare_parse_expression(tokens, 0xF);
 
-        if ((*tokens)->type != TKN_PARENR)
+        if (!expression)
         {
-            TreeFree(value);
+            soare_tree_free(value);
             return NULL;
         }
 
-        __tokens_next();
+        soare_tree_join(value, expression);
+
+        if (!*tokens || (*tokens)->type != TKN_PARENR)
+        {
+            soare_tree_free(value);
+            return NULL;
+        }
+
+        // consume ')'
+        soare_tokens_next(tokens);
         break;
+    }
 
     case TKN_NAME:
     {
         value->type = NODE_MEMGET;
 
-        if ((*tokens)->type != TKN_PARENL)
+        if (*tokens && (*tokens)->type != TKN_PARENL)
             break;
 
+        // If it's a function call, parse the argument list
         value->type = NODE_CALL;
-        AST expression = NULL;
+        soare_tokens_next(tokens);
 
-        __tokens_next();
-
-        while ((*tokens)->type != TKN_PARENR)
+        while (*tokens && (*tokens)->type != TKN_PARENR)
         {
-            if (!(expression = ParseExpression(tokens, 0xF)))
+            ast_t arg = soare_parse_expression(tokens, 0xF);
+
+            if (!arg)
             {
-                TreeFree(value);
+                soare_tree_free(value);
                 return NULL;
             }
 
-            BranchJoin(value, expression);
+            soare_tree_join(value, arg);
 
-            if ((*tokens)->type != TKN_SEMICOLON)
-                break;
+            if (*tokens && (*tokens)->type == TKN_SEMICOLON)
+            {
+                // skip separator and continue
+                soare_tokens_next(tokens);
+                continue;
+            }
 
-            __tokens_next();
+            break;
         }
 
-        if ((*tokens)->type != TKN_PARENR)
+        if (!*tokens || (*tokens)->type != TKN_PARENR)
         {
-            TreeFree(value);
+            soare_tree_free(value);
             return NULL;
         }
 
-        __tokens_next();
+        soare_tokens_next(tokens);
         break;
     }
 
     default:
 
-        TreeFree(value);
+        soare_tree_free(value);
         return NULL;
     }
 
@@ -197,16 +220,15 @@ AST ParseValue(Tokens **tokens)
 }
 
 ////////////////////////////////////////////////////////////
-AST ParseExpression(Tokens **tokens, unsigned char priority)
+ast_t soare_parse_expression(tokens_t **tokens, short priority)
 {
-
     /**
      *
      * Build a math tree
      *
      * Example:
      *
-     * Tokens: ["4"]->["+"]->["3"]->["*"]->["2.5"]
+     * tokens: ["4"]->["+"]->["3"]->["*"]->["2.5"]
      *
      * Result:
      *
@@ -218,35 +240,38 @@ AST ParseExpression(Tokens **tokens, unsigned char priority)
      *
      */
 
-    Node *x = ParseValue(tokens);
-    Node *y = NULL;
-    Node *symbol = NULL;
+    node_t *x = parse_value(tokens);
+    node_t *y = NULL;
+    node_t *symbol = NULL;
 
     if (!x)
+    {
         return NULL;
+    }
 
     while ((*tokens)->type == TKN_OPERATOR && !soare_errorlevel())
     {
-        unsigned char op = MathPriority(*(*tokens)->value);
+        short op = math_priority(*(*tokens)->value);
 
         if (op >= priority)
+        {
             break;
+        }
 
-        symbol = Branch((*tokens)->value, NODE_OPERATOR, (*tokens)->file);
-
-        __tokens_next();
-        y = ParseExpression(tokens, op);
+        symbol = soare_new_node((*tokens)->value, NODE_OPERATOR, (*tokens)->file);
+        (*tokens) = (*tokens)->next;
+        y = soare_parse_expression(tokens, op);
 
         if (!symbol || !y)
         {
-            TreeFree(x);
-            TreeFree(y);
-            TreeFree(symbol);
+            soare_tree_free(x);
+            soare_tree_free(y);
+            soare_tree_free(symbol);
             return NULL;
         }
 
-        BranchJoin(symbol, x);
-        BranchJoin(symbol, y);
+        soare_tree_join(symbol, x);
+        soare_tree_join(symbol, y);
         x = symbol;
     }
 
@@ -254,42 +279,56 @@ AST ParseExpression(Tokens **tokens, unsigned char priority)
 }
 
 ////////////////////////////////////////////////////////////
-char *Math(AST tree)
+char *soare_math(ast_t tree)
 {
     if (!tree)
         return NULL;
 
     switch (tree->type)
     {
-    case NODE_VALUE:
-
-        return tree->value ? strdup(tree->value) : NULL;
+    case NODE_BODY:
+        return soare_math(tree->child);
 
     case NODE_CALL:
+        return soare_run_function(tree);
 
-        return RunFunction(tree);
-
-    case NODE_BODY:
-
-        return Math(tree->child);
+    case NODE_VALUE:
+    {
+        if (tree->value)
+        {
+            return strdup(tree->value);
+        }
+        return NULL;
+    }
 
     case NODE_MEMGET:
     {
-        MEM get = MemGet(MEMORY, tree->value);
+        soare_variables_t *get = soare_get_variable(tree->value);
 
         if (!get)
-            return LeaveException(UndefinedReference, tree->value, tree->file);
+        {
+            soare_leave_exception(UndefinedReference, tree->value, tree->file);
+            return NULL;
+        }
 
         if (get->body)
-            return LeaveException(VariableDefinedAsFunction, tree->value, tree->file);
+        {
+            soare_leave_exception(VariableDefinedAsFunction, tree->value, tree->file);
+            return NULL;
+        }
 
-        return get->value ? strdup(get->value) : NULL;
+        if (get->value)
+        {
+            return strdup(get->value);
+        }
+
+        return NULL;
     }
 
     case NODE_OPERATOR:
     {
-        char *sx = Math(tree->child);
-        char *sy = Math(tree->child->sibling);
+        char *sx = soare_math(tree->child);
+        char *sy = soare_math(tree->child->sibling);
 
         if (!sx || !sy)
         {
@@ -304,34 +343,36 @@ char *Math(AST tree)
         {
         case ',':
             if (!(result = malloc(strlen(sx) + strlen(sy) + 1)))
-                return __SOARE_OUT_OF_MEMORY();
+            {
+                SOARE_OUT_OF_MEMORY();
+                return NULL;
+            }
 
             strcat(strcpy(result, sx), sy);
-            free(sx);
-            free(sy);
-            return result;
+            break;
 
         case '=':
             result = __boolean(!strcmp(sx, sy));
-            free(sx);
-            free(sy);
-            return result;
+            break;
 
         case '~':
         case '!':
             result = __boolean(strcmp(sx, sy));
-            free(sx);
-            free(sy);
-            return result;
+            break;
 
         case ':':
             result = __at(tree->file, sx, strtoll(sy, &result, 10));
-            free(sx);
-            free(sy);
-            return result;
+            break;
 
         default:
             break;
+        }
+
+        if (result)
+        {
+            free(sx);
+            free(sy);
+            return result;
         }
 
         long double dx = strtold(sx, &result);
@@ -365,27 +406,36 @@ char *Math(AST tree)
         case '*':
             return __float(dx * dy);
 
-        case '/':
-            if (!dy)
-                return LeaveException(DivideByZero, tree->value, tree->file);
-            return __float(dx / dy);
+        case '^':
+            return __int((int)dx ^ (int)dy);
 
         case '%':
             if (!dy)
-                return LeaveException(DivideByZero, tree->value, tree->file);
+            {
+                soare_leave_exception(DivideByZero, tree->value, tree->file);
+                return NULL;
+            }
             return __int((int)dx % (int)dy);
 
-        case '^':
-            return __int((int)dx ^ (int)dy);
+        case '/':
+            if (!dy)
+            {
+                soare_leave_exception(DivideByZero, tree->value, tree->file);
+                return NULL;
+            }
+            return __float(dx / dy);
 
         default:
             break;
         }
+
+        break;
     }
 
     default:
-        return LeaveException(MathError, tree->value, tree->file);
+        break;
     }
 
+    soare_leave_exception(MathError, tree->value, tree->file);
     return NULL;
 }

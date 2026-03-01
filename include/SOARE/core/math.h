@@ -1,5 +1,5 @@
 #ifndef __SOARE_MATH_H__
-#define __SOARE_MATH_H__ 0x1
+#define __SOARE_MATH_H__
 
 /* #pragma once */
 
@@ -17,28 +17,20 @@
  */
 
 /**
- * @brief Return the value as a node
+ * @brief Parse an expression with the given operator precedence priority
  *
- * @param tokens
- * @return AST
+ * @param tokens Pointer to the token stream pointer
+ * @param priority Minimum operator precedence to parse at this level
+ * @return ast_t An AST representing the parsed expression subtree, or NULL on error
  */
-AST ParseValue(Tokens **tokens);
+ast_t soare_parse_expression(tokens_t **tokens, short priority);
 
 /**
- * @brief Build a math tree
+ * @brief Evaluate the given AST containing a mathematical expression
  *
- * @param tokens
- * @param priority
- * @return AST
+ * @param tree AST to evaluate
+ * @return char* Allocated string representing the result, or NULL on error
  */
-AST ParseExpression(Tokens **tokens, unsigned char priority);
-
-/**
- * @brief Evaluates the mathematical expression of a tree
- *
- * @param tree
- * @return char*
- */
-char *Math(AST tree);
+char *soare_math(ast_t tree);
 
 #endif /* __SOARE_MATH_H__ */

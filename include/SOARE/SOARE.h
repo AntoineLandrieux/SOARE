@@ -1,5 +1,5 @@
 #ifndef __SOARE__
-#define __SOARE__ 0x1
+#define __SOARE__
 
 /* #pragma once */
 
@@ -17,19 +17,13 @@
  */
 
 /**
- * SOARE version
+ * @def SOARE_VERSION
+ * @brief SOARE version string
  *
- * R: release
- * A: alpha
- * B: beta
- * S: snapshot
- * T: testing
- *
+ * The string follows the project's internal versioning format
+ * (prefix letter + semantic version)
  */
-#define SOARE_VERSION "Rv1.3.1"
-
-/* SOARE max input */
-#define __SOARE_MAX_INPUT__ 255
+#define SOARE_VERSION "Rv1.4.0"
 
 /* Standard input */
 #define __soare_stdin stdin
@@ -38,10 +32,10 @@
 /* Standard output (error) */
 #define __soare_stderr stderr
 
-/* Output */
+/** @brief Print helper */
 #define soare_write fprintf
-/* Input */
-#define soare_input(__buffer) fgets(__buffer, __SOARE_MAX_INPUT__, __soare_stdin)
+/** @brief Read a line from standard input into `__buffer` */
+#define soare_input(__buffer, __max_count) fgets(__buffer, __max_count, __soare_stdin)
 
 #ifdef __cplusplus
 /**
@@ -54,32 +48,29 @@ namespace SOARE
 #endif /* __cplusplus */
 
         /**
-         * @brief Boolean
-         *
+         * @enum boolean
+         * @brief Simple boolean type
          */
-        typedef enum bBoolean
+        typedef enum boolean
         {
 
-            bFalse,
-            bTrue
+            bFalse, /**< False value (zero)    */
+            bTrue   /**< True value (non-zero) */
 
-        } bBool;
+        } boolean_t;
 
         /**
-         * @brief Structure of a document
+         * @struct document
+         * @brief Source location descriptor used for diagnostics
          */
-        typedef struct Document
+        typedef struct document
         {
 
-            // File
-            char *file;
+            char *filename;         /**< Filename              */
+            unsigned long long ln;  /**< 1-based line number   */
+            unsigned long long col; /**< 1-based column number */
 
-            // Line
-            unsigned long long ln;
-            // Column
-            unsigned long long col;
-
-        } Document;
+        } document_t;
 
 #include "utils/keywords.h"
 #include "utils/platform.h"
@@ -90,10 +81,6 @@ namespace SOARE
 #include "core/memory.h"
 #include "core/math.h"
 #include "core/runtime.h"
-
-        typedef AST soare_arguments_list;
-
-#include "core/custom.h"
 
 #ifdef __cplusplus
     }

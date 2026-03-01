@@ -1,0 +1,54 @@
+
+loadimport "script/std.soare"
+loadimport "script/stdmath.soare"
+
+fn calc()
+
+  write("   ___              _   ___      _            \n");
+  write("  / __\\ __ ___   __| | / __\\__ _| | ___     \n");
+  write(" / / | '_ ` _ \\ / _` |/ /  / _` | |/ __|     \n");
+  write("/ /__| | | | | | (_| / /__| (_| | | (__       \n");
+  write("\\____/_| |_| |_|\\__,_\\____/\\__,_|_|\\___| \n");
+
+  write("~Enter exit to quit \n");
+  write("~Enter $<shell command> to run a shell command \n");
+
+  while (1)
+
+    let expr = input("\n["; OS; "]> ");
+
+    if (expr)
+
+      if (expr == "exit")
+
+        write("\n - Bye ! \n");
+        return;
+      
+      end
+
+      if (expr:0 == "$")
+
+        system(replace("$"; null; expr));
+
+      else
+
+        try
+      
+          eval("write(", expr, ")");
+      
+        iferror as err
+      
+          write("Error: "; err; "\n-> At: << "; expr; " >>");
+      
+        end
+
+      end
+
+    end
+
+  end
+
+end
+
+
+calc();
