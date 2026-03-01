@@ -79,12 +79,12 @@ FOR %%i IN ("%CD%\bin\" "%CD%\include\" "%CD%\doc\" "%CD%\resources\" "%CD%\scri
 COPY "%CD%\LICENSE" "%install_path%\LICENSE"
 COPY "%CD%\README.md" "%install_path%\README.md"
 
-ECHO R | XCOPY "%CD%\bin\" "%install_path%\bin" /S /E
-ECHO R | XCOPY "%CD%\include\" "%install_path%\include" /S /E
-ECHO R | XCOPY "%CD%\doc\" "%install_path%\doc" /S /E
-ECHO R | XCOPY "%CD%\script\" "%install_path%\script" /S /E
-ECHO R | XCOPY "%CD%\resources\" "%install_path%\resources" /S /E
-ECHO R | XCOPY "%CD%\windows\" "%install_path%\windows" /S /E
+ECHO R | XCOPY "%CD%\bin\" "%install_path%\bin" /S /E /I /F
+ECHO R | XCOPY "%CD%\include\" "%install_path%\include" /S /E /I /F
+ECHO R | XCOPY "%CD%\doc\" "%install_path%\doc" /S /E /I /F
+ECHO R | XCOPY "%CD%\script\" "%install_path%\script" /S /E /I /F
+ECHO R | XCOPY "%CD%\resources\" "%install_path%\resources" /S /E /I /F
+ECHO R | XCOPY "%CD%\windows\" "%install_path%\windows" /S /E /I /F
 
 SETX SOARE "%install_path%"
 ECHO Success
